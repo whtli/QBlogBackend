@@ -1,4 +1,4 @@
-## 1.集成mybatis并测试
+## 1.集成mybatis并测试 (在3中更换为mybatis-plus)
 
 + pom.xml
 
@@ -127,4 +127,46 @@
               </plugin>
   ```
 + 测试生成model、dao、映射文件
+
+
+## 3.集成mybatis-plus并测试
+
++ pom.xml
+
+    ```xml
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-freemarker</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <!--mp代码生成器-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-generator</artifactId>
+            <version>3.5.2</version>
+        </dependency>
+    ```
+
+  + application.yml
+
+    ```yaml
+    spring:
+      datasource:
+        url: jdbc:mysql://localhost:3306/nblog?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+        username: root
+        password: root
+        driver-class-name: com.mysql.cj.jdbc.Driver
   
+    mybatis-plus:
+      mapper-locations: classpath*:mapper/*.xml
+      type-aliases-package: cn.li98.blog.dao
+    ```
