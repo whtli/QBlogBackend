@@ -35,7 +35,7 @@
     ```
 
 
-## 2. 使用mybatis-generator
+## 2. 使用mybatis-generator (目前来看并不好用，暂时放弃)
 
 + 添加配置文件
 

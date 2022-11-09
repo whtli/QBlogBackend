@@ -2,11 +2,13 @@ package cn.li98.blog.controllor;
 
 
 import cn.li98.blog.common.Result;
+import cn.li98.blog.model.User;
 import cn.li98.blog.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,7 +24,7 @@ public class TestControllor {
     @GetMapping("/test")
     public Result updateUserName(@RequestParam String name) {
         System.out.println("---");
-        Map<String, String> info = testService.getInfo();
+        List<User> info = testService.getInfo();
         System.out.println(info);
         System.out.println("---");
 

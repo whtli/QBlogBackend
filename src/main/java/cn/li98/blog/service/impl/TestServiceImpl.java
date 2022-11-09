@@ -1,10 +1,13 @@
 package cn.li98.blog.service.impl;
 
 import cn.li98.blog.dao.TestMapper;
+import cn.li98.blog.dao.UserMapper;
+import cn.li98.blog.model.User;
 import cn.li98.blog.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,10 +16,10 @@ import java.util.Map;
 @Service
 public class TestServiceImpl implements TestService {
     @Autowired
-    TestMapper testMapper;
+    UserMapper userMapper;
 
     @Override
-    public Map<String, String> getInfo() {
-        return testMapper.getInfo();
+    public List<User> getInfo() {
+        return userMapper.getInfo();
     }
 }
