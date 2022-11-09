@@ -21,8 +21,11 @@ public class TestControllor {
 
     @GetMapping("/test")
     public Result updateUserName(@RequestParam String name) {
-//        Map<String, String> info = testService.getInfo();
-//        System.out.println(info);
+        System.out.println("---");
+        Map<String, String> info = testService.getInfo();
+        System.out.println(info);
+        System.out.println("---");
+
         System.out.println("success");
         Map<String, String> data = new HashMap<>(1);
         data.put("userBar", "Hello  " + name);

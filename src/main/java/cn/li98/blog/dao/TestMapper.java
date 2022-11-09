@@ -1,4 +1,4 @@
-package cn.li98.blog.mapper;
+package cn.li98.blog.dao;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;

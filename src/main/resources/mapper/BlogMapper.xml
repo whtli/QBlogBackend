@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.li98.blog.dao.BlogMapper">
+  <resultMap id="BaseResultMap" type="cn.li98.blog.model.Blog">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="first_picture" jdbcType="VARCHAR" property="firstPicture" />
+    <result column="is_published" jdbcType="BIT" property="isPublished" />
+    <result column="is_recommend" jdbcType="BIT" property="isRecommend" />
+    <result column="is_appreciation" jdbcType="BIT" property="isAppreciation" />
+    <result column="is_comment_enabled" jdbcType="BIT" property="isCommentEnabled" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="views" jdbcType="INTEGER" property="views" />
+    <result column="words" jdbcType="INTEGER" property="words" />
+    <result column="read_time" jdbcType="INTEGER" property="readTime" />
+    <result column="category_id" jdbcType="BIGINT" property="categoryId" />
+    <result column="is_top" jdbcType="BIT" property="isTop" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="cn.li98.blog.model.BlogWithBLOBs">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, title, first_picture, is_published, is_recommend, is_appreciation, is_comment_enabled, 
+    create_time, update_time, views, words, read_time, category_id, is_top, password, 
+    user_id
+  </sql>
+  <sql id="Blob_Column_List">
+    content, description
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from blog
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="cn.li98.blog.model.BlogWithBLOBs">
+    insert into blog (id, title, first_picture, 
+      is_published, is_recommend, is_appreciation, 
+      is_comment_enabled, create_time, update_time, 
+      views, words, read_time, 
+      category_id, is_top, password, 
+      user_id, content, description
+      )
+    values (#{id,jdbcType=BIGINT}, #{title,jdbcType=VARCHAR}, #{firstPicture,jdbcType=VARCHAR}, 
+      #{isPublished,jdbcType=BIT}, #{isRecommend,jdbcType=BIT}, #{isAppreciation,jdbcType=BIT}, 
+      #{isCommentEnabled,jdbcType=BIT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{views,jdbcType=INTEGER}, #{words,jdbcType=INTEGER}, #{readTime,jdbcType=INTEGER}, 
+      #{categoryId,jdbcType=BIGINT}, #{isTop,jdbcType=BIT}, #{password,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=BIGINT}, #{content,jdbcType=LONGVARCHAR}, #{description,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="cn.li98.blog.model.BlogWithBLOBs">
+    insert into blog
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="firstPicture != null">
+        first_picture,
+      </if>
+      <if test="isPublished != null">
+        is_published,
+      </if>
+      <if test="isRecommend != null">
+        is_recommend,
+      </if>
+      <if test="isAppreciation != null">
+        is_appreciation,
+      </if>
+      <if test="isCommentEnabled != null">
+        is_comment_enabled,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="views != null">
+        views,
+      </if>
+      <if test="words != null">
+        words,
+      </if>
+      <if test="readTime != null">
+        read_time,
+      </if>
+      <if test="categoryId != null">
+        category_id,
+      </if>
+      <if test="isTop != null">
+        is_top,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="firstPicture != null">
+        #{firstPicture,jdbcType=VARCHAR},
+      </if>
+      <if test="isPublished != null">
+        #{isPublished,jdbcType=BIT},
+      </if>
+      <if test="isRecommend != null">
+        #{isRecommend,jdbcType=BIT},
+      </if>
+      <if test="isAppreciation != null">
+        #{isAppreciation,jdbcType=BIT},
+      </if>
+      <if test="isCommentEnabled != null">
+        #{isCommentEnabled,jdbcType=BIT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="views != null">
+        #{views,jdbcType=INTEGER},
+      </if>
+      <if test="words != null">
+        #{words,jdbcType=INTEGER},
+      </if>
+      <if test="readTime != null">
+        #{readTime,jdbcType=INTEGER},
+      </if>
+      <if test="categoryId != null">
+        #{categoryId,jdbcType=BIGINT},
+      </if>
+      <if test="isTop != null">
+        #{isTop,jdbcType=BIT},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.li98.blog.model.BlogWithBLOBs">
+    update blog
+    <set>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="firstPicture != null">
+        first_picture = #{firstPicture,jdbcType=VARCHAR},
+      </if>
+      <if test="isPublished != null">
+        is_published = #{isPublished,jdbcType=BIT},
+      </if>
+      <if test="isRecommend != null">
+        is_recommend = #{isRecommend,jdbcType=BIT},
+      </if>
+      <if test="isAppreciation != null">
+        is_appreciation = #{isAppreciation,jdbcType=BIT},
+      </if>
+      <if test="isCommentEnabled != null">
+        is_comment_enabled = #{isCommentEnabled,jdbcType=BIT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="views != null">
+        views = #{views,jdbcType=INTEGER},
+      </if>
+      <if test="words != null">
+        words = #{words,jdbcType=INTEGER},
+      </if>
+      <if test="readTime != null">
+        read_time = #{readTime,jdbcType=INTEGER},
+      </if>
+      <if test="categoryId != null">
+        category_id = #{categoryId,jdbcType=BIGINT},
+      </if>
+      <if test="isTop != null">
+        is_top = #{isTop,jdbcType=BIT},
+      </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="cn.li98.blog.model.BlogWithBLOBs">
+    update blog
+    set title = #{title,jdbcType=VARCHAR},
+      first_picture = #{firstPicture,jdbcType=VARCHAR},
+      is_published = #{isPublished,jdbcType=BIT},
+      is_recommend = #{isRecommend,jdbcType=BIT},
+      is_appreciation = #{isAppreciation,jdbcType=BIT},
+      is_comment_enabled = #{isCommentEnabled,jdbcType=BIT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      views = #{views,jdbcType=INTEGER},
+      words = #{words,jdbcType=INTEGER},
+      read_time = #{readTime,jdbcType=INTEGER},
+      category_id = #{categoryId,jdbcType=BIGINT},
+      is_top = #{isTop,jdbcType=BIT},
+      password = #{password,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=BIGINT},
+      content = #{content,jdbcType=LONGVARCHAR},
+      description = #{description,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.li98.blog.model.Blog">
+    update blog
+    set title = #{title,jdbcType=VARCHAR},
+      first_picture = #{firstPicture,jdbcType=VARCHAR},
+      is_published = #{isPublished,jdbcType=BIT},
+      is_recommend = #{isRecommend,jdbcType=BIT},
+      is_appreciation = #{isAppreciation,jdbcType=BIT},
+      is_comment_enabled = #{isCommentEnabled,jdbcType=BIT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      views = #{views,jdbcType=INTEGER},
+      words = #{words,jdbcType=INTEGER},
+      read_time = #{readTime,jdbcType=INTEGER},
+      category_id = #{categoryId,jdbcType=BIGINT},
+      is_top = #{isTop,jdbcType=BIT},
+      password = #{password,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
