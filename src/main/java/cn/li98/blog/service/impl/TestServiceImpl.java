@@ -1,7 +1,6 @@
-package com.demo.service.impl;
+package cn.li98.blog.service.impl;
 
-import com.demo.mapper.TestMapper;
-import com.demo.service.TestService;
+import cn.li98.blog.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,7 @@
-package com.demo.mapper;
+package cn.li98.blog.mapper;
 
-import org.springframework.stereotype.Repository;
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Repository;
 
 import java.util.Map;
 

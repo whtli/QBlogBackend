@@ -1,9 +1,8 @@
-package com.demo.controllor;
+package cn.li98.blog.controllor;
 
 
-import com.demo.common.Result;
-import com.demo.service.TestService;
-import org.bouncycastle.util.test.Test;
+import cn.li98.blog.common.Result;
+import cn.li98.blog.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,14 +12,14 @@ import java.util.Map;
 /**
  * @author : whtli
  */
-@CrossOrigin
+//@CrossOrigin
 @RestController
-//@RequestMapping("/test")
+@RequestMapping("/admin")
 public class TestControllor {
     @Autowired
     TestService testService;
 
-    @GetMapping("/add")
+    @GetMapping("/test")
     public Result updateUserName(@RequestParam String name) {
 //        Map<String, String> info = testService.getInfo();
 //        System.out.println(info);
