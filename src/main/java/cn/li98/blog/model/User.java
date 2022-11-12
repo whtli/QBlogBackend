@@ -1,15 +1,30 @@
 package cn.li98.blog.model;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
-@Getter
-@Setter
+
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+
+@Data
+@Accessors(chain = true)
+@EqualsAndHashCode(callSuper = false)
+@TableName("user")
 public class User implements Serializable {
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    @NotBlank(message = "昵称不能为空")
     private String username;
 
     private String password;
@@ -17,7 +32,8 @@ public class User implements Serializable {
     private String nickname;
 
     private String avatar;
-
+    @NotBlank(message = "邮箱不能为空")
+    @Email(message = "邮箱格式不正确")
     private String email;
 
     private Date createTime;
@@ -25,6 +41,8 @@ public class User implements Serializable {
     private Date updateTime;
 
     private String role;
+
+    private Integer status;
 
     private static final long serialVersionUID = 1L;
 
@@ -96,6 +114,14 @@ public class User implements Serializable {
         return role;
     }
 
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
     public void setRole(String role) {
         this.role = role == null ? null : role.trim();
     }
@@ -113,14 +139,15 @@ public class User implements Serializable {
         }
         User other = (User) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getUsername() == null ? other.getUsername() == null : this.getUsername().equals(other.getUsername()))
-            && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()))
-            && (this.getNickname() == null ? other.getNickname() == null : this.getNickname().equals(other.getNickname()))
-            && (this.getAvatar() == null ? other.getAvatar() == null : this.getAvatar().equals(other.getAvatar()))
-            && (this.getEmail() == null ? other.getEmail() == null : this.getEmail().equals(other.getEmail()))
-            && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
-            && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
-            && (this.getRole() == null ? other.getRole() == null : this.getRole().equals(other.getRole()));
+                && (this.getUsername() == null ? other.getUsername() == null : this.getUsername().equals(other.getUsername()))
+                && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()))
+                && (this.getNickname() == null ? other.getNickname() == null : this.getNickname().equals(other.getNickname()))
+                && (this.getAvatar() == null ? other.getAvatar() == null : this.getAvatar().equals(other.getAvatar()))
+                && (this.getEmail() == null ? other.getEmail() == null : this.getEmail().equals(other.getEmail()))
+                && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
+                && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
+                && (this.getRole() == null ? other.getRole() == null : this.getRole().equals(other.getRole()))
+                && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()));
     }
 
     @Override
@@ -136,6 +163,7 @@ public class User implements Serializable {
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
         result = prime * result + ((getRole() == null) ? 0 : getRole().hashCode());
+        result = prime * result + ((getStatus() == null) ? 0 : getStatus().hashCode());
         return result;
     }
 
@@ -154,6 +182,7 @@ public class User implements Serializable {
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append(", role=").append(role);
+        sb.append(", status=").append(status);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

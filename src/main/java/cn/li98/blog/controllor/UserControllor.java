@@ -3,7 +3,7 @@ package cn.li98.blog.controllor;
 
 import cn.li98.blog.common.Result;
 import cn.li98.blog.model.User;
-import cn.li98.blog.service.TestService;
+import cn.li98.blog.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,20 +17,21 @@ import java.util.Map;
 //@CrossOrigin
 @RestController
 @RequestMapping("/admin")
-public class TestControllor {
+public class UserControllor {
     @Autowired
-    TestService testService;
+    UserService userService;
 
     @GetMapping("/test")
     public Result updateUserName(@RequestParam String name) {
+        // DTO是实体类时，可以使用@Validated来校验
         System.out.println("---");
-        List<User> info = testService.getInfo();
-        System.out.println(info);
+        User user = userService.getUserById(1L);
+        System.out.println(user);
         System.out.println("---");
 
         System.out.println("success");
         Map<String, String> data = new HashMap<>(1);
         data.put("userBar", "Hello  " + name);
-        return Result.ok("success!", data);
+        return Result.succ(20000, "success!", data);
     }
 }

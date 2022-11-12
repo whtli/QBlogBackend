@@ -4,50 +4,44 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
+
 /**
  * @author : whtli
  */
 @Getter
 @Setter
 @ToString
-public class Result {
+public class Result implements Serializable {
     private Integer code;
-    private String msg;
+    private String message;
     private Object data;
 
-    private Result(Integer code, String msg) {
-        this.code = code;
-        this.msg = msg;
-        this.data = null;
+    public static Result succ(Object data) {
+        return succ(20000, "操作成功", data);
     }
 
-    private Result(Integer code, String msg, Object data) {
-        this.code = code;
-        this.msg = msg;
-        this.data = data;
+    public static Result succ(int code, String message, Object data) {
+        Result r = new Result();
+        r.setCode(code);
+        r.setMessage(message);
+        r.setData(data);
+        return r;
     }
 
-    public static Result ok(String msg, Object data) {
-        return new Result(20000, msg, data);
+    public static Result fail(String message) {
+        return fail(40000, message, null);
     }
 
-    public static Result ok(String msg) {
-        return new Result(20000, msg);
+    public static Result fail(String message, Object data) {
+        return fail(40000, message, data);
     }
 
-    public static Result error(String msg) {
-        return new Result(50000, msg);
-    }
-
-    public static Result error() {
-        return new Result(50000, "异常错误");
-    }
-
-    public static Result create(Integer code, String msg, Object data) {
-        return new Result(code, msg, data);
-    }
-
-    public static Result create(Integer code, String msg) {
-        return new Result(code, msg);
+    public static Result fail(int code, String message, Object data) {
+        Result r = new Result();
+        r.setCode(code);
+        r.setMessage(message);
+        r.setData(data);
+        return r;
     }
 }
