@@ -6,7 +6,6 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
-import com.qiniu.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,9 +18,8 @@ import java.util.*;
 /**
  * @AUTHOR: whtli
  * @DATE: 2022/11/15
- * @DESCRIPTION:
+ * @DESCRIPTION: 七牛云工具类，AK等配置内容通过@Value()从application.yml中获取
  */
-
 @Slf4j
 @Component
 public class QiniuUtils {
@@ -60,6 +58,7 @@ public class QiniuUtils {
 
     /**
      * 上传图片到七牛云
+     *
      * @param multipartFile
      * @return Map<String, String>
      */
@@ -105,6 +104,7 @@ public class QiniuUtils {
 
     /**
      * 删除七牛云服务器中的图片
+     *
      * @param url
      * @return true:删除成功; false:删除失败
      */
@@ -127,5 +127,4 @@ public class QiniuUtils {
         }
         return false;
     }
-
 }
