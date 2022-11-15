@@ -45,7 +45,7 @@ public class AccountRealm extends AuthorizingRealm {
         if (user == null){
             throw new UnknownAccountException("账户不存在");
         }
-        if (user.getRole().equals("LOCK")){
+        if (("LOCK").equals(user.getRole())){
             throw new LockedAccountException("账户已锁定");
         }
 

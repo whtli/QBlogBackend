@@ -12,9 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author : whtli
+ * @AUTHOR: whtli
+ * @DATE: 2022/11/09
+ * @DESCRIPTION: UserControllor
  */
-//@CrossOrigin
 @RestController
 @RequestMapping("/admin")
 public class UserControllor {
