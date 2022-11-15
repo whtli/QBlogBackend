@@ -16,5 +16,15 @@ import java.util.List;
  */
 @Service
 public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements BlogService {
+    @Autowired
+    BlogMapper blogMapper;
+    @Override
+    public void createBlog(Blog blog) {
+        blogMapper.createBlog(blog);
+    }
 
+    @Override
+    public void updateBlog(Blog blog) {
+        blogMapper.updateBlog(blog);
+    }
 }

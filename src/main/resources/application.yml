@@ -8,6 +8,13 @@ spring:
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+  freemarker:
+    suffix: .html
+    cache: false
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/*.xml
@@ -32,3 +39,9 @@ logging:
     cn.li98.blog: debug
   file:
     name: blog-log/log-dev
+
+qiniu:
+  accessKey: HFc4f-7Q0Ct48SRdGBGIM5TJ7Ij1NEjSwgyIqMWf
+  accessSecretKey: FykyjvQC0mronnpBhaymnK3wjDSM3_a8fvrPRZHN
+  bucketName: cn-blog-li98
+  domainName: http://rldb7nvd2.hb-bkt.clouddn.com/

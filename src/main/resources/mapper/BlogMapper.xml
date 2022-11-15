@@ -213,8 +213,19 @@
       user_id = #{userId,jdbcType=BIGINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <select id="selectAll" resultMap="BaseResultMap">
-    select * from blog
-  </select>
+
+  <insert id="createBlog" parameterType="cn.li98.blog.model.Blog" useGeneratedKeys="true" keyProperty="id">
+    insert into blog (title, first_picture, description, content, is_published, is_comment_enabled,
+                      is_top, create_time, update_time, views, words, read_time, category_id, user_id, password)
+    values (#{title}, #{firstPicture}, #{content}, #{description}, #{isPublished}, #{isCommentEnabled},
+            #{isTop}, #{createTime}, #{updateTime}, #{views}, #{words}, #{readTime}, #{categoryId}, #{userId}, #{password})
+  </insert>
+  <update id="updateBlog">
+    update blog set title=#{title}, first_picture=#{firstPicture}, content=#{content}, description=#{description},
+                    is_published=#{isPublished}, is_comment_enabled=#{isCommentEnabled},
+                    is_top=#{isTop}, update_time=#{updateTime}, views=#{views},
+                    words=#{words}, read_time=#{readTime}, category_id=#{categoryId}, password=#{password}
+    where id=#{id}
+  </update>
 
 </mapper>

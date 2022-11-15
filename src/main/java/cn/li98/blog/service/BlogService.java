@@ -12,4 +12,17 @@ import java.util.List;
  */
 public interface BlogService extends IService<Blog> {
 
+    /**
+     * 新发布博客
+     *
+     * @param blog
+     */
+    void createBlog(Blog blog);
+
+    /**
+     * 更新已有博客
+     *
+     * @param blog
+     */
+    void updateBlog(Blog blog);
 }
