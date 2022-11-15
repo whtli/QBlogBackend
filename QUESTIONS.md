@@ -172,6 +172,8 @@
     ```
     
 ## 4.整合七牛云
++ [参考资料1](https://developer.qiniu.com/kodo/1239/java)
++ [参考资料2](https://blog.csdn.net/qq_42542348/article/details/126338528)
 + pom.xml
   ```xml
         <!--七牛云-->
