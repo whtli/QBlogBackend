@@ -1,7 +1,6 @@
 ## 1.集成mybatis并测试 (在3中更换为mybatis-plus)
 
-+ pom.xml
-
++ [pom.xml](pom.xml)
     ```xml
             <dependency>
                 <groupId>org.mybatis.spring.boot</groupId>
@@ -16,8 +15,7 @@
             </dependency>
     ```
 
-+ application.yml
-
++ [application.yml](./src/main/resources/application.yml)
   ```yaml
   spring:
     datasource:
@@ -26,8 +24,7 @@
       password: xxxx
   ```
 
-+ 测试运行报错Invalid bound statement (not found): cn.xxx.dao.TestMapper ……， 需要在yml文件里添加mybatis配置
-
++ 测试运行报错Invalid bound statement (not found): cn.xxx.dao.TestMapper ……， 需要在[application.yml](./src/main/resources/application.yml)文件里添加mybatis配置
     ```yaml
     mybatis:
       mapper-locations: classpath*:mapper/*.xml
@@ -102,7 +99,7 @@
   
   ```
 
-+ 修改pom文件，在plugins中添加新的plugin
++ 修改[pom.xml](pom.xml)文件，在plugins中添加新的plugin
 
   ```xml
   <plugin>
@@ -131,8 +128,7 @@
 
 ## 3.集成mybatis-plus并测试
 
-+ pom.xml
-
++ [pom.xml](pom.xml)
     ```xml
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -156,25 +152,26 @@
         </dependency>
     ```
 
-  + application.yml
-
-    ```yaml
-    spring:
-      datasource:
-        url: jdbc:mysql://localhost:3306/nblog?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
-        username: root
-        password: root
-        driver-class-name: com.mysql.cj.jdbc.Driver
++ [application.yml](./src/main/resources/application.yml)
+  ```yaml
+  spring:
+    datasource:
+      url: jdbc:mysql://localhost:3306/nblog?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+      username: root
+      password: root
+      driver-class-name: com.mysql.cj.jdbc.Driver
   
-    mybatis-plus:
-      mapper-locations: classpath*:mapper/*.xml
-      type-aliases-package: cn.li98.blog.dao
-    ```
+  mybatis-plus:
+    mapper-locations: classpath*:mapper/*.xml
+    type-aliases-package: cn.li98.blog.dao
+  ```
     
 ## 4.整合七牛云
 + [参考资料1](https://developer.qiniu.com/kodo/1239/java)
+
 + [参考资料2](https://blog.csdn.net/qq_42542348/article/details/126338528)
-+ pom.xml
+
++ [pom.xml](pom.xml)
   ```xml
         <!--七牛云-->
         <dependency>
@@ -183,7 +180,8 @@
             <version>[7.7.0, 7.10.99]</version>
         </dependency>
   ```
-+ application.yml
+
++ [application.yml](./src/main/resources/application.yml)
   ```yaml
   qiniu:
     # AK
@@ -195,63 +193,82 @@
     # 外链域名/路径
     domainName: 
   ```
-+ BlogControllor
-  ```java
-  package cn.li98.blog.controllor.admin;
   
-  import cn.li98.blog.common.Result;
-  import cn.li98.blog.model.Blog;
-  import cn.li98.blog.service.BlogService;
-  import cn.li98.blog.utils.QiniuUtils;
-  import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-  import lombok.extern.slf4j.Slf4j;
-  import org.springframework.beans.factory.annotation.Autowired;
-  import org.springframework.web.bind.annotation.*;
-  import org.springframework.web.multipart.MultipartFile;
++ [BlogControllor](./src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)
+    ```java
+    import cn.hutool.core.lang.Assert;
+    import cn.li98.blog.common.Result;
+    import cn.li98.blog.model.Blog;
+    import cn.li98.blog.service.BlogService;
+    import cn.li98.blog.utils.QiniuUtils;
+    import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+    import com.baomidou.mybatisplus.core.metadata.IPage;
+    import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+    import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+    import lombok.extern.slf4j.Slf4j;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.web.bind.annotation.*;
+    import org.springframework.web.multipart.MultipartFile;
+    
+    import java.util.*;
+    
+    /**
+     * @AUTHOR: whtli
+     * @DATE: 2022/11/10
+     * @DESCRIPTION:
+     */
+    @Slf4j
+    @RestController
+    @RequestMapping("/admin/blog")
+    public class BlogControllor {
+        @Autowired
+        BlogService blogService;
+    
+        @Autowired
+        QiniuUtils qiniuUtils;
+    
+        /**
+         * 向七牛云服务器中上传一张图片
+         *
+         * @param multipartFile
+         * @return 上传成功后返回的图片地址作为data
+         */
+        @PostMapping("/addImage")
+        public Result addImage(@RequestParam(value = "image") MultipartFile multipartFile) {
+            if (multipartFile.isEmpty()) {
+                log.error("未选择图片");
+                return Result.fail("请选择图片");
+            }
+            log.info("准备上传到七牛云");
+            Map<String, String> uploadImagesUrl = qiniuUtils.uploadImage(multipartFile);
+            log.info("成功返回图像地址 : " + uploadImagesUrl.get("imageUrl"));
+            return Result.succ(20000, "上传成功", uploadImagesUrl);
+        }
+    
+        /**
+         * 删除七牛云中的指定图片
+         *
+         * @param url
+         * @return 图片名（带路径）作为data
+         */
+        @PostMapping("/deleteImg")
+        public Result deleteImg(@RequestHeader("Img-Delete") String url) {
+            if (url.isEmpty()) {
+                return Result.fail("无此图片");
+            }
+            //删除云服务器图片
+            boolean flag = qiniuUtils.delete(url);
+            String filename = url.split("com/")[1];
+            if (flag) {
+                log.info("图片删除成功: " + filename);
+                return Result.succ(20000, "图片删除成功", filename);
+            }
+            log.error("图片删除失败 : " + filename);
+            return Result.fail("图片删除失败", filename);
+        }
+    }
+    ```
   
-  import java.util.*;
-  
-  @Slf4j
-  @RestController
-  @RequestMapping("/admin/blog")
-  public class BlogControllor {
-      private static final String CREATE = "create";
-      private static final String UPDATE = "update";
-      @Autowired
-      BlogService blogService;
-  
-      @Autowired
-      QiniuUtils qiniuUtils;
-  
-      @PostMapping("/addImage")
-      public Result addImage(@RequestParam(value = "image") MultipartFile multipartFile) {
-          if (multipartFile.isEmpty()) {
-              log.error("未选择图片");
-              return Result.fail("请选择图片");
-          }
-          log.info("准备上传到七牛云");
-          Map<String, String> uploadImagesUrl = qiniuUtils.uploadImage(multipartFile);
-          log.info("成功返回图像地址 : " + uploadImagesUrl.get("imageUrl"));
-          return Result.succ(20000, "上传成功", uploadImagesUrl);
-      }
-  
-      @PostMapping("/deleteImg")
-      public Result deleteImg(@RequestHeader("Img-Delete") String url) {
-          if (url.isEmpty()) {
-              return Result.fail("无此图片");
-          }
-          //删除云服务器文件
-          boolean flag = qiniuUtils.delete(url);
-          String filename = url.split("com/")[1];
-          if (flag) {
-              log.info("图片删除成功: " + filename);
-              return Result.succ(20000, "图片删除成功", filename);
-          }
-          log.error("图片删除失败 : " + filename);
-          return Result.fail("图片删除失败", filename);
-      }
-  }
-  ```
 + [QiniuUtils.java](./src/main/java/cn/li98/blog/utils/QiniuUtils.java)
   ```java
   import com.qiniu.common.QiniuException;
@@ -380,6 +397,259 @@
               log.error(e.response.toString());
           }
           return false;
+      }
+  }
+  ```
+
+## 5. 实现增删改查功能
+### 新增、修改
++ 因为功能类似，只有个别的字段需要做区分设置，所以将增、改功能整合到同一个controllor中，然后根据id的有无来区分类型，并在service、impl等后续过程中进行不同的操作
++ [BlogControllor](./src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)
+  ```java
+  @RequestMapping("/admin/blog")
+  public class BlogControllor {
+      @Autowired
+      BlogService blogService;
+  
+      /**
+       * 创建、修改博客
+       *
+       * @param blog
+       * @return 成功则"发布成功"作为data
+       */
+      @PostMapping("/submitBlog")
+      public Result submitBlog(@RequestBody Blog blog) {
+          // 验证字段
+          if (StringUtils.isEmpty(blog.getTitle()) || StringUtils.isEmpty(blog.getDescription()) || StringUtils.isEmpty(blog.getContent()) || blog.getWords() == null || blog.getWords() < 0) {
+              return Result.fail("参数有误");
+          }
+          int flag = 0;
+          try {
+              if (blog.getId() == null) {
+                  flag = blogService.createBlog(blog);
+              } else {
+                  flag = blogService.updateBlog(blog);
+              }
+          } catch (Exception e) {
+              log.error(e.toString());
+          }
+          if (flag == 1) {
+              return Result.succ("发布成功");
+          }
+          return Result.fail("失败");
+      }
+      
+      /**
+       * 修改操作对应的根据指定id查询博客的接口
+       * 可以根据指定的唯一id查询对应的博客
+       *
+       * @param id
+       * @return 成功则Blog作为data
+       */
+      @GetMapping("/getBlogById")
+      public Result getBlogById(@RequestParam Long id) {
+          Blog blog = blogService.getById(id);
+          Assert.notNull(blog, "该博客不存在");
+          return Result.succ(20000, "查询成功", blog);
+      }
+  }
+  ```
+
++ [BlogService](./src/main/java/cn/li98/blog/service/BlogService.java)
+  ```java
+  public interface BlogService extends IService<Blog> {
+  
+      /**
+       * 新发布博客
+       *
+       * @param blog
+       */
+      int createBlog(Blog blog);
+  
+      /**
+       * 更新已有博客
+       *
+       * @param blog
+       */
+      int updateBlog(Blog blog);
+  }
+  ```
+
++ [BlogServiceImpl](./src/main/java/cn/li98/blog/service/impl/BlogServiceImpl.java)
+  ```java
+  @Service
+  public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements BlogService {
+      @Autowired
+      BlogMapper blogMapper;
+  
+      /**
+       * 为新增或修改的博客设置参数
+       * 这些常规参数在新增和修改过程中具备相同的设置规则
+       * 包括：类别id、阅读时长、阅读量
+       *
+       * @param blog
+       * @return Blog
+       */
+      private Blog setItemsOfBlog(Blog blog) {
+          if (blog.getCategoryId() == null) {
+              blog.setCategoryId(1L);
+          }
+          // TODO: 分类、标签等功能判断新增等功能
+          if (blog.getReadTime() == null || blog.getReadTime() <= 0) {
+              // 粗略计算阅读时长
+              blog.setReadTime((int) Math.round(blog.getWords() / 200.0));
+          }
+          if (blog.getViews() == null || blog.getViews() < 0) {
+              blog.setViews(0);
+          }
+          return blog;
+      }
+  
+      /**
+       * 创建博客
+       * 需要常规地设置类别id、阅读时长、阅读量参数
+       * 需要单独地设置创建时间、更新时间（等于创建）、创建用户（默认为1唯一的管理员）
+       *
+       * @param blog
+       * @return 创建成功返回1，失败返回0
+       */
+      @Override
+      public int createBlog(Blog blog) {
+          Blog newBlog = setItemsOfBlog(blog);
+          Date date = new Date();
+          newBlog.setCreateTime(date);
+          newBlog.setUpdateTime(date);
+          newBlog.setUserId(1L);
+          return blogMapper.createBlog(newBlog);
+      }
+  
+      /**
+       * 更新博客
+       * 需要常规地设置类别id、阅读时长、阅读量参数
+       * 需要单独地设置更新时间（当前时间）
+       *
+       * @param blog
+       * @return 更新成功返回1，失败返回0
+       */
+      @Override
+      public int updateBlog(Blog blog) {
+          Blog newBlog = setItemsOfBlog(blog);
+          Date date = new Date();
+          newBlog.setUpdateTime(date);
+          return blogMapper.updateBlog(blog);
+      }
+  }
+  ```
+
++ [BlogMapper.xml](./src/main/resources/mapper/BlogMapper.xml)
+  ```xml
+  <!--  新增博客-->
+  <insert id="createBlog" parameterType="cn.li98.blog.model.Blog" useGeneratedKeys="true" keyProperty="id">
+    insert into blog (title, first_picture, description, content, is_published, is_comment_enabled,
+    is_top, create_time, update_time, views, words, read_time, category_id, user_id, password)
+    values (#{title}, #{firstPicture}, #{description}, #{content},#{isPublished}, #{isCommentEnabled},
+    #{isTop}, #{createTime}, #{updateTime}, #{views}, #{words}, #{readTime}, #{categoryId}, #{userId}, #{password})
+  </insert>
+  <!--  更新博客-->
+  <update id="updateBlog">
+  update blog set title=#{title}, first_picture=#{firstPicture}, content=#{content}, description=#{description},
+  is_published=#{isPublished}, is_comment_enabled=#{isCommentEnabled},
+  is_top=#{isTop}, update_time=#{updateTime}, views=#{views},
+  words=#{words}, read_time=#{readTime}, category_id=#{categoryId}, password=#{password}
+  where id=#{id}
+  </update>
+  ```
+### 删（逻辑删除）
++ 在blog表中新增逻辑删除字段`is_deleted` 
++ 在[Blog](./src/main/java/cn/li98/blog/model/Blog.java)实体类中对应的新增逻辑删除字段 `isDeleted`，并为其添加@TableLogic注解
+    ```java
+        /**
+         * 逻辑删除
+         */
+        @TableLogic
+        private Long isDeleted;
+    ```
+
++ [BlogControllor](./src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)
+  ```java
+  @Slf4j
+  @RestController
+  @RequestMapping("/admin/blog")
+  public class BlogControllor {
+      @Autowired
+      BlogService blogService;
+  
+      /**
+       * 删除博客，逻辑删除，对应字段is_deleted
+       * 删除操作变为修改is_deleted字段的操作
+       * 1为逻辑删除，0（数据库字段默认值）为未删除
+       *
+       * @param id
+       * @return 被逻辑删除的博客id作为data
+       */
+      @DeleteMapping("/deleteBlogById")
+      public Result deleteBlogById(@RequestParam Long id) {
+          System.out.println("deleteBlogById: " + id);
+          boolean delete = blogService.removeById(id);
+          System.out.println("delete: " + delete);
+          if (delete) {
+              return Result.succ(20000, "博客删除成功", id);
+          } else {
+              return Result.fail("博客删除失败", id);
+          }
+      }
+  }
+  ```
+
+### 查询（多参数查询+分页查询）
++ [BlogControllor](./src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)
+  ```java
+  @Slf4j
+  @RestController
+  @RequestMapping("/admin/blog")
+  public class BlogControllor {
+      @Autowired
+      BlogService blogService;
+      
+      /**
+       * 获取博客列表
+       * 可以实现无参数查询和多参数查询
+       * 可以实现分页查询
+       * 将分页列表和总记录数作为键值对存储到Map中
+       * 分页列表用于前端的当前页展示
+       * 总记录数用于前端展示博客总数，这个数值是当前数据库中未被删除的博客总数，是所有分页中的博客个数的和
+       *
+       * @param title
+       * @param categoryId
+       * @param pageNum
+       * @param pageSize
+       * @return 成功则Map作为data
+       */
+      @GetMapping("/getBlogs")
+      public Result getBlogs(@RequestParam(value = "title", defaultValue = "") String title,
+                             @RequestParam(value = "categoryId", defaultValue = "") Long categoryId,
+                             @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                             @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+  
+          QueryWrapper<Blog> queryWrapper = new QueryWrapper<>();
+          // 将查询参数以键值对的形式存放到QueryWrapper中
+          if (!StringUtils.isEmpty(title) && !StringUtils.isBlank(title)) {
+              queryWrapper.like("title", title);
+          }
+          if (categoryId != null) {
+              queryWrapper.eq("category_id", categoryId);
+          }
+          // 新建一个分页规则，pageNum代表当前页码，pageSize代表每页数量
+          Page page = new Page(pageNum, pageSize);
+          // 借助Page实现分页查询，借助QueryWrapper实现多参数查询
+          IPage pageData = blogService.page(page, queryWrapper);
+          if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
+              return Result.fail("查询失败，未查找到相应博客");
+          }
+          Map<String, Object> data = new HashMap<String, Object>();
+          data.put("pageData", pageData);
+          data.put("total", pageData.getTotal());
+          return Result.succ(20000, "查询成功", data);
       }
   }
   ```
