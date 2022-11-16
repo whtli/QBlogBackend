@@ -17,12 +17,12 @@ public interface BlogService extends IService<Blog> {
      *
      * @param blog
      */
-    void createBlog(Blog blog);
+    int createBlog(Blog blog);
 
     /**
      * 更新已有博客
      *
      * @param blog
      */
-    void updateBlog(Blog blog);
+    int updateBlog(Blog blog);
 }

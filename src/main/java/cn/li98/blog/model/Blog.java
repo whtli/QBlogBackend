@@ -5,6 +5,7 @@ import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -12,7 +13,8 @@ import javax.validation.constraints.NotBlank;
 
 /**
  * blog
- * @author 
+ *
+ * @author
  */
 @Data
 @TableName("blog")
@@ -96,6 +98,12 @@ public class Blog implements Serializable {
      * 文章作者
      */
     private Long userId;
+
+    /**
+     * 逻辑删除
+     */
+    @TableLogic
+    private Long isDeleted;
 
     private static final long serialVersionUID = 1L;
 }
