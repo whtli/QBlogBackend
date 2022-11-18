@@ -774,3 +774,54 @@
 + 因为要用于前端的echarts展示，所以字段名需要与echarts的规范设定，不能自行指定。
 + 比如分类名字段，不能定义为`categoryName`，必须定义为`name`；博客数量字段，不能定义为`blogCount`，必须定义为`value`，以方便前端的直接获取匹配。
 + 如果不安装echarts的字段设计来定义字段，则需要在VO传到前端之后，在前端复制一个字段正确的新列表，否则图表不能正常展示。
+
+## 7. 批量删除博客
++ 在BlogControllor中添加接口，获取前端传来的列表，调用已有的删除单个博客的方法即可
+```java
+    /**
+     * 删除博客，逻辑删除，对应字段deleted
+     * 删除操作变为修改deleted字段的操作
+     * 1为逻辑删除，0（数据库字段默认值）为未删除
+     *
+     * @param id
+     * @return 被逻辑删除的博客id作为data
+     */
+    @DeleteMapping("/deleteBlogById")
+    public Result deleteBlogById(@RequestParam Long id) {
+        log.info("blog to delete : " + id);
+        boolean delete = blogService.removeById(id);
+        System.out.println("delete: " + delete);
+        if (delete) {
+            return Result.succ(20000, "博客删除成功", id);
+        } else {
+            return Result.fail("博客删除失败", id);
+        }
+    }
+
+    /**
+     * 批量删除博客，逻辑删除
+     *
+     * @param ids
+     * @return 被逻辑删除的多个博客id列表
+     */
+    @DeleteMapping("/deleteBlogBatchByIds")
+    public Result deleteBlogBatchByIds(@RequestParam String ids) {
+        String[] list = ids.split(",");
+        List<Long> idList = new ArrayList<>();
+        for (String id : list) {
+            idList.add(Long.valueOf(id));
+        }
+        int deletedBlogCount = 0;
+        for (Long id : idList) {
+            if (deleteBlogById(id).getCode() == 20000) {
+                deletedBlogCount++;
+            } else {
+                Result.fail("ID为 " + id + " 的博客删除失败，后续删除停止", id);
+            }
+        }
+        if (deletedBlogCount == idList.size()) {
+            return Result.succ(20000, "批量删除成功", idList);
+        }
+        return Result.fail("批量删除失败");
+    }
+```

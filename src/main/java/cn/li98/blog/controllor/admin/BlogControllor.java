@@ -132,14 +132,12 @@ public class BlogControllor {
     @DeleteMapping("/deleteBlogBatchByIds")
     public Result deleteBlogBatchByIds(@RequestParam String ids) {
         String[] list = ids.split(",");
-
         List<Long> idList = new ArrayList<>();
         for (String id : list) {
             idList.add(Long.valueOf(id));
         }
-        System.out.print("blogs to delete: ");
-        System.out.println(idList);
-
+        // System.out.print("blogs to delete: ");
+        // System.out.println(idList);
         int deletedBlogCount = 0;
         for (Long id : idList) {
             if (deleteBlogById(id).getCode() == 20000) {
@@ -151,7 +149,6 @@ public class BlogControllor {
         if (deletedBlogCount == idList.size()) {
             return Result.succ(20000, "批量删除成功", idList);
         }
-
         return Result.fail("批量删除失败");
     }
 
