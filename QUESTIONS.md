@@ -660,114 +660,115 @@
 ## 6. 添加获取统计数据的功能
 ### 6.1 添加对应于前端获取统计数据的后端功能 
 + [StatisticBlogCount](./src/main/java/cn/li98/blog/model/vo/StatisticBlogCount.java)，注意事项见6.2
-```java
-@Data
-public class StatisticBlogCount {
-    /**
-     * 分类id
-     */
-    private Long categoryId;
-
-    /**
-     * 分类名
-     */
-    private String name;
-
-    /**
-     * 分类下博客数量
-     */
-    private Integer value;
-}
-```
+  ```java
+  @Data
+  public class StatisticBlogCount {
+      /**
+       * 分类id
+       */
+      private Long categoryId;
+  
+      /**
+       * 分类名
+       */
+      private String name;
+  
+      /**
+       * 分类下博客数量
+       */
+      private Integer value;
+  }
+  ```
 
 + [StatisticControllor](./src/main/java/cn/li98/blog/controllor/admin/StatisticControllor.java)
-```java
-@Slf4j
-@RestController
-@RequestMapping("/admin/statistic")
-public class StatisticControllor {
-    @Autowired
-    StatisticService statisticService;
-
-    /**
-     * 获取统计数据
-     *
-     * @return 存放了博客分类统计数据列表和分类名列表的哈希表
-     */
-    @GetMapping("/getStatistic")
-    public Result getStatistic() {
-        Map<String, List> map = statisticService.getBlogCountList();
-        // System.out.println(map);
-        return Result.succ(map);
-    }
-}
-```
+  ```java
+  @Slf4j
+  @RestController
+  @RequestMapping("/admin/statistic")
+  public class StatisticControllor {
+      @Autowired
+      StatisticService statisticService;
+  
+      /**
+       * 获取统计数据
+       *
+       * @return 存放了博客分类统计数据列表和分类名列表的哈希表
+       */
+      @GetMapping("/getStatistic")
+      public Result getStatistic() {
+          Map<String, List> map = statisticService.getBlogCountList();
+          // System.out.println(map);
+          return Result.succ(map);
+      }
+  }
+  ```
+  
 + [StatisticService](./src/main/java/cn/li98/blog/service/StatisticService.java)
-```java
-public interface StatisticService {
-    /**
-     * 调用Mapper层获取统计数据
-     * @return 存放了博客分类统计数据列表和分类名列表的哈希表
-     */
-    Map<String, List> getBlogCountList();
-}
-```
+  ```java
+  public interface StatisticService {
+      /**
+       * 调用Mapper层获取统计数据
+       * @return 存放了博客分类统计数据列表和分类名列表的哈希表
+       */
+      Map<String, List> getBlogCountList();
+  }
+  ```
 
 + [StatisticServiceImpl](./src/main/java/cn/li98/blog/service/impl/StatisticServiceImpl.java)
-```java
-@Service
-public class StatisticServiceImpl implements StatisticService {
-
-    @Autowired
-    StatisticMapper statisticMapper;
-
-    /**
-     * 调用Mapper层获取统计数据
-     *
-     * @return 存放了博客分类统计数据列表和分类名列表的哈希表
-     */
-    @Override
-    public Map<String, List> getBlogCountList() {
-        Map<String, List> map = new HashMap<>();
-        List<StatisticBlogCount> blogCountList = statisticMapper.getBlogCountList();
-        /* 使用for循环获取分类名列表
-        List<String> categoryName = new ArrayList<>();
-        for (StatisticBlogCount item : blogCountList) {
-            categoryName.add(item.getName());
-        }*/
-        // 使用stream获取分类名列表，与for循环效果相同
-        List<String> categoryName = blogCountList.stream().map(StatisticBlogCount::getName).collect(Collectors.toList());
-        map.put("blogCountList", blogCountList);
-        map.put("categoryName", categoryName);
-        return map;
-    }
-}
-```
+  ```java
+  @Service
+  public class StatisticServiceImpl implements StatisticService {
+  
+      @Autowired
+      StatisticMapper statisticMapper;
+  
+      /**
+       * 调用Mapper层获取统计数据
+       *
+       * @return 存放了博客分类统计数据列表和分类名列表的哈希表
+       */
+      @Override
+      public Map<String, List> getBlogCountList() {
+          Map<String, List> map = new HashMap<>();
+          List<StatisticBlogCount> blogCountList = statisticMapper.getBlogCountList();
+          /* 使用for循环获取分类名列表
+          List<String> categoryName = new ArrayList<>();
+          for (StatisticBlogCount item : blogCountList) {
+              categoryName.add(item.getName());
+          }*/
+          // 使用stream获取分类名列表，与for循环效果相同
+          List<String> categoryName = blogCountList.stream().map(StatisticBlogCount::getName).collect(Collectors.toList());
+          map.put("blogCountList", blogCountList);
+          map.put("categoryName", categoryName);
+          return map;
+      }
+  }
+  ```
 
 + dao层的[StatisticMapper](./src/main/java/cn/li98/blog/dao/StatisticMapper.java)
-```java
-@Mapper
-public interface StatisticMapper {
-    /**
-     * 获取统计数据
-     * @return 以类别id为分组依据的统计数据列表
-     */
-    List<StatisticBlogCount> getBlogCountList();
-}
-```
+  ```java
+  @Mapper
+  public interface StatisticMapper {
+      /**
+       * 获取统计数据
+       * @return 以类别id为分组依据的统计数据列表
+       */
+      List<StatisticBlogCount> getBlogCountList();
+  }
+  ```
 
 + [StatisticMapper.xml](./src/main/resources/mapper/StatisticMapper.xml)
-```xml
-<mapper namespace="cn.li98.blog.dao.StatisticMapper">
-  <!--  查询分类博客数据-->
-  <select id="getBlogCountList" resultType="cn.li98.blog.model.vo.StatisticBlogCount">
-    SELECT category_id, category_name as name, COUNT(category_id) AS value
-    from blog b LEFT JOIN category c ON b.category_id = c.id
-    WHERE b.is_deleted = 0
-    group by category_id
-  </select>
-</mapper>
-```
+  ```xml
+  <mapper namespace="cn.li98.blog.dao.StatisticMapper">
+    <!--  查询分类博客数据-->
+    <select id="getBlogCountList" resultType="cn.li98.blog.model.vo.StatisticBlogCount">
+      SELECT category_id, category_name as name, COUNT(category_id) AS value
+      from blog b LEFT JOIN category c ON b.category_id = c.id
+      WHERE b.is_deleted = 0
+      group by category_id
+    </select>
+  </mapper>
+  ```
 
 ### 6.2 VO的设计注意事项：字段的使用
 + 因为要用于前端的echarts展示，所以字段名需要与echarts的规范设定，不能自行指定。
