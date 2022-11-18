@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @AUTHOR: whtli
@@ -22,20 +23,19 @@ public class StatisticServiceImpl implements StatisticService {
     /**
      * 调用Mapper层获取统计数据
      *
-     * @return
+     * @return 存放了博客分类统计数据列表和分类名列表的哈希表
      */
     @Override
     public Map<String, List> getBlogCountList() {
         Map<String, List> map = new HashMap<>();
         List<StatisticBlogCount> blogCountList = statisticMapper.getBlogCountList();
+        /* 使用for循环获取分类名列表
         List<String> categoryName = new ArrayList<>();
         for (StatisticBlogCount item : blogCountList) {
             categoryName.add(item.getName());
-        }
-        List<Integer> blogCount = new LinkedList<>();
-        for (StatisticBlogCount item : blogCountList) {
-            blogCount.add(item.getValue());
-        }
+        }*/
+        // 使用stream获取分类名列表，与for循环效果相同
+        List<String> categoryName = blogCountList.stream().map(StatisticBlogCount::getName).collect(Collectors.toList());
         map.put("blogCountList", blogCountList);
         map.put("categoryName", categoryName);
         return map;

@@ -3,7 +3,10 @@
 <mapper namespace="cn.li98.blog.dao.StatisticMapper">
   <!--  查询分类博客数据-->
   <select id="getBlogCountList" resultType="cn.li98.blog.model.vo.StatisticBlogCount">
-    SELECT category_id, category_name as name, COUNT(category_id) AS value from blog b LEFT JOIN category c ON b.category_id = c.id group by category_id
+    SELECT category_id, category_name as name, COUNT(category_id) AS value
+        from blog b LEFT JOIN category c ON b.category_id = c.id
+             WHERE b.is_deleted = 0
+             group by category_id
   </select>
 
 </mapper>

@@ -1,7 +1,5 @@
 package cn.li98.blog.service;
 
-import cn.li98.blog.model.vo.StatisticBlogCount;
-
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +11,7 @@ import java.util.Map;
 public interface StatisticService {
     /**
      * 调用Mapper层获取统计数据
-     * @return
+     * @return 存放了博客分类统计数据列表和分类名列表的哈希表
      */
     Map<String, List> getBlogCountList();
 }
