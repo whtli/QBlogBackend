@@ -122,6 +122,39 @@ public class BlogControllor {
         }
     }
 
+
+    /**
+     * 批量删除博客，逻辑删除
+     *
+     * @param ids
+     * @return 被逻辑删除的多个博客id列表
+     */
+    @DeleteMapping("/deleteBlogBatchByIds")
+    public Result deleteBlogBatchByIds(@RequestParam String ids) {
+        String[] list = ids.split(",");
+
+        List<Long> idList = new ArrayList<>();
+        for (String id : list) {
+            idList.add(Long.valueOf(id));
+        }
+        System.out.print("blogs to delete: ");
+        System.out.println(idList);
+
+        int deletedBlogCount = 0;
+        for (Long id : idList) {
+            if (deleteBlogById(id).getCode() == 20000) {
+                deletedBlogCount++;
+            } else {
+                Result.fail("ID为 " + id + " 的博客删除失败，后续删除停止", id);
+            }
+        }
+        if (deletedBlogCount == idList.size()) {
+            return Result.succ(20000, "批量删除成功", idList);
+        }
+
+        return Result.fail("批量删除失败");
+    }
+
     /**
      * 修改操作对应的根据指定id查询博客的接口
      * 可以根据指定的唯一id查询对应的博客
