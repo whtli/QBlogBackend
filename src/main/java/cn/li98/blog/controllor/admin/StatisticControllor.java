@@ -3,6 +3,7 @@ package cn.li98.blog.controllor.admin;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.service.StatisticService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,7 @@ public class StatisticControllor {
      *
      * @return 存放了博客分类统计数据列表和分类名列表的哈希表
      */
+    @RequiresAuthentication
     @GetMapping("/getStatistic")
     public Result getStatistic() {
         Map<String, List> map = statisticService.getBlogCountList();

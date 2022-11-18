@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -77,6 +78,7 @@ public class BlogControllor {
      * @param blog
      * @return 成功则"发布成功"作为data
      */
+    @RequiresAuthentication
     @PostMapping("/submitBlog")
     public Result submitBlog(@RequestBody Blog blog) {
         // 验证字段
@@ -100,8 +102,8 @@ public class BlogControllor {
     }
 
     /**
-     * 删除博客，逻辑删除，对应字段is_deleted
-     * 删除操作变为修改is_deleted字段的操作
+     * 删除博客，逻辑删除，对应字段deleted
+     * 删除操作变为修改deleted字段的操作
      * 1为逻辑删除，0（数据库字段默认值）为未删除
      *
      * @param id
@@ -109,7 +111,8 @@ public class BlogControllor {
      */
     @DeleteMapping("/deleteBlogById")
     public Result deleteBlogById(@RequestParam Long id) {
-        System.out.println("deleteBlogById: " + id);
+        // System.out.println("deleteBlogById: " + id);
+        log.info("blog to delete : " + id);
         boolean delete = blogService.removeById(id);
         System.out.println("delete: " + delete);
         if (delete) {
@@ -161,6 +164,8 @@ public class BlogControllor {
         if (categoryId != null) {
             queryWrapper.eq("category_id", categoryId);
         }
+        // 根据创建时间查询逆序的列表结果，越新发布的博客越容易被看到
+        queryWrapper.orderByDesc("create_time");
         // 新建一个分页规则，pageNum代表当前页码，pageSize代表每页数量
         Page page = new Page(pageNum, pageSize);
         // 借助Page实现分页查询，借助QueryWrapper实现多参数查询

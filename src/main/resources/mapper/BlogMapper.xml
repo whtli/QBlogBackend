@@ -1,43 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.li98.blog.dao.BlogMapper">
-  <resultMap id="BaseResultMap" type="cn.li98.blog.model.Blog">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="title" jdbcType="VARCHAR" property="title" />
-    <result column="first_picture" jdbcType="VARCHAR" property="firstPicture" />
-    <result column="content" jdbcType="VARCHAR" property="content" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="is_published" jdbcType="BIT" property="isPublished" />
-    <result column="is_comment_enabled" jdbcType="BIT" property="isCommentEnabled" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="views" jdbcType="INTEGER" property="views" />
-    <result column="words" jdbcType="INTEGER" property="words" />
-    <result column="read_time" jdbcType="INTEGER" property="readTime" />
-    <result column="category_id" jdbcType="BIGINT" property="categoryId" />
-    <result column="is_top" jdbcType="BIT" property="isTop" />
-    <result column="password" jdbcType="VARCHAR" property="password" />
-    <result column="user_id" jdbcType="BIGINT" property="userId" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    id, title, first_picture, content, description, is_published, is_comment_enabled,
-    create_time, update_time, views, words, read_time, category_id, is_top, `password`, 
-    user_id
-  </sql>
-  <!--  新增博客-->
-  <insert id="createBlog" parameterType="cn.li98.blog.model.Blog" useGeneratedKeys="true" keyProperty="id">
-    insert into blog (title, first_picture, description, content, is_published, is_comment_enabled,
-                      is_top, create_time, update_time, views, words, read_time, category_id, user_id, password)
-    values (#{title}, #{firstPicture}, #{description}, #{content},#{isPublished}, #{isCommentEnabled},
-            #{isTop}, #{createTime}, #{updateTime}, #{views}, #{words}, #{readTime}, #{categoryId}, #{userId}, #{password})
-  </insert>
-  <!--  更新博客-->
-  <update id="updateBlog">
-    update blog set title=#{title}, first_picture=#{firstPicture}, content=#{content}, description=#{description},
-                    is_published=#{isPublished}, is_comment_enabled=#{isCommentEnabled},
-                    is_top=#{isTop}, update_time=#{updateTime}, views=#{views},
-                    words=#{words}, read_time=#{readTime}, category_id=#{categoryId}, password=#{password}
-    where id=#{id}
-  </update>
+    <resultMap id="BaseResultMap" type="cn.li98.blog.model.Blog">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="first_picture" jdbcType="VARCHAR" property="firstPicture"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="published" jdbcType="BIT" property="published"/>
+        <result column="comment_enabled" jdbcType="BIT" property="commentEnabled"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="views" jdbcType="INTEGER" property="views"/>
+        <result column="words" jdbcType="INTEGER" property="words"/>
+        <result column="read_time" jdbcType="INTEGER" property="readTime"/>
+        <result column="category_id" jdbcType="BIGINT" property="categoryId"/>
+        <result column="top" jdbcType="BIT" property="top"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="deleted" javaType="INTEGER" property="deleted"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, title, first_picture, content, description, published, comment_enabled, create_time, update_time,
+        views, words, read_time, category_id, top, `password`, user_id
+    </sql>
+    <!--  新增博客-->
+    <insert id="createBlog" parameterType="cn.li98.blog.model.Blog" useGeneratedKeys="true" keyProperty="id">
+        insert into blog (title, first_picture, description, content, published, comment_enabled,
+                          top, create_time, update_time, views, words, read_time, category_id, user_id, password)
+        values (#{title}, #{firstPicture}, #{description}, #{content}, #{published}, #{commentEnabled},
+                #{top}, #{createTime}, #{updateTime}, #{views}, #{words}, #{readTime}, #{categoryId}, #{userId},
+                #{password})
+    </insert>
+    <!--  更新博客-->
+    <update id="updateBlog">
+        update blog
+        set title=#{title},
+            first_picture=#{firstPicture},
+            content=#{content},
+            description=#{description},
+            published=#{published},
+            comment_enabled=#{commentEnabled},
+            top=#{top},
+            update_time=#{updateTime},
+            views=#{views},
+            words=#{words},
+            read_time=#{readTime},
+            category_id=#{categoryId},
+            password=#{password}
+        where id = #{id}
+    </update>
 
 </mapper>

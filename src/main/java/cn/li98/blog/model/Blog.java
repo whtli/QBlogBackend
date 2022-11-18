@@ -47,12 +47,12 @@ public class Blog implements Serializable {
     /**
      * 公开或私密
      */
-    private Boolean isPublished;
+    private Boolean published;
 
     /**
      * 评论开关
      */
-    private Boolean isCommentEnabled;
+    private Boolean commentEnabled;
 
     /**
      * 创建时间
@@ -87,7 +87,7 @@ public class Blog implements Serializable {
     /**
      * 是否置顶
      */
-    private Boolean isTop;
+    private Boolean top;
 
     /**
      * 密码保护
@@ -103,7 +103,7 @@ public class Blog implements Serializable {
      * 逻辑删除
      */
     @TableLogic
-    private Long isDeleted;
+    private Long deleted;
 
     private static final long serialVersionUID = 1L;
 }
