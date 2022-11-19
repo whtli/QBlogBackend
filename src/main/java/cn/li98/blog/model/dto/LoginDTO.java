@@ -1,4 +1,4 @@
-package cn.li98.blog.common;
+package cn.li98.blog.model.dto;
 
 import lombok.Data;
 import lombok.Getter;

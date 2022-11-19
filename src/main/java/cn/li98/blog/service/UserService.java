@@ -1,11 +1,13 @@
 package cn.li98.blog.service;
 
 import cn.li98.blog.model.User;
+import cn.li98.blog.model.dto.LoginDTO;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * @author : whtli
  */
-public interface UserService {
+public interface UserService extends IService<User> {
     /**
      * 根据ID获取用户信息
      *
@@ -21,4 +23,11 @@ public interface UserService {
      * @return User
      */
     User getByName(String username);
+
+    /**
+     *
+     * @param loginDTO
+     * @return
+     */
+    User login(LoginDTO loginDTO);
 }

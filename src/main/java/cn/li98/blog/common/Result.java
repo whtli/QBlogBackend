@@ -7,7 +7,9 @@ import lombok.ToString;
 import java.io.Serializable;
 
 /**
- * @author : whtli
+ * @AUTHOR: whtli
+ * @DATE: 2022/11/09
+ * @DESCRIPTION: 接口统一返回包装类
  */
 @Getter
 @Setter
