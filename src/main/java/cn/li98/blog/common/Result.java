@@ -20,10 +20,14 @@ public class Result implements Serializable {
     private Object data;
 
     public static Result succ(Object data) {
-        return succ(20000, "操作成功", data);
+        return succ(Constant.CODE_SUCCESSFUL, "操作成功", data);
     }
 
-    public static Result succ(int code, String message, Object data) {
+    public static Result succ(String message, Object data){
+        return succ(Constant.CODE_SUCCESSFUL, message, data);
+    }
+
+    public static Result succ(Integer code, String message, Object data) {
         Result r = new Result();
         r.setCode(code);
         r.setMessage(message);
@@ -32,14 +36,14 @@ public class Result implements Serializable {
     }
 
     public static Result fail(String message) {
-        return fail(40000, message, null);
+        return fail(Constant.CODE_PARAM_ERROR, message, null);
     }
 
     public static Result fail(String message, Object data) {
-        return fail(40000, message, data);
+        return fail(Constant.CODE_PARAM_ERROR, message, data);
     }
 
-    public static Result fail(int code, String message, Object data) {
+    public static Result fail(Integer code, String message, Object data) {
         Result r = new Result();
         r.setCode(code);
         r.setMessage(message);

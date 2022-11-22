@@ -10,8 +10,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,7 +47,7 @@ public class BlogControllor {
         log.info("准备上传到七牛云");
         Map<String, String> uploadImagesUrl = qiniuUtils.uploadImage(multipartFile);
         log.info("成功返回图像地址 : " + uploadImagesUrl.get("imageUrl"));
-        return Result.succ(20000, "上传成功", uploadImagesUrl);
+        return Result.succ("上传成功", uploadImagesUrl);
     }
 
     /**
@@ -66,7 +66,7 @@ public class BlogControllor {
         String filename = url.split("com/")[1];
         if (flag) {
             log.info("图片删除成功: " + filename);
-            return Result.succ(20000, "图片删除成功", filename);
+            return Result.succ("图片删除成功", filename);
         }
         log.error("图片删除失败 : " + filename);
         return Result.fail("图片删除失败", filename);
@@ -78,9 +78,8 @@ public class BlogControllor {
      * @param blog
      * @return 成功则"发布成功"作为data
      */
-    @RequiresAuthentication
     @PostMapping("/submitBlog")
-    public Result submitBlog(@RequestBody Blog blog) {
+    public Result submitBlog(@Validated @RequestBody Blog blog) {
         // 验证字段
         if (StringUtils.isEmpty(blog.getTitle()) || StringUtils.isEmpty(blog.getDescription()) || StringUtils.isEmpty(blog.getContent()) || blog.getWords() == null || blog.getWords() < 0) {
             return Result.fail("参数有误");
@@ -116,7 +115,7 @@ public class BlogControllor {
         boolean delete = blogService.removeById(id);
         System.out.println("delete: " + delete);
         if (delete) {
-            return Result.succ(20000, "博客删除成功", id);
+            return Result.succ("博客删除成功", id);
         } else {
             return Result.fail("博客删除失败", id);
         }
@@ -140,14 +139,14 @@ public class BlogControllor {
         // System.out.println(idList);
         int deletedBlogCount = 0;
         for (Long id : idList) {
-            if (deleteBlogById(id).getCode() == 20000) {
+            if (deleteBlogById(id).getCode() == 200) {
                 deletedBlogCount++;
             } else {
                 Result.fail("ID为 " + id + " 的博客删除失败，后续删除停止", id);
             }
         }
         if (deletedBlogCount == idList.size()) {
-            return Result.succ(20000, "批量删除成功", idList);
+            return Result.succ("批量删除成功", idList);
         }
         return Result.fail("批量删除失败");
     }
@@ -163,7 +162,7 @@ public class BlogControllor {
     public Result getBlogById(@RequestParam Long id) {
         Blog blog = blogService.getById(id);
         Assert.notNull(blog, "该博客不存在");
-        return Result.succ(20000, "查询成功", blog);
+        return Result.succ("查询成功", blog);
     }
 
     /**
@@ -206,6 +205,6 @@ public class BlogControllor {
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("pageData", pageData);
         data.put("total", pageData.getTotal());
-        return Result.succ(20000, "查询成功", data);
+        return Result.succ("查询成功", data);
     }
 }

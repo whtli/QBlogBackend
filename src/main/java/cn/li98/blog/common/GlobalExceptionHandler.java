@@ -3,6 +3,7 @@ package cn.li98.blog.common;
 import cn.li98.blog.exception.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.ShiroException;
+import org.apache.shiro.authc.ExpiredCredentialsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -23,6 +24,7 @@ public class GlobalExceptionHandler {
 
     /**
      * 捕捉shiro的异常
+     *
      * @param e shiro异常
      * @return Result
      */
@@ -30,12 +32,26 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = ShiroException.class)
     public Result handler(ShiroException e) {
         log.error("shiro异常：----------------{}", e);
-        return Result.fail(40001, e.getMessage(), null);
+        return Result.fail(Constant.CODE_ACCESS_DENIED, e.getMessage(), null);
     }
 
     /**
-     * @Validated 校验错误异常处理
-     * @param e 实体校验异常
+     * 捕捉ExpiredCredentialsException的异常
+     *
+     * @param e ExpiredCredentialsException异常
+     * @return Result
+     */
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(value = ExpiredCredentialsException.class)
+    public Result handler(ExpiredCredentialsException e) {
+        log.error("ExpiredCredentialsException：----------------{}", e);
+        return Result.fail(Constant.CODE_ACCESS_DENIED, e.getMessage(), null);
+    }
+
+    /**
+     * 实体校验异常
+     *
+     * @param e 前端传入的实体不满足@Validate规则触发异常
      * @return Result
      */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -49,6 +65,7 @@ public class GlobalExceptionHandler {
 
     /**
      * 处理Assert的异常
+     *
      * @param e Assert异常
      * @return Result
      */
@@ -61,6 +78,7 @@ public class GlobalExceptionHandler {
 
     /**
      * 运行时异常
+     *
      * @param e 运行时异常
      * @return Result
      */
@@ -73,12 +91,13 @@ public class GlobalExceptionHandler {
 
     /**
      * 如果抛出的是SerciceException，则调用该方法
+     *
      * @param se 业务异常
      * @return Result
      */
     @ExceptionHandler(ServiceException.class)
     @ResponseBody
-    public Result handle(ServiceException se) {
+    public Result handler(ServiceException se) {
         return Result.fail(se.getCode(), se.getMessage());
     }
 }

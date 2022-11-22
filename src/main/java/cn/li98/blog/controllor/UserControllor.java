@@ -4,6 +4,7 @@ package cn.li98.blog.controllor;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.model.User;
 import cn.li98.blog.service.UserService;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ public class UserControllor {
     @Autowired
     UserService userService;
 
+    @RequiresAuthentication
     @GetMapping("/test")
     public Result updateUserName(@RequestParam String name) {
         // DTO是实体类时，可以使用@Validated来校验
@@ -33,6 +35,6 @@ public class UserControllor {
         System.out.println("success");
         Map<String, String> data = new HashMap<>(1);
         data.put("userBar", "Hello  " + name);
-        return Result.succ(20000, "success!", data);
+        return Result.succ("测试连接成功!", data);
     }
 }
