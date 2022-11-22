@@ -3,8 +3,8 @@ package cn.li98.blog.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -21,7 +21,6 @@ import javax.validation.constraints.NotBlank;
  */
 @Data
 @Accessors(chain = true)
-@EqualsAndHashCode(callSuper = false)
 @TableName("user")
 public class User implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
@@ -30,6 +29,7 @@ public class User implements Serializable {
     @NotBlank(message = "昵称不能为空")
     private String username;
 
+    @JsonIgnore
     private String password;
 
     private String nickname;
