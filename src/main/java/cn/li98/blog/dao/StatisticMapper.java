@@ -10,7 +10,6 @@ import java.util.List;
  * @DATE: 2022/11/17
  * @DESCRIPTION: 用于获取统计数据Mapper
  */
-@Mapper
 public interface StatisticMapper {
     /**
      * 获取统计数据

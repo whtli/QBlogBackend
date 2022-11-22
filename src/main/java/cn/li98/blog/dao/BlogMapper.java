@@ -9,7 +9,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @DATE: 2022/11/13
  * @DESCRIPTION: BlogMapper
  */
-@Mapper
 public interface BlogMapper extends BaseMapper<Blog> {
 
     /**

@@ -10,8 +10,6 @@ import org.springframework.stereotype.Repository;
  * @DATE: 2022/11/09
  * @DESCRIPTION: UserMapper
  */
-@Repository
-@Mapper
 public interface UserMapper extends BaseMapper<User> {
     /**
      * 根据ID获取用户信息
