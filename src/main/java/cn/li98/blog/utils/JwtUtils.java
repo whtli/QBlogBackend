@@ -32,7 +32,7 @@ public class JwtUtils {
      */
     public String generateToken(long userId) {
         Date nowDate = new Date();
-        Date expireDate = new Date(nowDate.getTime() + expire * 1000);
+        Date expireDate = new Date(nowDate.getTime() + expire);
         return Jwts.builder()
                 .setHeaderParam("typ", "JWT")
                 .setSubject(userId + "")

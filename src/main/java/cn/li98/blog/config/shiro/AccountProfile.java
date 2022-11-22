@@ -3,6 +3,7 @@ package cn.li98.blog.config.shiro;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @AUTHOR: whtli
@@ -17,8 +18,15 @@ public class AccountProfile implements Serializable {
 
     private String username;
 
+    private String nickname;
+
     private String avatar;
 
     private String email;
 
+    private Date createTime;
+
+    private Date updateTime;
+
+    private String role;
 }

@@ -35,6 +35,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         wrapper.eq("username", loginDTO.getUsername());
         wrapper.eq("password", loginDTO.getPassword()); // TODO：加密判断
         User one = getOne(wrapper);
+        /*
+        if (!SecureUtil.md5(user.getPassword()).equals(SecureUtil.md5(loginDTO.getPassword()))) {
+            return Result.fail("密码不正确");
+        }*/
         if (one != null) {
             return one;
         }
