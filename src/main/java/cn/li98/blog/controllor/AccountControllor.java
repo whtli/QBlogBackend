@@ -37,13 +37,13 @@ public class AccountControllor {
         String username = loginDTO.getUsername();
         String password = loginDTO.getPassword();
         if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
-            return Result.fail("账户名和密码不能为空");
+            return Result.fail("用户名和密码不能为空");
         }
         log.info(loginDTO.toString());
 
         User user = userService.login(loginDTO);
         if (user == null) {
-
+            return Result.fail("用户不存在");
         }
         /*User user = userService.getByName(loginDTO.getUsername());
         System.out.println(user);
@@ -56,14 +56,14 @@ public class AccountControllor {
         String jwt = jwtUtils.generateToken(user.getId());
         response.setHeader("Authorization", jwt);
         response.setHeader("Access-Control-Expose-Headers", "Authorization");
-        // 用户可以另一个接口
-        return Result.succ(MapUtil.builder()
+        /*return Result.succ(MapUtil.builder()
                 .put("id", user.getId())
                 .put("username", user.getUsername())
                 .put("avatar", user.getAvatar())
                 .put("email", user.getEmail())
                 .map()
-        );
+        );*/
+        return Result.succ(user);
     }
 
     @RequiresAuthentication
