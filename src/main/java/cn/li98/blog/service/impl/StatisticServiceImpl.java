@@ -1,6 +1,10 @@
 package cn.li98.blog.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.Month;
 import cn.li98.blog.dao.StatisticMapper;
+import cn.li98.blog.model.Blog;
 import cn.li98.blog.model.vo.StatisticBlogCount;
 import cn.li98.blog.service.StatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +32,77 @@ public class StatisticServiceImpl implements StatisticService {
     @Override
     public Map<String, List> getBlogCountList() {
         Map<String, List> map = new HashMap<>();
-        List<StatisticBlogCount> blogCountList = statisticMapper.getBlogCountList();
+        // 查询分类博客数据
+        List<StatisticBlogCount> blogCategoryList = statisticMapper.getBlogCategoryList();
         /* 使用for循环获取分类名列表
         List<String> categoryName = new ArrayList<>();
         for (StatisticBlogCount item : blogCountList) {
             categoryName.add(item.getName());
         }*/
         // 使用stream获取分类名列表，与for循环效果相同
-        List<String> categoryName = blogCountList.stream().map(StatisticBlogCount::getName).collect(Collectors.toList());
-        map.put("blogCountList", blogCountList);
+        List<String> categoryName = blogCategoryList.stream().map(StatisticBlogCount::getName).collect(Collectors.toList());
+        map.put("blogCategoryList", blogCategoryList);
         map.put("categoryName", categoryName);
+
+        // 获取每月博客发布量数据
+        List<Blog> blogMonthlyList = statisticMapper.selectList(null);
+        int jan = 0;
+        int feb = 0;
+        int mar = 0;
+        int apr = 0;
+        int may = 0;
+        int june = 0;
+        int july = 0;
+        int aug = 0;
+        int sep = 0;
+        int oct = 0;
+        int nov = 0;
+        int dec = 0;
+        for (Blog blog : blogMonthlyList) {
+            Date createTime = blog.getCreateTime();
+            Month month = DateUtil.monthEnum(createTime);
+            switch (month) {
+                case JANUARY:
+                    jan += 1;
+                    break;
+                case FEBRUARY:
+                    feb += 1;
+                    break;
+                case MARCH:
+                    mar += 1;
+                    break;
+                case APRIL:
+                    apr += 1;
+                    break;
+                case MAY:
+                    may += 1;
+                    break;
+                case JUNE:
+                    june += 1;
+                    break;
+                case JULY:
+                    july += 1;
+                    break;
+                case AUGUST:
+                    aug += 1;
+                    break;
+                case SEPTEMBER:
+                    sep += 1;
+                    break;
+                case OCTOBER:
+                    oct += 1;
+                    break;
+                case NOVEMBER:
+                    nov += 1;
+                    break;
+                case DECEMBER:
+                    dec += 1;
+                    break;
+                default:
+                    break;
+            }
+        }
+        map.put("blogMonthlyList", CollUtil.newArrayList(jan, feb, mar, apr, may, june, july, aug, sep, oct, nov, dec));
         return map;
     }
 }
