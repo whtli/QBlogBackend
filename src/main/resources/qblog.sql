@@ -2,15 +2,15 @@
 Navicat MySQL Data Transfer
 
 Source Server         : localhost
-Source Server Version : 50730
+Source Server Version : 50734
 Source Host           : localhost:3306
 Source Database       : qblog
 
 Target Server Type    : MYSQL
-Target Server Version : 50730
+Target Server Version : 50734
 File Encoding         : 65001
 
-Date: 2022-11-12 21:45:22
+Date: 2022-11-24 10:21:56
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -45,26 +45,42 @@ CREATE TABLE `blog` (
   `first_picture` varchar(255) NOT NULL COMMENT '文章首图，用于随机文章展示',
   `content` longtext NOT NULL COMMENT '文章正文',
   `description` longtext NOT NULL COMMENT '描述',
-  `is_published` bit(1) NOT NULL COMMENT '公开或私密',
-  `is_comment_enabled` bit(1) NOT NULL COMMENT '评论开关',
+  `published` bit(1) NOT NULL COMMENT '公开或私密',
+  `comment_enabled` bit(1) NOT NULL COMMENT '评论开关',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `update_time` datetime NOT NULL COMMENT '更新时间',
   `views` int(11) NOT NULL COMMENT '浏览次数',
   `words` int(11) NOT NULL COMMENT '文章字数',
   `read_time` int(11) NOT NULL COMMENT '阅读时长(分钟)',
   `category_id` bigint(20) NOT NULL COMMENT '文章分类',
-  `is_top` bit(1) NOT NULL COMMENT '是否置顶',
+  `top` bit(1) NOT NULL COMMENT '是否置顶',
   `password` varchar(255) DEFAULT NULL COMMENT '密码保护',
   `user_id` bigint(20) DEFAULT NULL COMMENT '文章作者',
+  `deleted` int(1) DEFAULT '0',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `type_id` (`category_id`) USING BTREE,
   KEY `user_id` (`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of blog
 -- ----------------------------
-INSERT INTO `blog` VALUES ('1', '测试', '/img/avatar', 'content测试', 'description测试', '', '', '2022-11-11 19:56:26', '2022-11-11 19:56:32', '10', '100', '222', '1', '', null, null);
+INSERT INTO `blog` VALUES ('1', '测试', '/img/avatar', 'content测试', 'description测试', '', '', '2022-11-11 19:56:26', '2022-11-11 19:56:32', '10', '100', '222', '1', '', null, '1', '0');
+INSERT INTO `blog` VALUES ('6', '测试1', '', '测试描述1', '## 测试1\n测试正文1![图片1.png](http://rldb7nvd2.hb-bkt.clouddn.com/2022/11/16/953eba765af5432dacf8d880f5a24ebb.png)', '', '', '2022-11-16 09:31:58', '2022-11-16 09:31:58', '0', '7', '0', '3', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('7', '测试2', '', '测试222', '测试2', '', '', '2022-11-16 09:34:44', '2022-11-16 09:34:44', '0', '5', '0', '1', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('8', '111', '', '33333^3^', '222', '', '', '2022-11-16 10:10:55', '2022-11-16 10:10:55', '0', '6', '0', '2', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('9', '222', '', '444', '333', '', '', '2022-11-16 10:13:12', '2022-11-16 10:13:12', '0', '3', '0', '2', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('10', '333', '', '555', '444', '', '', '2022-11-16 10:13:29', '2022-11-16 10:13:29', '0', '3', '0', '2', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('11', '修改测试444', '', '666修改测试', '修改测试555', '', '', '2022-11-16 10:13:41', '2022-11-16 19:34:30', '0', '7', '0', '1', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('12', '555', '', '777', '666', '', '', '2022-11-16 10:13:58', '2022-11-16 10:13:58', '0', '3', '0', '2', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('13', '666测试', '', '888', '777', '', '', '2022-11-16 10:14:09', '2022-11-16 10:17:11', '0', '3', '0', '3', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('14', '777', '', '999', '888', '', '', '2022-11-16 10:14:22', '2022-11-16 10:14:22', '0', '3', '0', '2', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('15', '888', '', '111', '999', '', '', '2022-11-16 10:14:31', '2022-11-16 10:14:31', '0', '3', '0', '2', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('16', '999', '', '222', '111', '', '', '2022-11-16 10:14:41', '2022-11-16 10:14:41', '0', '3', '0', '2', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('17', '啊啊啊', '', '# 一级标题事实上', '事实上', '', '', '2022-11-16 19:33:52', '2022-11-16 19:33:52', '0', '7', '0', '1', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('18', '1118测试新增', '', '1118测试新增\n+ 1118测试新增撒大苏打', '描述1118测试新增水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水少时诵诗描述1118测试新增水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水少时诵诗书是少时诵诗书是少时诵诗书是上撒描述1118测试新增水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水少时诵诗书是少时诵诗书是少时诵诗书是上撒描述1118测试新增水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水少时诵诗书是少时诵诗书是少时诵诗书是上撒描述1118测试新增水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水少时诵诗书是少时诵诗书是少时诵诗书是上撒描述1118测试新增水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水少时诵诗书是少时诵诗书是少时诵诗书是上撒描述1118测试新增水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水水少时诵诗书是少时诵诗书是少时诵诗书是上撒书是少时诵诗书是少时诵诗书是上撒', '', '', '2022-11-18 19:34:58', '2022-11-18 19:34:58', '0', '16', '0', '3', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('19', '图片测试', '', '# 上传图片测试\n![图片1.png](http://rldb7nvd2.hb-bkt.clouddn.com/2022/11/18/ab2c6b8d400c4f36a1791f0033eefd70.png)', '上传图片', '', '', '2022-11-18 21:34:36', '2022-11-18 21:34:36', '0', '7', '0', '1', '', '', '1', '0');
+INSERT INTO `blog` VALUES ('20', '062.不同路径', '', '### 题目描述\n\n * 一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为 “Start” ）。\n * 机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为 “Finish” ）。\n * 问总共有多少条不同的路径？\n\n```bash\nexample\ninput  : m = 3, n = 2\noutput : 3\nnote   : 从左上角开始，总共有 3 条路径可以到达右下角。\n         1. 向右 -> 向下 -> 向下\n         2. 向下 -> 向下 -> 向右\n         3. 向下 -> 向右 -> 向下\n\ninput  : m = 7, n = 3\noutput : 28\n```\n\n<!--more-->\n\n### 解题思路\n\n##### 思路1 动态规划\n+ 这是一个标准的动态规划问题，可以完成状态转移\n+ 转移方程：dp[i][j] = dp[i-1][j] + dp[i][j-1]\n+ 因为只能向右或向下移动，所以：\n    - 对于第一行和第一列的所有格子，都有且仅有一条路径可以直达其位置\n    - 对于非第一行或非第一列的格子，`到达其位置的路径数` = `到达其上方格子的路径数`+`到达其左方格子的路径数`\n+ 绘制网格图后，可以通过举例测试确定上述规律\n\n+ 时间复杂度:O(m x n)\n+ 空间复杂度:O(m x n)\n##### 思路2 组合数学\n从左上角到右下角的过程中，需要移动 m+n-2 次，其中有 m-1 次向下移动，n-1 次向右移动。\n因此路径的总数，就等于从 m+n-2 次移动中选择 m-1 次向下移动的方案数，即组合数：\n\nC = (m + n - 2)! / (m - 1)! * (n - 1)!\n因此直接计算出这个组合数即可。\n化简可得：C = (m + n - 2) * (m + n - 3) * ··· * n / (m - 1)!\n \n+ 时间复杂度:O(m)\n+ 空间复杂度:O(1)\n\n\n### 代码（Java）\n**思路1代码**\n```java\npublic class Solution {\n    public int uniquePaths(int m, int n) {\n        int[][] pathNum = new int[m][n];\n        /*\n        for (int j = 0; j < n; j++) {\n            pathNum[0][j] = 1;\n        }\n        for (int i = 1; i < m; i++) {\n            pathNum[i][0] = 1;\n        }\n        for (int i = 1; i < m; i++) {\n            for (int j = 1; j < n; j++) {\n                pathNum[i][j] = pathNum[i - 1][j] + pathNum[i][j - 1];\n            }\n        }\n        */\n\n        for (int i = 0; i < m; i++) {\n            for (int j = 0; j < n; j++) {\n                if (i == 0 || j == 0) {\n                    pathNum[i][j] = 1;\n                } else {\n                    pathNum[i][j] = pathNum[i - 1][j] + pathNum[i][j - 1];\n                }\n\n            }\n        }\n        /* 打印动态规划得到的二维数组\n        for (int i = 0; i < m; i++) {\n            for (int j = 0; j < n; j++) {\n                System.out.print(pathNum[i][j] + \"\\t\");\n            }\n            System.out.println();\n        }\n        */\n        return pathNum[m - 1][n - 1];\n    }\n}\n```\n**思路2代码**\n```java\npublic class Solution2 {\n    public int uniquePaths(int m, int n) {\n        long ans = 1;\n        for (int x = n, y = 1; y < m; x++, y++) {\n            // x和y同时前进 m - 2 次，刚好满足化简后的公式\n            ans = ans * x / y;\n        }\n        return (int) ans;\n    }\n}\n```', 'LeetCode腾讯精选练习50题-062.不同路径', '', '', '2022-11-18 21:56:51', '2022-11-18 21:56:51', '0', '2000', '10', '1', '', '', '1', '0');
 
 -- ----------------------------
 -- Table structure for `blog_tag`
@@ -87,12 +103,14 @@ CREATE TABLE `category` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `category_name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of category
 -- ----------------------------
 INSERT INTO `category` VALUES ('1', '测试类');
+INSERT INTO `category` VALUES ('2', '测试类II');
+INSERT INTO `category` VALUES ('3', '分类3');
 
 -- ----------------------------
 -- Table structure for `city_visitor`
@@ -216,6 +234,26 @@ CREATE TABLE `moment` (
 
 -- ----------------------------
 -- Records of moment
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for `occurrence`
+-- ----------------------------
+DROP TABLE IF EXISTS `occurrence`;
+CREATE TABLE `occurrence` (
+  `id` int(3) NOT NULL AUTO_INCREMENT COMMENT '序号',
+  `symbol` varchar(10) NOT NULL COMMENT '化学符号',
+  `name_en` varchar(50) NOT NULL COMMENT '英文元素名',
+  `name_zh` varchar(50) NOT NULL COMMENT '中文元素名',
+  `category` varchar(20) NOT NULL COMMENT 'Goldschmidt分类',
+  `common_occurrence` longtext COMMENT '常见赋存模式',
+  `example` longtext COMMENT '赋存模式例子',
+  `reference` longtext COMMENT '参考文献',
+  PRIMARY KEY (`id`,`symbol`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='记录煤中元素的赋存模式';
+
+-- ----------------------------
+-- Records of occurrence
 -- ----------------------------
 
 -- ----------------------------
