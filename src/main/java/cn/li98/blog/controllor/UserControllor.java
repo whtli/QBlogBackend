@@ -4,12 +4,12 @@ package cn.li98.blog.controllor;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.model.User;
 import cn.li98.blog.service.UserService;
-import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import cn.li98.blog.utils.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.sound.midi.SoundbankResource;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,16 +23,11 @@ public class UserControllor {
     @Autowired
     UserService userService;
 
-    @RequiresAuthentication
     @GetMapping("/test")
     public Result updateUserName(@RequestParam String name) {
-        // DTO是实体类时，可以使用@Validated来校验
-        System.out.println("---");
-        User user = userService.getUserById(1L);
-        System.out.println(user);
-        System.out.println("---");
+        User currentUser = TokenUtils.getCurrentUser();
+        System.out.println("获取当前用户信息 ====== " + currentUser.getUsername());
 
-        System.out.println("success");
         Map<String, String> data = new HashMap<>(1);
         data.put("userBar", "Hello  " + name);
         return Result.succ("测试连接成功!", data);
