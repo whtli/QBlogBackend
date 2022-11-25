@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/10
- * @DESCRIPTION:
+ * @author: whtli
+ * @date: 2022/11/10
+ * @description:
  */
 public interface BlogService extends IService<Blog> {
 

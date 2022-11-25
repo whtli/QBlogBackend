@@ -1,9 +1,9 @@
 package cn.li98.blog.config;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/09
- * @DESCRIPTION:
+ * @author: whtli
+ * @date: 2022/11/09
+ * @description:
  */
 
 import com.baomidou.mybatisplus.annotation.DbType;

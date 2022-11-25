@@ -18,9 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/10
- * @DESCRIPTION:
+ * @author: whtli
+ * @date: 2022/11/10
+ * @description:
  */
 @Slf4j
 @RestController
@@ -110,7 +110,6 @@ public class BlogControllor {
      */
     @DeleteMapping("/deleteBlogById")
     public Result deleteBlogById(@RequestParam Long id) {
-        // System.out.println("deleteBlogById: " + id);
         log.info("blog to delete : " + id);
         boolean delete = blogService.removeById(id);
         System.out.println("delete: " + delete);
@@ -135,8 +134,6 @@ public class BlogControllor {
         for (String id : list) {
             idList.add(Long.valueOf(id));
         }
-        // System.out.print("blogs to delete: ");
-        // System.out.println(idList);
         int deletedBlogCount = 0;
         for (Long id : idList) {
             if (deleteBlogById(id).getCode() == 200) {
@@ -202,7 +199,7 @@ public class BlogControllor {
         if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
             return Result.fail("查询失败，未查找到相应博客");
         }
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = new HashMap<>(2);
         data.put("pageData", pageData);
         data.put("total", pageData.getTotal());
         return Result.succ("查询成功", data);

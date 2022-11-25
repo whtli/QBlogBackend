@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/10
- * @DESCRIPTION:
+ * @author: whtli
+ * @date: 2022/11/10
+ * @description:
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -33,10 +33,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public User login(LoginDTO loginDTO) {
         QueryWrapper wrapper = new QueryWrapper();
         wrapper.eq("username", loginDTO.getUsername());
-        wrapper.eq("password", loginDTO.getPassword()); // TODO：加密判断
+        // TODO：加密判断
+        wrapper.eq("password", loginDTO.getPassword());
         User one = getOne(wrapper);
-        /*
-        if (!SecureUtil.md5(user.getPassword()).equals(SecureUtil.md5(loginDTO.getPassword()))) {
+        /*if (!SecureUtil.md5(user.getPassword()).equals(SecureUtil.md5(loginDTO.getPassword()))) {
             return Result.fail("密码不正确");
         }*/
         if (one != null) {

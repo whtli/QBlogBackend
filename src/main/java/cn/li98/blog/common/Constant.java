@@ -1,9 +1,9 @@
 package cn.li98.blog.common;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/19
- * @DESCRIPTION:
+ * @author: whtli
+ * @date: 2022/11/19
+ * @description:
  */
 public interface Constant {
     /**

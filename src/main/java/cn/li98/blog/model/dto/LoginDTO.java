@@ -7,9 +7,9 @@ import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/10
- * @DESCRIPTION:
+ * @author: whtli
+ * @date: 2022/11/10
+ * @description:
  */
 @Data
 public class LoginDTO implements Serializable {

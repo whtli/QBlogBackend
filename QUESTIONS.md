@@ -214,9 +214,9 @@
     import java.util.*;
     
     /**
-     * @AUTHOR: whtli
-     * @DATE: 2022/11/10
-     * @DESCRIPTION:
+     * @author: whtli
+     * @date: 2022/11/10
+     * @description:
      */
     @Slf4j
     @RestController
@@ -288,9 +288,9 @@
   import java.util.*;
   
   /**
-   * @AUTHOR: whtli
-   * @DATE: 2022/11/15
-   * @DESCRIPTION: 七牛云工具类，AK等配置内容通过@Value()从application.yml中获取
+   * @author: whtli
+   * @date: 2022/11/15
+   * @description: 七牛云工具类，AK等配置内容通过@Value()从application.yml中获取
    */
   @Slf4j
   @Component
@@ -775,6 +775,7 @@
 + 比如分类名字段，不能定义为`categoryName`，必须定义为`name`；博客数量字段，不能定义为`blogCount`，必须定义为`value`，以方便前端的直接获取匹配。
 + 如果不安装echarts的字段设计来定义字段，则需要在VO传到前端之后，在前端复制一个字段正确的新列表，否则图表不能正常展示。
 
+
 ## 7. 批量删除博客
 + 在BlogControllor中添加接口，获取前端传来的列表，调用已有的删除单个博客的方法即可
   ```java
@@ -825,3 +826,123 @@
           return Result.fail("批量删除失败");
       }
   ```
+  
+
+## 8. 把shiro-redis更换成jwt
++ 删除所有shiro-redis相关的配置
++ pom中添加依赖 
+```xml
+ <!-- JWT -->
+ <dependency>
+     <groupId>com.auth0</groupId>
+     <artifactId>java-jwt</artifactId>
+     <version>3.10.3</version>
+ </dependency>
+```
++ 新增 [TokenUtils](src/main/java/cn/li98/blog/utils/TokenUtils.java)
+```java
+@Component
+public class TokenUtils {
+
+    private static UserService staticUserService;
+
+    @Resource
+    private UserService userService;
+
+    @PostConstruct
+    public void setUserService() {
+        staticUserService = userService;
+    }
+
+    /**
+     * 生成token
+     *
+     * @return
+     */
+    public static String genToken(Long userId, String sign) {
+        return JWT.create().withAudience(String.valueOf(userId)) // 将 user id 保存到 token 里面,作为载荷
+                .withExpiresAt(DateUtil.offsetHour(new Date(), 2)) // 2小时后token过期
+                .sign(Algorithm.HMAC256(sign)); // 以 password 作为 token 的密钥
+    }
+
+    /**
+     * 获取当前登录的用户信息
+     *
+     * @return user对象
+     */
+    public static User getCurrentUser() {
+        try {
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            String token = request.getHeader("Authorization");
+            if (StrUtil.isNotBlank(token)) {
+                String userId = JWT.decode(token).getAudience().get(0);
+                return staticUserService.getById(Integer.valueOf(userId));
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+}
+
+```
++ 新增 [JwtInterceptor](src/main/java/cn/li98/blog/config/interceptor/JwtInterceptor.java)
+```java
+public class JwtInterceptor implements HandlerInterceptor {
+    @Autowired
+    UserService userService;
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        String token = request.getHeader("Authorization");
+        // 如果不是映射到方法直接通过，不需要拦截
+        if (!(handler instanceof HandlerMethod)) {
+            return true;
+        }
+        // 执行认证
+        if (StrUtil.isBlank(token)) {
+            throw new ServiceException(Constant.CODE_ACCESS_DENIED, "无token，请重新登录");
+        }
+        // 获取 token 中的 user id
+        String userId;
+        try {
+            userId = JWT.decode(token).getAudience().get(0);
+        } catch (JWTDecodeException j) {
+            throw new ServiceException(Constant.CODE_ACCESS_DENIED, "token验证失败，请重新登录");
+        }
+        // 根据token中的userid查询数据库
+        User user = userService.getById(userId);
+        if (user == null) {
+            throw new ServiceException(Constant.CODE_ACCESS_DENIED, "用户不存在，请重新登录");
+        }
+        // 用户密码加签验证 token
+        JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(user.getPassword())).build();
+        try {
+            jwtVerifier.verify(token); // 验证token
+        } catch (JWTVerificationException e) {
+            throw new ServiceException(Constant.CODE_ACCESS_DENIED, "token验证失败，请重新登录");
+        }
+        return true;
+    }
+}
+```
++ 新增 [InterceptorConfig](src/main/java/cn/li98/blog/config/InterceptorConfig.java)
+```java
+@Configuration
+public class InterceptorConfig implements WebMvcConfigurer {
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(jwtInterceptor())
+                .addPathPatterns("/**")  // 拦截所有请求，通过判断token是否合法来决定是否需要登录
+                .excludePathPatterns("/admin/login", "/admin/register", "/**/export", "/**/import", "/admin/file/**",
+                        "/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**", "/api", "/api-docs", "/api-docs/**")
+                .excludePathPatterns("/**/*.html", "/**/*.js", "/**/*.css", "/**/*.woff", "/**/*.ttf");  // 放行静态文件
+
+    }
+
+    @Bean
+    public JwtInterceptor jwtInterceptor() {
+        return new JwtInterceptor();
+    }
+}
+```

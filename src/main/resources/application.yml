@@ -47,3 +47,7 @@ qiniu:
   accessSecretKey: FykyjvQC0mronnpBhaymnK3wjDSM3_a8fvrPRZHN
   bucketName: cn-blog-li98
   domainName: http://rldb7nvd2.hb-bkt.clouddn.com/
+
+files:
+  upload:
+    path: D:\WorkSpace\IDEA\QBlogBacken\src\main\resources\files\

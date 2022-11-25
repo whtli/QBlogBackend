@@ -15,9 +15,9 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/09
- * @DESCRIPTION: User
+ * @author: whtli
+ * @date: 2022/11/09
+ * @description: User
  */
 @Data
 @Accessors(chain = true)

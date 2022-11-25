@@ -14,9 +14,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/17
- * @DESCRIPTION: 用于获取统计数据的service实现层
+ * @author: whtli
+ * @date: 2022/11/17
+ * @description: 用于获取统计数据的service实现层
  */
 @Service
 public class StatisticServiceImpl implements StatisticService {
@@ -31,14 +31,9 @@ public class StatisticServiceImpl implements StatisticService {
      */
     @Override
     public Map<String, List> getBlogCountList() {
-        Map<String, List> map = new HashMap<>();
+        Map<String, List> map = new HashMap<>(3);
         // 查询分类博客数据
         List<StatisticBlogCount> blogCategoryList = statisticMapper.getBlogCategoryList();
-        /* 使用for循环获取分类名列表
-        List<String> categoryName = new ArrayList<>();
-        for (StatisticBlogCount item : blogCountList) {
-            categoryName.add(item.getName());
-        }*/
         // 使用stream获取分类名列表，与for循环效果相同
         List<String> categoryName = blogCategoryList.stream().map(StatisticBlogCount::getName).collect(Collectors.toList());
         map.put("blogCategoryList", blogCategoryList);

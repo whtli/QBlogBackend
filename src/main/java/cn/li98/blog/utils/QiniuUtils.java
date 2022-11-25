@@ -16,9 +16,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/15
- * @DESCRIPTION: 七牛云工具类，AK等配置内容通过@Value()从application.yml中获取
+ * @author: whtli
+ * @date: 2022/11/15
+ * @description: 七牛云工具类，AK等配置内容通过@Value()从application.yml中获取
  */
 @Slf4j
 @Component
@@ -92,7 +92,7 @@ public class QiniuUtils {
             // 6.上传成功返回地址
             log.info("成功上传到七牛云");
             String imageUrl = domainName + filename;
-            Map<String, String> map = new HashMap<>();
+            Map<String, String> map = new HashMap<>(1);
             map.put("imageUrl", imageUrl);
 
             return map;

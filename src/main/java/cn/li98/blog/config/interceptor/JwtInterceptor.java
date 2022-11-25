@@ -11,7 +11,6 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.JWTVerifier;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -19,9 +18,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @Description
- * @Author liq
- * @Date 2022/11/24
+ * @author: whtli
+ * @date: 2022/11/24
+ * @description:
  */
 public class JwtInterceptor implements HandlerInterceptor {
     @Autowired
@@ -53,7 +52,8 @@ public class JwtInterceptor implements HandlerInterceptor {
         // 用户密码加签验证 token
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(user.getPassword())).build();
         try {
-            jwtVerifier.verify(token); // 验证token
+            // 验证token
+            jwtVerifier.verify(token);
         } catch (JWTVerificationException e) {
             throw new ServiceException(Constant.CODE_ACCESS_DENIED, "token验证失败，请重新登录");
         }

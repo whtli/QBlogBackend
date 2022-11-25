@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/10
- * @DESCRIPTION:
+ * @author: whtli
+ * @date: 2022/11/10
+ * @description:
  */
 @Slf4j
 @CrossOrigin

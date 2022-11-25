@@ -5,9 +5,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/13
- * @DESCRIPTION: BlogMapper
+ * @author: whtli
+ * @date: 2022/11/13
+ * @description: BlogMapper
  */
 public interface BlogMapper extends BaseMapper<Blog> {
 

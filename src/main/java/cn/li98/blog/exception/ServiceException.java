@@ -3,9 +3,9 @@ package cn.li98.blog.exception;
 import lombok.Getter;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/19
- * @DESCRIPTION: 自定义异常，ServiceImpl层的异常可以调用
+ * @author: whtli
+ * @date: 2022/11/19
+ * @description: 自定义异常，ServiceImpl层的异常可以调用
  */
 
 @Getter

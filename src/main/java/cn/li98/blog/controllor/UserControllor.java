@@ -13,9 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/09
- * @DESCRIPTION: UserControllor
+ * @author: whtli
+ * @date: 2022/11/09
+ * @description: UserControllor
  */
 @RestController
 @RequestMapping("/admin")

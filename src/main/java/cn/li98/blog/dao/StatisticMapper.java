@@ -8,9 +8,9 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/17
- * @DESCRIPTION: 用于获取统计数据Mapper
+ * @author: whtli
+ * @date: 2022/11/17
+ * @description: 用于获取统计数据Mapper
  */
 public interface StatisticMapper extends BaseMapper<Blog> {
     /**

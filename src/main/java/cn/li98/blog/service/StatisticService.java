@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/17
- * @DESCRIPTION: 用于获取统计数据的service
+ * @author: whtli
+ * @date: 2022/11/17
+ * @description: 用于获取统计数据的service
  */
 public interface StatisticService {
     /**

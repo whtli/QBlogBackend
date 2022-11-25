@@ -6,9 +6,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/09
- * @DESCRIPTION: UserMapper
+ * @author: whtli
+ * @date: 2022/11/09
+ * @description: UserMapper
  */
 public interface UserMapper extends BaseMapper<User> {
     /**

@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/09
- * @DESCRIPTION:
+ * @author: whtli
+ * @date: 2022/11/09
+ * @description:
  */
 @Slf4j
 @RestControllerAdvice

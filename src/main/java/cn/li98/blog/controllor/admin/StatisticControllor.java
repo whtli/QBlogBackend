@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/17
- * @DESCRIPTION: 用于获取统计数据的Controllor
+ * @author: whtli
+ * @date: 2022/11/17
+ * @description: 用于获取统计数据的Controllor
  */
 @Slf4j
 @RestController
@@ -31,7 +31,6 @@ public class StatisticControllor {
     @GetMapping("/getStatistic")
     public Result getStatistic() {
         Map<String, List> map = statisticService.getBlogCountList();
-        // System.out.println(map);
         return Result.succ(map);
     }
 }

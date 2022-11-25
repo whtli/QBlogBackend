@@ -16,9 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 /**
- * @Description
- * @Author liq
- * @Date 2022/11/24
+ * @author: whtli
+ * @date: 2022/11/24
+ * @description:
  */
 @Component
 public class TokenUtils {
@@ -40,9 +40,12 @@ public class TokenUtils {
      * @return
      */
     public static String genToken(Long userId, String sign) {
-        return JWT.create().withAudience(String.valueOf(userId)) // 将 user id 保存到 token 里面,作为载荷
-                .withExpiresAt(DateUtil.offsetHour(new Date(), 2)) // 2小时后token过期
-                .sign(Algorithm.HMAC256(sign)); // 以 password 作为 token 的密钥
+        // 将 user id 保存到 token 里面,作为载荷
+        // 2小时后token过期
+        // 以 password 作为 token 的密钥
+        return JWT.create().withAudience(String.valueOf(userId))
+                .withExpiresAt(DateUtil.offsetHour(new Date(), 2))
+                .sign(Algorithm.HMAC256(sign));
     }
 
     /**

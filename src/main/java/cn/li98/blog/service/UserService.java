@@ -25,6 +25,7 @@ public interface UserService extends IService<User> {
     User getByName(String username);
 
     /**
+     * 登录
      *
      * @param loginDTO
      * @return

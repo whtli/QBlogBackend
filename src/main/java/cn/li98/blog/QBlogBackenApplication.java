@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/09
- * @DESCRIPTION: QBlogBackenApplication
+ * @author: whtli
+ * @date: 2022/11/09
+ * @description: QBlogBackenApplication
  */
 @SpringBootApplication
 public class QBlogBackenApplication {
