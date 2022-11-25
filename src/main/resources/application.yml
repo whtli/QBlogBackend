@@ -50,4 +50,4 @@ qiniu:
 
 files:
   upload:
-    path: D:\WorkSpace\IDEA\QBlogBacken\src\main\resources\files\
+    path: D:\WorkSpace\IDEA\QBlogBackend\src\main\resources\files\

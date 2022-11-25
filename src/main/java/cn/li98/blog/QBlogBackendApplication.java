@@ -6,13 +6,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * @author: whtli
  * @date: 2022/11/09
- * @description: QBlogBackenApplication
+ * @description: QBlogBackendApplication
  */
 @SpringBootApplication
-public class QBlogBackenApplication {
+public class QBlogBackendApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(QBlogBackenApplication.class, args);
+        SpringApplication.run(QBlogBackendApplication.class, args);
     }
 
 }

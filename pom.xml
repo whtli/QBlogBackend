@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>cn.li98.blog</groupId>
-    <artifactId>QBlogBacken</artifactId>
+    <artifactId>QBlogBackend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>QBlogBacken</name>
-    <description>QBlogBacken</description>
+    <name>QBlogBackend</name>
+    <description>QBlogBackend</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
