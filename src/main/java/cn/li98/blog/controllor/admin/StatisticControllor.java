@@ -30,7 +30,7 @@ public class StatisticControllor {
      */
     @GetMapping("/getStatistic")
     public Result getStatistic() {
-        Map<String, List> map = statisticService.getBlogCountList();
+        Map<String, Object> map = statisticService.getBlogCountList();
         return Result.succ(map);
     }
 }
