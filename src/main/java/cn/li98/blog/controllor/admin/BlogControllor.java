@@ -1,10 +1,13 @@
 package cn.li98.blog.controllor.admin;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.model.Blog;
 import cn.li98.blog.service.BlogService;
 import cn.li98.blog.utils.QiniuUtils;
+import cn.li98.blog.common.WordCount;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -15,12 +18,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.*;
 
 /**
  * @author: whtli
  * @date: 2022/11/10
- * @description:
+ * @description: 博客接口
  */
 @Slf4j
 @RestController
@@ -35,7 +40,7 @@ public class BlogControllor {
     /**
      * 向七牛云服务器中上传一张图片
      *
-     * @param multipartFile
+     * @param multipartFile 图片文件
      * @return 上传成功后返回的图片地址作为data
      */
     @PostMapping("/addImage")
@@ -53,7 +58,7 @@ public class BlogControllor {
     /**
      * 删除七牛云中的指定图片
      *
-     * @param url
+     * @param url 图片在七牛云中的url（回显在前端）
      * @return 图片名（带路径）作为data
      */
     @PostMapping("/deleteImg")
@@ -75,15 +80,21 @@ public class BlogControllor {
     /**
      * 创建、修改博客
      *
-     * @param blog
+     * @param blog 博客实体类
      * @return 成功则"发布成功"作为data
      */
     @PostMapping("/submitBlog")
     public Result submitBlog(@Validated @RequestBody Blog blog) {
         // 验证字段
-        if (StringUtils.isEmpty(blog.getTitle()) || StringUtils.isEmpty(blog.getDescription()) || StringUtils.isEmpty(blog.getContent()) || blog.getWords() == null || blog.getWords() < 0) {
+        if (StrUtil.isEmpty(blog.getTitle()) || StrUtil.isEmpty(blog.getDescription()) || StrUtil.isEmpty(blog.getContent())) {
             return Result.fail("参数有误");
         }
+        // 计算字数，粗略计算阅读时长
+        int words = WordCount.count(blog.getContent());
+        int readTime = (int) Math.round(words / 200.0);
+        blog.setWords(words);
+        blog.setReadTime(readTime);
+
         int flag = 0;
         try {
             if (blog.getId() == null) {
@@ -95,9 +106,32 @@ public class BlogControllor {
             log.error(e.toString());
         }
         if (flag == 1) {
-            return Result.succ("发布成功");
+            return Result.succ("博客发布成功");
         }
-        return Result.fail("失败");
+        return Result.fail("博客发布失败");
+    }
+
+    /**
+     * 导入博客到数据库
+     *
+     * @param file Markdown博客文件
+     * @return Result
+     * @throws IOException    IO异常
+     * @throws ParseException 时间转换异常
+     */
+    @PostMapping("/uploadBlog")
+    public Result uploadBlog(@RequestParam MultipartFile file) throws IOException, ParseException {
+        String originalFilename = file.getOriginalFilename();
+        String type = FileUtil.extName(originalFilename);
+        if (!"md".equals(type)) {
+            return Result.fail("博客文件类型错误，应为.md文件");
+        }
+        Blog blog = blogService.fileToBlog(file);
+        int flag = blogService.createBlog(blog);
+        if (flag == 1) {
+            return Result.succ(originalFilename + " 导入成功", blog);
+        }
+        return Result.fail(originalFilename + " 导入失败");
     }
 
     /**
@@ -105,7 +139,7 @@ public class BlogControllor {
      * 删除操作变为修改deleted字段的操作
      * 1为逻辑删除，0（数据库字段默认值）为未删除
      *
-     * @param id
+     * @param id 博客id（唯一）
      * @return 被逻辑删除的博客id作为data
      */
     @DeleteMapping("/deleteBlogById")
@@ -120,11 +154,10 @@ public class BlogControllor {
         }
     }
 
-
     /**
      * 批量删除博客，逻辑删除
      *
-     * @param ids
+     * @param ids 多个博客id
      * @return 被逻辑删除的多个博客id列表
      */
     @DeleteMapping("/deleteBlogBatchByIds")
@@ -152,7 +185,7 @@ public class BlogControllor {
      * 修改操作对应的根据指定id查询博客的接口
      * 可以根据指定的唯一id查询对应的博客
      *
-     * @param id
+     * @param id 博客id（唯一）
      * @return 成功则Blog作为data
      */
     @GetMapping("/getBlogById")
@@ -170,10 +203,10 @@ public class BlogControllor {
      * 分页列表用于前端的当前页展示
      * 总记录数用于前端展示博客总数，这个数值是当前数据库中未被删除的博客总数，是所有分页中的博客个数的和
      *
-     * @param title
-     * @param categoryId
-     * @param pageNum
-     * @param pageSize
+     * @param title      博客标题
+     * @param categoryId 博客分类
+     * @param pageNum    页码
+     * @param pageSize   每页博客数量
      * @return 成功则Map作为data
      */
     @GetMapping("/getBlogs")

@@ -828,6 +828,7 @@
   ```
   
 
+
 ## 8. 把shiro-redis更换成jwt
 + 删除所有shiro-redis相关的配置
 + pom中添加依赖 
@@ -946,3 +947,384 @@ public class InterceptorConfig implements WebMvcConfigurer {
     }
 }
 ```
+
+
+## 9. 新增文件上传接口并实现功能
++ 数据库中创建`sys_file`表
+```sql
+-- ----------------------------
+-- Table structure for `sys_file`
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_file`;
+CREATE TABLE `sys_file` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '文件名称',
+  `type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '文件类型',
+  `size` bigint(20) DEFAULT NULL COMMENT '文件大小(kb)',
+  `url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '下载链接',
+  `md5` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '文件md5',
+  `deleted` tinyint(1) DEFAULT '0' COMMENT '是否删除',
+  `enable` tinyint(1) DEFAULT '1' COMMENT '是否启用链接',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
++ [FileControllor](src/main/java/cn/li98/blog/controllor/admin/FileControllor.java)
+```java
+import java.io.IOException;
+@RestController
+@RequestMapping("/admin/file")
+public class FileControllor {
+
+    @Value("${files.upload.path}")
+    private String fileUploadPath;
+
+    @Resource
+    private FilesMapper fileMapper;
+
+    /**
+     * 文件上传接口
+     *
+     * @param file 前端传递过来的文件
+     * @return url作为data
+     * @throws IOException IO异常
+     */
+    @PostMapping("/upload")
+    public Result upload(@RequestParam MultipartFile file) throws IOException {
+        String originalFilename = file.getOriginalFilename();
+        String type = FileUtil.extName(originalFilename);
+        long size = file.getSize();
+
+        // 定义一个文件唯一的标识码
+        String uuid = IdUtil.fastSimpleUUID();
+        String fileUuid = uuid + StrUtil.DOT + type;
+
+        File uploadFile = new File(fileUploadPath + fileUuid);
+        // 判断配置的文件目录是否存在，若不存在则创建一个新的文件目录
+        File parentFile = uploadFile.getParentFile();
+        if (!parentFile.exists()) {
+            parentFile.mkdirs();
+        }
+
+        String url;
+        // 获取文件的md5
+        String md5 = SecureUtil.md5(file.getInputStream());
+        // 从数据库查询是否存在相同的记录
+        Files dbFiles = getFileByMd5(md5);
+        // 文件已存在
+        if (dbFiles != null) {
+            url = dbFiles.getUrl();
+        } else {
+            // 上传文件到磁盘
+            file.transferTo(uploadFile);
+            // 数据库若不存在重复文件，则不删除刚才上传的文件
+            url = "http://localhost:8080/admin/file/" + fileUuid;
+        }
+
+        // 存储到数据库
+        Files saveFile = new Files();
+        saveFile.setName(originalFilename);
+        saveFile.setType(type);
+        saveFile.setSize(size / 1024);
+        saveFile.setUrl(url);
+        saveFile.setMd5(md5);
+        fileMapper.insert(saveFile);
+
+        return Result.succ("文件上传成功", url);
+    }
+
+    /**
+     * 文件下载接口   http://localhost:8080/file/{fileUUID}
+     *
+     * @param fileUuid 文件唯一的标识码
+     * @param response HttpServletResponse
+     * @throws IOException IO异常
+     */
+    @GetMapping("/{fileUuid}")
+    public void download(@PathVariable String fileUuid, HttpServletResponse response) throws IOException {
+        // 根据文件的唯一标识码获取文件
+        File uploadFile = new File(fileUploadPath + fileUuid);
+        // 设置输出流的格式
+        ServletOutputStream os = response.getOutputStream();
+        response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileUuid, "UTF-8"));
+        response.setContentType("application/octet-stream");
+
+        // 读取文件的字节流
+        os.write(FileUtil.readBytes(uploadFile));
+        os.flush();
+        os.close();
+    }
+
+    /**
+     * 通过文件的md5查询文件
+     *
+     * @param md5 文件的md5
+     * @return md5对应的文件
+     */
+    private Files getFileByMd5(String md5) {
+        // 查询文件的md5是否存在
+        QueryWrapper<Files> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("md5", md5);
+        List<Files> filesList = fileMapper.selectList(queryWrapper);
+        return filesList.size() == 0 ? null : filesList.get(0);
+    }
+
+    /**
+     * 更新文件
+     *
+     * @param files 待更新的文件
+     * @return Result
+     */
+    @PostMapping("/update")
+    public Result update(@RequestBody Files files) {
+        return Result.succ(fileMapper.updateById(files));
+    }
+
+    /**
+     * 删除文件
+     *
+     * @param id 待删除文件的id
+     * @return Result
+     */
+    @DeleteMapping("/{id}")
+    public Result delete(@PathVariable Integer id) {
+        Files files = fileMapper.selectById(id);
+        files.setDeleted(true);
+        fileMapper.updateById(files);
+        return Result.succ(true);
+    }
+
+    /**
+     * 批量删除文件
+     * @param ids 待删除文件的id列表
+     * @return Result
+     */
+    @PostMapping("/del/batch")
+    public Result deleteBatch(@RequestBody List<Integer> ids) {
+        // select * from sys_file where id in (id,id,id...)
+        QueryWrapper<Files> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id", ids);
+        List<Files> files = fileMapper.selectList(queryWrapper);
+        for (Files file : files) {
+            file.setDeleted(true);
+            fileMapper.updateById(file);
+        }
+        return Result.succ(true);
+    }
+}
+```
+
++ [FilesMapper](src/main/java/cn/li98/blog/dao/FilesMapper.java)
+```java
+public interface FilesMapper extends BaseMapper<Files> {
+}
+```
+
++ [Files](src/main/java/cn/li98/blog/model/Files.java)
+```java
+@Data
+@TableName("sys_file")
+public class Files {
+    @TableId(type = IdType.AUTO)
+    private Integer id;
+    private String name;
+    private String type;
+    private Long size;
+    private String url;
+    private String md5;
+    private Boolean deleted;
+    private Boolean enable;
+}
+```
+
+
+## 10. 新增博客导入接口并实现功能
++ [BlogControllor](src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)
+    ```java
+    import java.io.IOException;
+    import java.text.ParseException;
+    @Slf4j
+    @RestController
+    @RequestMapping("/admin/blog")
+    public class BlogControllor {
+        @Autowired
+        BlogService blogService;
+    
+        /**
+         * 导入博客到数据库
+         *
+         * @param file Markdown博客文件
+         * @return Result
+         * @throws IOException    IO异常
+         * @throws ParseException 时间转换异常
+         */
+        @PostMapping("/uploadBlog")
+        public Result uploadBlog(@RequestParam MultipartFile file) throws IOException, ParseException {
+            String originalFilename = file.getOriginalFilename();
+            String type = FileUtil.extName(originalFilename);
+            if (!type.equals("md")) {
+                return Result.fail("博客文件类型错误，应为.md文件");
+            }
+            Blog blog = blogService.fileToBlog(file);
+            int flag = blogService.createBlog(blog);
+            if (flag == 1) {
+                return Result.succ(originalFilename + " 导入成功", blog);
+            }
+            return Result.fail(originalFilename + " 导入失败");
+        }
+    }
+    ```
+
++ [BlogService](src/main/java/cn/li98/blog/service/BlogService.java)
+    ```java
+    public interface BlogService extends IService<Blog> {
+    
+        /**
+         * 新发布博客/导入博客
+         *
+         * @param blog
+         * @return 1：创建成功；0：创建失败
+         */
+        int createBlog(Blog blog);
+    
+        /**
+         * 提取上传的md文件内容，赋值到Blog对象中
+         *
+         * @param file Markdown文件
+         * @return Blog对象
+         * @throws IOException    IO异常
+         * @throws ParseException 时间转换异常
+         */
+        Blog fileToBlog(MultipartFile file) throws IOException, ParseException;
+    }
+    ```
+
++ [BlogServiceImpl](src/main/java/cn/li98/blog/service/impl/BlogServiceImpl.java)
+    ```java
+    import java.io.*;
+    import java.text.ParseException;
+    
+    @Service
+    public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements BlogService {
+        @Autowired
+        BlogMapper blogMapper;
+    
+        /**
+         * 为新增或修改的博客设置参数
+         * 这些常规参数在新增和修改过程中具备相同的设置规则
+         * 包括：类别id、阅读时长、阅读量
+         *
+         * @param blog
+         * @return Blog
+         */
+        private Blog setItemsOfBlog(Blog blog) {
+            if (blog.getCategoryId() == null) {
+                blog.setCategoryId(1L);
+            }
+            // TODO: 分类、标签等功能判断新增等功能
+            if (blog.getReadTime() == null || blog.getReadTime() <= 0) {
+                // 粗略计算阅读时长
+                blog.setReadTime((int) Math.round(blog.getWords() / 200.0));
+            }
+            if (blog.getViews() == null || blog.getViews() < 0) {
+                blog.setViews(0);
+            }
+            return blog;
+        }
+    
+        /**
+         * 创建博客/导入博客
+         * 需要常规地设置类别id、阅读时长、阅读量参数
+         * 需要单独地设置创建时间、更新时间（等于创建）、创建用户（默认为1唯一的管理员）
+         *
+         * @param blog
+         * @return 创建成功返回1，失败返回0
+         */
+        @Override
+        public int createBlog(Blog blog) {
+            Blog newBlog = setItemsOfBlog(blog);
+            if (newBlog.getCreateTime() == null) {
+                Date date = new Date();
+                newBlog.setCreateTime(date);
+                newBlog.setUpdateTime(date);
+            }
+            newBlog.setUserId(1L);
+            return blogMapper.createBlog(newBlog);
+        }
+    
+        /**
+         * 提取上传的md文件内容，赋值到Blog对象中
+         * @param file Markdown文件
+         * @return Blog对象
+         * @throws IOException IO异常
+         * @throws ParseException 时间转换异常
+         */
+        @Override
+        public Blog fileToBlog(MultipartFile file) throws IOException, ParseException {
+            // 转成字符流
+            InputStream is = file.getInputStream();
+            InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
+            BufferedReader br = new BufferedReader(isReader);
+            StringBuilder content = new StringBuilder();
+            String title = "";
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = new Date();
+            // 循环逐行读取
+            while (br.ready()) {
+                String line = br.readLine();
+                if (line.contains("title: ")) {
+                    title = line.substring(7);
+                }
+                if (line.contains("date: ")) {
+                    date = sdf.parse(line.substring(6));
+                }
+                content.append(line);
+                content.append('\n');
+            }
+            //关闭流
+            br.close();
+    
+            // 新建博客类对象
+            Blog blog = new Blog();
+            blog.setTitle(title);
+            blog.setFirstPicture("");
+            blog.setContent(content.toString().split("date: ")[1].substring(24));
+            blog.setDescription(file.getOriginalFilename());
+            blog.setPublished(true);
+            blog.setCommentEnabled(false);
+            blog.setCreateTime(date);
+            blog.setUpdateTime(date);
+            blog.setViews(0);
+            blog.setWords(WordCount.count(blog.getContent()));
+            blog.setReadTime((int) Math.round(blog.getWords() / 200.0));
+            blog.setCategoryId(1L);
+            blog.setTop(false);
+            blog.setPassword("");
+            blog.setUserId(1L);
+            blog.setDeleted(0L);
+            return blog;
+        }
+    }
+    ```
+
++ [WordCount](src/main/java/cn/li98/blog/common/WordCount.java)字数统计工具
+    ```java
+    public class WordCount {
+        public static int count(String content) {
+            if (content == null) {
+                return 0;
+            }
+            String englishString = content.replaceAll("[\u4e00-\u9fa5]", "");
+            String[] englishWords = englishString.split("[\\p{P}\\p{S}\\p{Z}\\s]+");
+            int chineseWordCount = content.length() - englishString.length();
+            int otherWordCount = englishWords.length;
+            if (englishWords.length > 0 && englishWords[0].length() < 1) {
+                otherWordCount--;
+            }
+            if (englishWords.length > 1 && englishWords[englishWords.length - 1].length() < 1) {
+                otherWordCount--;
+            }
+            return chineseWordCount + otherWordCount;
+        }
+    }
+    ```
