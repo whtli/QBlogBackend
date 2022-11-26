@@ -1,6 +1,6 @@
-package cn.li98.blog.common;
+package cn.li98.blog.exception;
 
-import cn.li98.blog.exception.ServiceException;
+import cn.li98.blog.common.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;

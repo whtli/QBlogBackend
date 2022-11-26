@@ -39,11 +39,11 @@ public class FileControllor {
      * 文件上传接口
      *
      * @param file 前端传递过来的文件
-     * @return
-     * @throws IOException
+     * @return url作为data
+     * @throws IOException IO异常
      */
     @PostMapping("/upload")
-    public String upload(@RequestParam MultipartFile file) throws IOException {
+    public Result upload(@RequestParam MultipartFile file) throws IOException {
         String originalFilename = file.getOriginalFilename();
         String type = FileUtil.extName(originalFilename);
         long size = file.getSize();
@@ -74,7 +74,7 @@ public class FileControllor {
             url = "http://localhost:8080/admin/file/" + fileUuid;
         }
 
-        // 存储数据库
+        // 存储到数据库
         Files saveFile = new Files();
         saveFile.setName(originalFilename);
         saveFile.setType(type);
@@ -83,15 +83,15 @@ public class FileControllor {
         saveFile.setMd5(md5);
         fileMapper.insert(saveFile);
 
-        return url;
+        return Result.succ("文件上传成功", url);
     }
 
     /**
      * 文件下载接口   http://localhost:8080/file/{fileUUID}
      *
-     * @param fileUuid
-     * @param response
-     * @throws IOException
+     * @param fileUuid 文件唯一的标识码
+     * @param response HttpServletResponse
+     * @throws IOException IO异常
      */
     @GetMapping("/{fileUuid}")
     public void download(@PathVariable String fileUuid, HttpServletResponse response) throws IOException {
@@ -111,8 +111,8 @@ public class FileControllor {
     /**
      * 通过文件的md5查询文件
      *
-     * @param md5
-     * @return
+     * @param md5 文件的md5
+     * @return md5对应的文件
      */
     private Files getFileByMd5(String md5) {
         // 查询文件的md5是否存在
@@ -122,12 +122,23 @@ public class FileControllor {
         return filesList.size() == 0 ? null : filesList.get(0);
     }
 
-
+    /**
+     * 更新文件
+     *
+     * @param files 待更新的文件
+     * @return Result
+     */
     @PostMapping("/update")
     public Result update(@RequestBody Files files) {
         return Result.succ(fileMapper.updateById(files));
     }
 
+    /**
+     * 删除文件
+     *
+     * @param id 待删除文件的id
+     * @return Result
+     */
     @DeleteMapping("/{id}")
     public Result delete(@PathVariable Integer id) {
         Files files = fileMapper.selectById(id);
@@ -136,6 +147,11 @@ public class FileControllor {
         return Result.succ(true);
     }
 
+    /**
+     * 批量删除文件
+     * @param ids 待删除文件的id列表
+     * @return Result
+     */
     @PostMapping("/del/batch")
     public Result deleteBatch(@RequestBody List<Integer> ids) {
         // select * from sys_file where id in (id,id,id...)
@@ -148,7 +164,4 @@ public class FileControllor {
         }
         return Result.succ(true);
     }
-
-
-
 }
