@@ -41,9 +41,15 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
             blog.setCategoryId(1L);
         }
         // TODO: 分类、标签等功能判断新增等功能
+        if (blog.getFirstPicture() == null) {
+            blog.setFirstPicture("");
+        }
         if (blog.getReadTime() == null || blog.getReadTime() <= 0) {
-            // 粗略计算阅读时长
-            blog.setReadTime((int) Math.round(blog.getWords() / 200.0));
+            // 计算字数，粗略计算阅读时长
+            int words = WordCount.count(blog.getContent());
+            int readTime = (int) Math.round(words / 200.0);
+            blog.setWords(words);
+            blog.setReadTime(readTime);
         }
         if (blog.getViews() == null || blog.getViews() < 0) {
             blog.setViews(0);

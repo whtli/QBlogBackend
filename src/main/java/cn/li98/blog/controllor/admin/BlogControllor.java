@@ -3,11 +3,12 @@ package cn.li98.blog.controllor.admin;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.poi.excel.ExcelReader;
+import cn.hutool.poi.excel.ExcelUtil;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.model.Blog;
 import cn.li98.blog.service.BlogService;
 import cn.li98.blog.utils.QiniuUtils;
-import cn.li98.blog.common.WordCount;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -18,7 +19,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.*;
 
@@ -89,12 +94,6 @@ public class BlogControllor {
         if (StrUtil.isEmpty(blog.getTitle()) || StrUtil.isEmpty(blog.getDescription()) || StrUtil.isEmpty(blog.getContent())) {
             return Result.fail("参数有误");
         }
-        // 计算字数，粗略计算阅读时长
-        int words = WordCount.count(blog.getContent());
-        int readTime = (int) Math.round(words / 200.0);
-        blog.setWords(words);
-        blog.setReadTime(readTime);
-
         int flag = 0;
         try {
             if (blog.getId() == null) {
@@ -114,7 +113,7 @@ public class BlogControllor {
     /**
      * 导入博客到数据库
      *
-     * @param file Markdown博客文件
+     * @param file Markdown博客文件或Excel文件
      * @return Result
      * @throws IOException    IO异常
      * @throws ParseException 时间转换异常
@@ -123,13 +122,35 @@ public class BlogControllor {
     public Result uploadBlog(@RequestParam MultipartFile file) throws IOException, ParseException {
         String originalFilename = file.getOriginalFilename();
         String type = FileUtil.extName(originalFilename);
-        if (!"md".equals(type)) {
-            return Result.fail("博客文件类型错误，应为.md文件");
-        }
-        Blog blog = blogService.fileToBlog(file);
-        int flag = blogService.createBlog(blog);
-        if (flag == 1) {
-            return Result.succ(originalFilename + " 导入成功", blog);
+
+        if ("md".equals(type)) {
+            // 是md文件，需要把规定格式的博客内容读取并拆分处理之后得到博客类对象才可以插入到数据库
+            Blog blog = blogService.fileToBlog(file);
+            int flag = blogService.createBlog(blog);
+            if (flag == 1) {
+                return Result.succ(originalFilename + " 导入成功", blog);
+            }
+        } else if ("xlsx".equals(type) || "xls".equals(type)) {
+            // 逐行读取记录，每行是一个博客，列名对应数据库字段名
+            InputStream inputStream = file.getInputStream();
+            ExcelReader reader = ExcelUtil.getReader(inputStream);
+            // 通过javabean的方式读取Excel内的对象，但是要求表头必须是英文，跟javabean的属性要对应起来
+            List<Blog> list = reader.readAll(Blog.class);
+            int count = 0;
+            for (int i = 0; i < list.size(); i ++) {
+                try {
+                    count += blogService.createBlog(list.get(i));
+                } catch (Exception e) {
+                    return  Result.fail("博客导入失败，停止继续导入，失败行数为：" + i, e.getMessage());
+                }
+            }
+            if (count == list.size()) {
+                return Result.succ(originalFilename + " 导入成功", list);
+            } else {
+                return Result.fail("成功导入的博客记录数与文件内记录数不匹配，未知原因");
+            }
+        } else {
+            return Result.fail("博客文件类型错误，应为.md或.xlsx或.xls文件");
         }
         return Result.fail(originalFilename + " 导入失败");
     }
@@ -146,7 +167,6 @@ public class BlogControllor {
     public Result deleteBlogById(@RequestParam Long id) {
         log.info("blog to delete : " + id);
         boolean delete = blogService.removeById(id);
-        System.out.println("delete: " + delete);
         if (delete) {
             return Result.succ("博客删除成功", id);
         } else {
@@ -169,10 +189,10 @@ public class BlogControllor {
         }
         int deletedBlogCount = 0;
         for (Long id : idList) {
-            if (deleteBlogById(id).getCode() == 200) {
+            if (blogService.removeById(id)) {
                 deletedBlogCount++;
             } else {
-                Result.fail("ID为 " + id + " 的博客删除失败，后续删除停止", id);
+                return Result.fail("ID为 " + id + " 的博客删除失败，后续删除停止", id);
             }
         }
         if (deletedBlogCount == idList.size()) {
