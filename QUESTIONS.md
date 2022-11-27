@@ -1328,3 +1328,98 @@ public class Files {
         }
     }
     ```
+  
+## 11.新增博客批量导入功能
++ 在[BlogControllor](./src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)中复用单个博客导入的接口和业务实现层，根据文件类型进行区分
+```java
+    @PostMapping("/submitBlog")
+    public Result submitBlog(@Validated @RequestBody Blog blog) {
+        // 验证字段
+        if (StrUtil.isEmpty(blog.getTitle()) || StrUtil.isEmpty(blog.getDescription()) || StrUtil.isEmpty(blog.getContent())) {
+            return Result.fail("参数有误");
+        }
+        int flag = 0;
+        try {
+            if (blog.getId() == null) {
+                flag = blogService.createBlog(blog);
+            } else {
+                flag = blogService.updateBlog(blog);
+            }
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
+        if (flag == 1) {
+            return Result.succ("博客发布成功");
+        }
+        return Result.fail("博客发布失败");
+    }
+
+    /**
+     * 导入博客到数据库
+     *
+     * @param file Markdown博客文件或Excel文件
+     * @return Result
+     * @throws IOException    IO异常
+     * @throws ParseException 时间转换异常
+     */
+    @PostMapping("/uploadBlog")
+    public Result uploadBlog(@RequestParam MultipartFile file) throws IOException, ParseException {
+        String originalFilename = file.getOriginalFilename();
+        String type = FileUtil.extName(originalFilename);
+
+        if ("md".equals(type)) {
+            // 是md文件，需要把规定格式的博客内容读取并拆分处理之后得到博客类对象才可以插入到数据库
+            Blog blog = blogService.fileToBlog(file);
+            int flag = blogService.createBlog(blog);
+            if (flag == 1) {
+                return Result.succ(originalFilename + " 导入成功", blog);
+            }
+        } else if ("xlsx".equals(type) || "xls".equals(type)) {
+            // 逐行读取记录，每行是一个博客，列名对应数据库字段名
+            InputStream inputStream = file.getInputStream();
+            ExcelReader reader = ExcelUtil.getReader(inputStream);
+            // 通过javabean的方式读取Excel内的对象，但是要求表头必须是英文，跟javabean的属性要对应起来
+            List<Blog> list = reader.readAll(Blog.class);
+            int count = 0;
+            for (int i = 0; i < list.size(); i ++) {
+                try {
+                    count += blogService.createBlog(list.get(i));
+                } catch (Exception e) {
+                    return  Result.fail("博客导入失败，停止继续导入，失败行数为：" + i, e.getMessage());
+                }
+            }
+            if (count == list.size()) {
+                return Result.succ(originalFilename + " 导入成功", list);
+            } else {
+                return Result.fail("成功导入的博客记录数与文件内记录数不匹配，未知原因");
+            }
+        } else {
+            return Result.fail("博客文件类型错误，应为.md或.xlsx或.xls文件");
+        }
+        return Result.fail(originalFilename + " 导入失败");
+    }
+```
+
++ 调整业务实现层[BlogServiceImpl](./src/main/java/cn/li98/blog/service/impl/BlogServiceImpl.java)的代码
+```java
+    private Blog setItemsOfBlog(Blog blog) {
+        if (blog.getCategoryId() == null) {
+            blog.setCategoryId(1L);
+        }
+        // TODO: 分类、标签等功能判断新增等功能
+        if (blog.getFirstPicture() == null) {
+            blog.setFirstPicture("");
+        }
+        if (blog.getReadTime() == null || blog.getReadTime() <= 0) {
+            // 计算字数，粗略计算阅读时长
+            int words = WordCount.count(blog.getContent());
+            int readTime = (int) Math.round(words / 200.0);
+            blog.setWords(words);
+            blog.setReadTime(readTime);
+        }
+        if (blog.getViews() == null || blog.getViews() < 0) {
+            blog.setViews(0);
+        }
+        return blog;
+    }
+```
