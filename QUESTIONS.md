@@ -826,7 +826,6 @@
           return Result.fail("批量删除失败");
       }
   ```
-  
 
 
 ## 8. 把shiro-redis更换成jwt
@@ -1330,8 +1329,7 @@ public class Files {
     ```
 
 
-  
-## 11.新增博客批量导入功能
+## 11. 新增博客批量导入功能
 + 在[BlogControllor](./src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)中复用单个博客导入的接口和业务实现层，根据文件类型进行区分
 ```java
     @PostMapping("/submitBlog")
@@ -1425,3 +1423,156 @@ public class Files {
         return blog;
     }
 ```
+
+
+## 12. 新增博客分类相关的功能
++ 创建`博客分类`实体类
+  ```java
+  @Data
+  @TableName("category")
+  public class Category {
+      @TableId(value = "id", type = IdType.AUTO)
+      private Long id;
+  
+      @NotBlank(message = "分类名不能为空")
+      String categoryName;
+  }
+  ```
+
++ 创建博客分类接口
+  ```java
+  @Slf4j
+  @RestController
+  @RequestMapping("/admin/category")
+  public class CategoryControllor {
+      @Autowired
+      CategoryService categoryService;
+  
+      /**
+       * 分页查询，获取分类列表
+       *
+       * @param pageNum  页码
+       * @param pageSize 每页分类数量
+       * @return 成功则Map作为data
+       */
+      @GetMapping("/getCategories")
+      public Result getCategories(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                                  @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+  
+          QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
+          // 新建一个分页规则，pageNum代表当前页码，pageSize代表每页数量
+          Page page = new Page(pageNum, pageSize);
+          // 借助Page实现分页查询，借助QueryWrapper实现多参数查询
+          IPage pageData = categoryService.page(page, queryWrapper);
+          if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
+              return Result.fail("查询失败，未查找到相应分类");
+          }
+          Map<String, Object> data = new HashMap<>(2);
+          data.put("pageData", pageData);
+          data.put("total", pageData.getTotal());
+          return Result.succ("查询成功", data);
+      }
+  
+      /**
+       * 删除分类
+       *
+       * @param id 分类id（唯一）
+       * @return 被删除的分类id作为data
+       */
+      @DeleteMapping("/deleteCategoryById")
+      public Result deleteCategoryById(@RequestParam Long id) {
+          log.info("category to delete : " + id);
+          boolean delete = categoryService.removeById(id);
+          if (delete) {
+              return Result.succ("分类删除成功", id);
+          } else {
+              return Result.fail("分类删除失败", id);
+          }
+      }
+  
+      /**
+       * 新增分类
+       *
+       * @param category 分类实体类
+       * @return Result
+       */
+      @PostMapping("/addCategory")
+      public Result addCategory(@Validated @RequestBody Category category) {
+          return submitCategory(category);
+      }
+  
+      /**
+       * 修改分类
+       *
+       * @param category 分类实体类
+       * @return Result
+       */
+      @PutMapping("/editCategory")
+      public Result updateCategory(@Validated @RequestBody Category category) {
+          return submitCategory(category);
+      }
+  
+      /**
+       * 新增与修改分类的通用方法，通过判断id的有无来区分新增还是修改
+       *
+       * @param category 分类实体类
+       * @return Result
+       */
+      public Result submitCategory(Category category) {
+          // 验证字段
+          if (StrUtil.isEmpty(category.getCategoryName())) {
+              return Result.fail("分类名不可为空");
+          }
+          int flag = 0;
+          try {
+              if (category.getId() == null) {
+                  flag = categoryService.createCategory(category);
+              } else {
+                  flag = categoryService.updateCategory(category);
+              }
+          } catch (Exception e) {
+              log.error(e.toString());
+          }
+          if (flag == 1) {
+              return Result.succ("分类发布成功");
+          }
+          return Result.fail("分类发布失败");
+      }
+  }
+  
+  ```
+
++ 创建博客分类业务层
+  ```java
+  public interface CategoryService extends IService<Category> {
+      int createCategory(Category category);
+  
+      int updateCategory(Category category);
+  }
+  
+  ```
+
++ 创建博客分类业务实现层
+  ```java
+  @Service
+  public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements CategoryService {
+      @Autowired
+      CategoryMapper categoryMapper;
+  
+      @Override
+      public int createCategory(Category category) {
+          return categoryMapper.insert(category);
+      }
+  
+      @Override
+      public int updateCategory(Category category) {
+          return categoryMapper.updateById(category);
+      }
+  }
+  ```
+
++ 创建博客分类持久层
+  ```java
+  public interface CategoryMapper extends BaseMapper<Category> {
+  }
+  ```
