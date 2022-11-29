@@ -7,7 +7,12 @@ import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.model.Blog;
+import cn.li98.blog.model.Category;
+import cn.li98.blog.model.Tag;
+import cn.li98.blog.model.dto.BlogWriteDTO;
 import cn.li98.blog.service.BlogService;
+import cn.li98.blog.service.CategoryService;
+import cn.li98.blog.service.TagService;
 import cn.li98.blog.utils.QiniuUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -15,15 +20,11 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.*;
 
@@ -38,6 +39,12 @@ import java.util.*;
 public class BlogControllor {
     @Autowired
     BlogService blogService;
+
+    @Autowired
+    CategoryService categoryService;
+
+    @Autowired
+    TagService tagService;
 
     @Autowired
     QiniuUtils qiniuUtils;
@@ -85,26 +92,58 @@ public class BlogControllor {
     /**
      * 创建、修改博客
      *
-     * @param blog 博客实体类
+     * @param form 博客实体类
      * @return 成功则"发布成功"作为data
      */
     @PostMapping("/submitBlog")
-    public Result submitBlog(@Validated @RequestBody Blog blog) {
+    public Result submitBlog(@RequestBody BlogWriteDTO form) {
+        Blog blog = form.getBlog();
+        List<Object> tags = form.getTags();
+        // tagList是遍历前端发送的所有标签并根据类型进行转换处理之后真正要使用的标签列表
+        List<Tag> tagList = new ArrayList<>();
+        for (Object t : tags) {
+            if (t instanceof Integer) {
+                // 选择了已存在的标签
+                Tag tag = tagService.getById(((Integer) t).longValue());
+                tagList.add(tag);
+            } else if (t instanceof String) {
+                // 直接输入的标签名，此时需要判断标签是否已存在
+                // 查询标签是否已存在
+                QueryWrapper wrapper = new QueryWrapper();
+                wrapper.eq("tag_name", (String) t);
+                if (tagService.getOne(wrapper) != null) {
+                    return Result.fail("不可新增已存在的标签");
+                }
+                // 不存在则添加新标签
+                Tag tag = new Tag();
+                tag.setTagName((String) t);
+                tagService.createTag(tag);
+                tagList.add(tag);
+            } else {
+                return Result.fail("标签不正确");
+            }
+        }
+
         // 验证字段
         if (StrUtil.isEmpty(blog.getTitle()) || StrUtil.isEmpty(blog.getDescription()) || StrUtil.isEmpty(blog.getContent())) {
             return Result.fail("参数有误");
         }
         int flag = 0;
+        int tagCount = 0;
         try {
             if (blog.getId() == null) {
                 flag = blogService.createBlog(blog);
             } else {
                 flag = blogService.updateBlog(blog);
             }
+            // 关联博客和标签(维护blog_tag表)，博客与tagList中的所有标签是一对多的关系
+            for (Tag t : tagList) {
+                tagCount += tagService.saveBlogTag(blog.getId(), t.getId());
+            }
         } catch (Exception e) {
             log.error(e.toString());
         }
-        if (flag == 1) {
+        if (flag == 1 && tagCount == tagList.size()) {
             return Result.succ("博客发布成功");
         }
         return Result.fail("博客发布失败");
@@ -137,11 +176,11 @@ public class BlogControllor {
             // 通过javabean的方式读取Excel内的对象，但是要求表头必须是英文，跟javabean的属性要对应起来
             List<Blog> list = reader.readAll(Blog.class);
             int count = 0;
-            for (int i = 0; i < list.size(); i ++) {
+            for (int i = 0; i < list.size(); i++) {
                 try {
                     count += blogService.createBlog(list.get(i));
                 } catch (Exception e) {
-                    return  Result.fail("博客导入失败，停止继续导入，失败行数为：" + i, e.getMessage());
+                    return Result.fail("博客导入失败，停止继续导入，失败行数为：" + i, e.getMessage());
                 }
             }
             if (count == list.size()) {
@@ -256,5 +295,24 @@ public class BlogControllor {
         data.put("pageData", pageData);
         data.put("total", pageData.getTotal());
         return Result.succ("查询成功", data);
+    }
+
+    /**
+     * 获取所有分类和标签以供前端选择使用
+     *
+     * @return 所有分类和所有标签
+     */
+    @GetMapping("/getCategoryAndTag")
+    public Result getCategoryAndTag() {
+        List<Category> categoryList = new LinkedList<>();
+        List<Tag> tagList = new LinkedList<>();
+        categoryList = categoryService.list();
+        tagList = tagService.list();
+
+        Map<String, Object> data = new HashMap<>(2);
+        data.put("categoryList", categoryList);
+        data.put("tagList", tagList);
+
+        return Result.succ(data);
     }
 }

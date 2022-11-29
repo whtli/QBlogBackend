@@ -30,7 +30,8 @@ public interface TagService extends IService<Tag> {
      *
      * @param blogId 博客id
      * @param tagId  标签id
+     * @return 关联成功返回1
      */
-    void saveBlogTag(Long blogId, Long tagId);
+    int saveBlogTag(Long blogId, Long tagId);
 
 }

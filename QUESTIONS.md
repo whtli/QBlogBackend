@@ -1757,3 +1757,101 @@ public class Files {
     </insert>
   </mapper>
   ```
+
+
+## 13. 整合写博客与选择（或直接创建）标签
++ 添加fastjson依赖，以解析
++ 创建[BlogWriteDTO](src/main/java/cn/li98/blog/model/dto/BlogWriteDTO.java)用于接收前端的RequestBody（Blog和Tags）
+  ```java
+  @NoArgsConstructor
+  @Data
+  public class BlogWriteDTO {
+      private Blog blog;
+      private List<Object> tags;
+  }
+  ```
+
++ 在中添加获取所有分类和标签以供前端选择使用的接口
+  ```java
+      /**
+       * 获取所有分类和标签以供前端选择使用
+       *
+       * @return 所有分类和所有标签
+       */
+      @GetMapping("/getCategoryAndTag")
+      public Result getCategoryAndTag() {
+          List<Category> categoryList = new LinkedList<>();
+          List<Tag> tagList = new LinkedList<>();
+          categoryList = categoryService.list();
+          tagList = tagService.list();
+  
+          Map<String, Object> data = new HashMap<>(2);
+          data.put("categoryList", categoryList);
+          data.put("tagList", tagList);
+  
+          return Result.succ(data);
+      }
+  ```
+
++ 修改[BlogControllor](src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)中创建博客的接口，关于标签的处理，如果是选择了已有的标签，则直接把选择的标签维护到新的标签列表tagList中；如果是输入的标签名，则判断是否已有之后进行不同的处理，如果已有则报错提示，如果是新标签名则创建，并维护到tagList中
+  ```java
+      /**
+       * 创建、修改博客
+       *
+       * @param form 博客实体类
+       * @return 成功则"发布成功"作为data
+       */
+      @PostMapping("/submitBlog")
+      public Result submitBlog(@RequestBody BlogWriteDTO form) {
+          Blog blog = form.getBlog();
+          List<Object> tags = form.getTags();
+          // tagList是遍历前端发送的所有标签并根据类型进行转换处理之后真正要使用的标签列表
+          List<Tag> tagList = new ArrayList<>();
+          for (Object t : tags) {
+              if (t instanceof Integer) {
+                  // 选择了已存在的标签
+                  Tag tag = tagService.getById(((Integer) t).longValue());
+                  tagList.add(tag);
+              } else if (t instanceof String) {
+                  // 直接输入的标签名，此时需要判断标签是否已存在
+                  // 查询标签是否已存在
+                  QueryWrapper wrapper = new QueryWrapper();
+                  wrapper.eq("tag_name", (String) t);
+                  if (tagService.getOne(wrapper) != null) {
+                      return Result.fail("不可添加已存在的标签");
+                  }
+                  // 不存在则添加新标签
+                  Tag tag = new Tag();
+                  tag.setTagName((String) t);
+                  tagService.createTag(tag);
+                  tagList.add(tag);
+              } else {
+                  return Result.fail("标签不正确");
+              }
+          }
+  
+          // 验证字段
+          if (StrUtil.isEmpty(blog.getTitle()) || StrUtil.isEmpty(blog.getDescription()) || StrUtil.isEmpty(blog.getContent())) {
+              return Result.fail("参数有误");
+          }
+          int flag = 0;
+          int tagCount = 0;
+          try {
+              if (blog.getId() == null) {
+                  flag = blogService.createBlog(blog);
+              } else {
+                  flag = blogService.updateBlog(blog);
+              }
+              // 关联博客和标签(维护blog_tag表)，博客与tagList中的所有标签是一对多的关系
+              for (Tag t : tagList) {
+                  tagCount += tagService.saveBlogTag(blog.getId(), t.getId());
+              }
+          } catch (Exception e) {
+              log.error(e.toString());
+          }
+          if (flag == 1 && tagCount == tagList.size()) {
+              return Result.succ("博客发布成功");
+          }
+          return Result.fail("博客发布失败");
+      }
+  ```

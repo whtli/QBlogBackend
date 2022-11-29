@@ -45,11 +45,14 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
      *
      * @param blogId 博客id
      * @param tagId  标签id
+     * @return 关联成功返回1
      */
     @Override
-    public void saveBlogTag(Long blogId, Long tagId) {
-        if (tagMapper.saveBlogTag(blogId, tagId) != 1) {
+    public int saveBlogTag(Long blogId, Long tagId) {
+        int res = tagMapper.saveBlogTag(blogId, tagId);
+        if (res != 1) {
             throw new PersistenceException("维护博客标签关联表失败");
         }
+        return res;
     }
 }
