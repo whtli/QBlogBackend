@@ -8,20 +8,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/28
- * @DESCRIPTION: 分类业务实现层
+ * @author: whtli
+ * @date: 2022/11/28
+ * @description: 分类业务实现层
  */
 @Service
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements CategoryService {
     @Autowired
     CategoryMapper categoryMapper;
 
+    /**
+     * 创建分类业务实现层
+     *
+     * @param category 分类实体类，无id
+     * @return 修改成功返回1
+     */
     @Override
     public int createCategory(Category category) {
         return categoryMapper.insert(category);
     }
 
+    /**
+     * 编辑分类业务实现层
+     *
+     * @param category 分类实体类，有id
+     * @return 修改成功返回1
+     */
     @Override
     public int updateCategory(Category category) {
         return categoryMapper.updateById(category);

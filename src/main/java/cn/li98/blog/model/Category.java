@@ -8,9 +8,9 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 /**
- * @AUTHOR: whtli
- * @DATE: 2022/11/28
- * @DESCRIPTION:
+ * @author: whtli
+ * @date: 2022/11/28
+ * @description:
  */
 @Data
 @TableName("category")

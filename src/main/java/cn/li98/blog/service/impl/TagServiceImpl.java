@@ -17,20 +17,39 @@ import org.springframework.stereotype.Service;
 public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagService {
     @Autowired
     TagMapper tagMapper;
+
+    /**
+     * 创建标签业务实现层
+     *
+     * @param tag 标签实体类，无id
+     * @return 创建成功返回1
+     */
     @Override
     public int createTag(Tag tag) {
         return tagMapper.insert(tag);
     }
 
+    /**
+     * 编辑标签业务实现层
+     *
+     * @param tag 标签实体类，有id
+     * @return 修改成功返回1
+     */
+    @Override
+    public int updateTag(Tag tag) {
+        return tagMapper.updateById(tag);
+    }
+
+    /**
+     * 建立博客和标签的映射关系到blog_tag表
+     *
+     * @param blogId 博客id
+     * @param tagId  标签id
+     */
     @Override
     public void saveBlogTag(Long blogId, Long tagId) {
         if (tagMapper.saveBlogTag(blogId, tagId) != 1) {
             throw new PersistenceException("维护博客标签关联表失败");
         }
-    }
-
-    @Override
-    public int updateTag(Tag tag) {
-        return tagMapper.updateById(tag);
     }
 }
