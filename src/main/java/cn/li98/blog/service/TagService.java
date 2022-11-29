@@ -3,6 +3,8 @@ package cn.li98.blog.service;
 import cn.li98.blog.model.Tag;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * @author: whtli
  * @date: 2022/11/28
@@ -34,4 +36,11 @@ public interface TagService extends IService<Tag> {
      */
     int saveBlogTag(Long blogId, Long tagId);
 
+    /**
+     * 根据博客id查询其拥有的标签列表
+     *
+     * @param blogId 博客id
+     * @return 标签列表
+     */
+    List<Tag> getTagsByBlogId(Long blogId);
 }

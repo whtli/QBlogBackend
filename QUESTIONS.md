@@ -1760,7 +1760,6 @@ public class Files {
 
 
 ## 13. 整合写博客与选择（或直接创建）标签
-+ 添加fastjson依赖，以解析
 + 创建[BlogWriteDTO](src/main/java/cn/li98/blog/model/dto/BlogWriteDTO.java)用于接收前端的RequestBody（Blog和Tags）
   ```java
   @NoArgsConstructor
@@ -1854,4 +1853,87 @@ public class Files {
           }
           return Result.fail("博客发布失败");
       }
+  ```
+
+
+## 14. 在阅读界面中联动展示博客所属的分类及其标签
++ 修改[BlogController](src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)中的根据id查询博客接口
+  ```java
+      /**
+       * 修改、阅读操作对应的根据指定id查询博客的接口
+       * 可以根据指定的唯一id查询对应的博客、博客所属的分类、博客拥有的标签
+       *
+       * @param blogId 博客id（唯一）
+       * @return Result
+       */
+      @GetMapping("/getBlogInfoById")
+      public Result getBlogInfoById(@RequestParam Long blogId) {
+          // 查询博客
+          Blog blog = blogService.getById(blogId);
+          Assert.notNull(blog, "该博客不存在");
+          // 查询所属分类
+          Category category = categoryService.getById(blog.getCategoryId());
+          // 查询拥有的标签
+          List <Tag> tagList = tagService.getTagsByBlogId(blogId);
+          
+          Map<String, Object> data = new LinkedHashMap<>();
+          data.put("blog", blog);
+          data.put("category", category);
+          data.put("tagList", tagList);
+          return Result.succ("查询成功", data);
+      }
+  ```
+
++ [TagService](src/main/java/cn/li98/blog/service/TagService.java)
+  ```java
+  public interface TagService extends IService<Tag> {
+    /**
+     * 根据博客id查询其拥有的标签列表
+     *
+     * @param blogId 博客id
+     * @return 标签列表
+     */
+    List<Tag> getTagsByBlogId(Long blogId);
+  }
+  ```
+
++ [TagServiceImpl](src/main/java/cn/li98/blog/service/impl/TagServiceImpl.java)中实现
+  ```java
+  @Service
+  public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagService {
+      @Autowired
+      TagMapper tagMapper;
+  
+      /**
+       * 根据博客id查询其拥有的标签列表
+       *
+       * @param blogId 博客id
+       * @return 标签列表
+       */
+      @Override
+      public List<Tag> getTagsByBlogId(Long blogId) {
+          return tagMapper.getTagsByBlogId(blogId);
+      }
+  }
+  ```
+
++ [TagMapper](src/main/java/cn/li98/blog/dao/TagMapper.java)
+  ```java
+  public interface TagMapper extends BaseMapper<Tag> {
+      /**
+       * 根据博客id查询其拥有的标签列表
+       *
+       * @param blogId 博客id
+       * @return 标签列表
+       */
+      List<Tag> getTagsByBlogId(Long blogId);
+  }
+  ```
+
++ [TagMapper.xml](src/main/resources/mapper/TagMapper.xml)
+  ```xml
+      <!--根据博客id查询其拥有的标签列表-->
+      <select id="getTagsByBlogId" resultType="cn.li98.blog.model.Tag">
+          SELECT id, tag_name, color from tag WHERE id in (SELECT tag_id FROM blog_tag WHERE blog_id=#{blogId})
+      </select>
   ```

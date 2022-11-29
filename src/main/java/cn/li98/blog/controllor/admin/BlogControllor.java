@@ -92,7 +92,7 @@ public class BlogControllor {
     /**
      * 创建、修改博客
      *
-     * @param form 博客实体类
+     * @param form BlogWriteDTO实体类，包含博客和Tag列表两个属性
      * @return 成功则"发布成功"作为data
      */
     @PostMapping("/submitBlog")
@@ -241,17 +241,27 @@ public class BlogControllor {
     }
 
     /**
-     * 修改操作对应的根据指定id查询博客的接口
-     * 可以根据指定的唯一id查询对应的博客
+     * 修改、阅读操作对应的根据指定id查询博客的接口
+     * 可以根据指定的唯一id查询对应的博客、博客所属的分类、博客拥有的标签
      *
-     * @param id 博客id（唯一）
-     * @return 成功则Blog作为data
+     * @param blogId 博客id（唯一）
+     * @return Result
      */
-    @GetMapping("/getBlogById")
-    public Result getBlogById(@RequestParam Long id) {
-        Blog blog = blogService.getById(id);
+    @GetMapping("/getBlogInfoById")
+    public Result getBlogInfoById(@RequestParam Long blogId) {
+        // 查询博客
+        Blog blog = blogService.getById(blogId);
         Assert.notNull(blog, "该博客不存在");
-        return Result.succ("查询成功", blog);
+        // 查询所属分类
+        Category category = categoryService.getById(blog.getCategoryId());
+        // 查询拥有的标签
+        List <Tag> tagList = tagService.getTagsByBlogId(blogId);
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("blog", blog);
+        data.put("category", category);
+        data.put("tagList", tagList);
+        return Result.succ("查询成功", data);
     }
 
     /**
