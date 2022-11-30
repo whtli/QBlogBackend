@@ -30,7 +30,17 @@ public class StatisticControllor {
      */
     @GetMapping("/getStatistic")
     public Result getStatistic() {
-        Map<String, Object> map = statisticService.getBlogCountList();
+        Map<String, Object> map = statisticService.getBlogStatistic();
+        int totalPageView = 0;
+        int todayPageView = statisticService.getTodayPageView();
+        int totalUniqueVisitor = 0;
+        int todayUniqueVisitor = 0;
+        int totalComment = statisticService.getTotalComment();
+        map.put("totalPageView", totalPageView);
+        map.put("todayPageView", todayPageView);
+        map.put("totalUniqueVisitor", totalUniqueVisitor);
+        map.put("todayUniqueVisitor", todayUniqueVisitor);
+        map.put("totalComment", totalComment);
         return Result.succ(map);
     }
 }

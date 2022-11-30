@@ -18,4 +18,6 @@ public interface StatisticMapper extends BaseMapper<Blog> {
      * @return 以类别id为分组依据的统计数据列表
      */
     List<StatisticBlogCount> getBlogCategoryList();
+
+    int getTodayPageView();
 }

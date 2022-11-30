@@ -9,5 +9,8 @@
         WHERE b.deleted = 0
         group by category_id
     </select>
+    <select id="getTodayPageView" resultType="java.lang.Integer">
+        select count(*) from visit_log where date(create_time)=curdate()
+    </select>
 
 </mapper>
