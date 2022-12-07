@@ -15,9 +15,15 @@ import java.util.List;
 public interface StatisticMapper extends BaseMapper<Blog> {
     /**
      * 获取统计数据
+     *
      * @return 以类别id为分组依据的统计数据列表
      */
     List<StatisticBlogCount> getBlogCategoryList();
 
+    /**
+     * 获取当日PV
+     *
+     * @return PV值
+     */
     int getTodayPageView();
 }

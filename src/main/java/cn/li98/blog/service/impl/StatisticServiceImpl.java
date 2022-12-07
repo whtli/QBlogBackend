@@ -110,7 +110,7 @@ public class StatisticServiceImpl implements StatisticService {
                 }
             }
         }
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>(5);
         map.put("blogCount", blogCount);
         map.put("blogCategoryList", blogCategoryList);
         map.put("categoryName", categoryName);

@@ -11,11 +11,22 @@ import java.util.Map;
 public interface StatisticService {
     /**
      * 调用Mapper层获取统计数据
+     *
      * @return 存放了博客分类统计数据列表和分类名列表的哈希表
      */
     Map<String, Object> getBlogStatistic();
 
+    /**
+     * 获取当日PV
+     *
+     * @return PV值
+     */
     int getTodayPageView();
 
+    /**
+     * 获取评论总数
+     *
+     * @return 评论总数
+     */
     int getTotalComment();
 }
