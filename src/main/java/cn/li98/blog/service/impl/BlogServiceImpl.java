@@ -95,9 +95,10 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
 
     /**
      * 提取上传的md文件内容，赋值到Blog对象中
+     *
      * @param file Markdown文件
      * @return Blog对象
-     * @throws IOException IO异常
+     * @throws IOException    IO异常
      * @throws ParseException 时间转换异常
      */
     @Override
@@ -144,5 +145,16 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         blog.setUserId(1L);
         blog.setDeleted(0L);
         return blog;
+    }
+
+    /**
+     * 博客可见性更改
+     *
+     * @param blogId 博客id
+     * @return 更改成功返回1，失败返回0
+     */
+    @Override
+    public int changeBlogStatusById(Long blogId) {
+        return blogMapper.changeBlogStatusById(blogId);
     }
 }

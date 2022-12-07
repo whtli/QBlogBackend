@@ -26,4 +26,12 @@ public interface BlogMapper extends BaseMapper<Blog> {
      * @return 1:成功；0:失败
      */
     int updateBlog(Blog blog);
+
+    /**
+     * 博客可见性更改
+     *
+     * @param blogId 博客id
+     * @return 更改成功返回1，失败返回0
+     */
+    int changeBlogStatusById(Long blogId);
 }

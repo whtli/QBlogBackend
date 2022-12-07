@@ -6,7 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.List;
 
 /**
  * @author: whtli
@@ -40,4 +39,12 @@ public interface BlogService extends IService<Blog> {
      * @throws ParseException 时间转换异常
      */
     Blog fileToBlog(MultipartFile file) throws IOException, ParseException;
+
+    /**
+     * 博客可见性更改
+     *
+     * @param blogId 博客id
+     * @return Result
+     */
+    int changeBlogStatusById(Long blogId);
 }

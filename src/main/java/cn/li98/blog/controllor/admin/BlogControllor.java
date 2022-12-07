@@ -150,6 +150,21 @@ public class BlogControllor {
     }
 
     /**
+     * 博客可见性更改
+     *
+     * @param blogId 博客id
+     * @return Result
+     */
+    @PostMapping("/changeBlogStatusById")
+    public Result changeBlogStatusById(@RequestParam Long blogId) {
+        int res = blogService.changeBlogStatusById(blogId);
+        if (res == 1) {
+            Result.succ("博客可见性更改成功", res);
+        }
+        return Result.fail("博客可见性更改失败", res);
+    }
+
+    /**
      * 导入博客到数据库
      *
      * @param file Markdown博客文件或Excel文件
@@ -255,7 +270,7 @@ public class BlogControllor {
         // 查询所属分类
         Category category = categoryService.getById(blog.getCategoryId());
         // 查询拥有的标签
-        List <Tag> tagList = tagService.getTagsByBlogId(blogId);
+        List<Tag> tagList = tagService.getTagsByBlogId(blogId);
 
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("blog", blog);

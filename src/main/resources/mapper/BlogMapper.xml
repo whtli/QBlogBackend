@@ -50,5 +50,10 @@
             password=#{password}
         where id = #{id}
     </update>
-
+    <!--  更改博客状态-->
+    <update id="changeBlogStatusById">
+        update blog
+        set published=1-published
+        where id = #{blogId}
+    </update>
 </mapper>
