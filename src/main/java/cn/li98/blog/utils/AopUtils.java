@@ -17,7 +17,9 @@ import java.util.Set;
  * @description: AOP工具类，可用于获取请求中的参数名与参数值
  */
 public class AopUtils {
-    // 自定义需要忽略的参数
+    /**
+     * 自定义需要忽略的参数
+     */
     private static Set<String> ignoreParams = new HashSet<String>() {
         {
             add("jwt");
