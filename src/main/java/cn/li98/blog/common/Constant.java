@@ -26,4 +26,6 @@ public interface Constant {
      * 其他业务异常
      */
     Integer CODE_ELSE_ERROR = 600;
+
+    String FILES_KEY = "FILES_FRONT_ALL";
 }
