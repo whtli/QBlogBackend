@@ -2,6 +2,7 @@ package cn.li98.blog.controllor.admin;
 
 import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Result;
+import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.model.Category;
 import cn.li98.blog.service.CategoryService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -34,6 +35,7 @@ public class CategoryControllor {
      * @param pageSize 每页分类数量
      * @return 成功则Map作为data
      */
+    @OperationLogger("获取分类列表")
     @GetMapping("/getCategories")
     public Result getCategories(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                                 @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
@@ -58,6 +60,7 @@ public class CategoryControllor {
      * @param id 分类id（唯一）
      * @return 被删除的分类id作为data
      */
+    @OperationLogger("删除分类")
     @DeleteMapping("/deleteCategoryById")
     public Result deleteCategoryById(@RequestParam Long id) {
         log.info("category to delete : " + id);
@@ -75,6 +78,7 @@ public class CategoryControllor {
      * @param category 分类实体类
      * @return Result
      */
+    @OperationLogger("新增分类")
     @PostMapping("/addCategory")
     public Result addCategory(@Validated @RequestBody Category category) {
         return submitCategory(category);
@@ -86,6 +90,7 @@ public class CategoryControllor {
      * @param category 分类实体类
      * @return Result
      */
+    @OperationLogger("修改分类")
     @PutMapping("/editCategory")
     public Result updateCategory(@Validated @RequestBody Category category) {
         return submitCategory(category);

@@ -2,6 +2,7 @@ package cn.li98.blog.controllor.admin;
 
 import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Result;
+import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.model.Tag;
 import cn.li98.blog.service.TagService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -28,12 +29,13 @@ public class TagControllor {
     TagService tagService;
 
     /**
-     * 分页查询，获取分类列表
+     * 分页查询，获取标签列表
      *
      * @param pageNum  页码
-     * @param pageSize 每页分类数量
+     * @param pageSize 每页标签数量
      * @return 成功则Map作为data
      */
+    @OperationLogger("获取标签列表")
     @GetMapping("/getTags")
     public Result getTags(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                                 @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
@@ -44,7 +46,7 @@ public class TagControllor {
         // 借助Page实现分页查询，借助QueryWrapper实现多参数查询
         IPage pageData = tagService.page(page, queryWrapper);
         if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
-            return Result.fail("查询失败，未查找到相应分类");
+            return Result.fail("查询失败，未查找到相应标签");
         }
         Map<String, Object> data = new HashMap<>(2);
         data.put("pageData", pageData);
@@ -53,37 +55,39 @@ public class TagControllor {
     }
 
     /**
-     * 删除分类
+     * 删除标签
      *
-     * @param id 分类id（唯一）
-     * @return 被删除的分类id作为data
+     * @param id 标签id（唯一）
+     * @return 被删除的标签id作为data
      */
+    @OperationLogger("删除标签")
     @DeleteMapping("/deleteTagById")
     public Result deleteTagById(@RequestParam Long id) {
         log.info("tag to delete : " + id);
         boolean delete = tagService.removeById(id);
         if (delete) {
-            return Result.succ("分类删除成功", id);
+            return Result.succ("标签删除成功", id);
         } else {
-            return Result.fail("分类删除失败", id);
+            return Result.fail("标签删除失败", id);
         }
     }
 
     /**
-     * 新增分类
+     * 新增标签
      *
-     * @param tag 分类实体类
+     * @param tag 标签实体类
      * @return Result
      */
+    @OperationLogger("新增标签")
     @PostMapping("/addTag")
     public Result addTag(@Validated @RequestBody Tag tag) {
         return submitTag(tag);
     }
 
     /**
-     * 修改分类
+     * 修改标签
      *
-     * @param tag 分类实体类
+     * @param tag 标签实体类
      * @return Result
      */
     @PutMapping("/editTag")
@@ -92,15 +96,15 @@ public class TagControllor {
     }
 
     /**
-     * 新增与修改分类的通用方法，通过判断id的有无来区分新增还是修改
+     * 新增与修改标签的通用方法，通过判断id的有无来区分新增还是修改
      *
-     * @param tag 分类实体类
+     * @param tag 标签实体类
      * @return Result
      */
     public Result submitTag(Tag tag) {
         // 验证字段
         if (StrUtil.isEmpty(tag.getTagName())) {
-            return Result.fail("分类名不可为空");
+            return Result.fail("标签名不可为空");
         }
         int flag = 0;
         try {
@@ -113,8 +117,8 @@ public class TagControllor {
             log.error(e.toString());
         }
         if (flag == 1) {
-            return Result.succ("分类发布成功");
+            return Result.succ("标签发布成功");
         }
-        return Result.fail("分类发布失败");
+        return Result.fail("标签发布失败");
     }
 }

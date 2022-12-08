@@ -1937,3 +1937,582 @@ public class Files {
           SELECT id, tag_name, color from tag WHERE id in (SELECT tag_id FROM blog_tag WHERE blog_id=#{blogId})
       </select>
   ```
+
+
+## 15. 自定义AOP记录操作日志
+### 15.1 添加操作日志实体类与查询操作日志的接口
++ 新增实体类[OperationLog](src/main/java/cn/li98/blog/model/OperationLog.java)
+    ```java
+    @Data
+    @NoArgsConstructor
+    @TableName("operation_log")
+    public class OperationLog implements Serializable {
+        @TableId(value = "id", type = IdType.AUTO)
+        private Long id;
+    
+        /**
+         * 操作者用户名
+         */
+        private String username;
+    
+        /**
+         * 请求接口
+         */
+        private String uri;
+    
+        /**
+         * 请求方式
+         */
+        private String method;
+    
+        /**
+         * 请求参数
+         */
+        private String param;
+    
+        /**
+         * 操作描述
+         */
+        private String description;
+    
+        /**
+         * ip
+         */
+        private String ip;
+    
+        /**
+         * ip来源
+         */
+        private String ipSource;
+    
+        /**
+         * 操作系统
+         */
+        private String os;
+    
+        /**
+         * 浏览器
+         */
+        private String browser;
+    
+        /**
+         * 请求耗时（毫秒）
+         */
+        private Integer times;
+    
+        /**
+         * 操作时间
+         */
+        private Date createTime;
+    
+        /**
+         * user-agent用户代理
+         */
+        private String userAgent;
+    
+        private static final long serialVersionUID = 1L;
+    
+        public OperationLog(String username, String description, String uri, String method, String userAgent, String ip, String ipSource, int times, String param, String os, String browser) {
+            this.username = username;
+            this.description = description;
+            this.uri = uri;
+            this.method = method;
+            this.userAgent = userAgent;
+            this.ip = ip;
+            this.ipSource = ipSource;
+            this.times = times;
+            this.param = param;
+            this.os = os;
+            this.browser = browser;
+            this.createTime = new Date();
+        }
+    }
+    ```
++ 新增控制层[OperationLogController](src/main/java/cn/li98/blog/controllor/admin/OperationLogController.java)
+    ```java
+    public class OperationLogController {
+        @Autowired
+        OperationLogService operationLogService;
+    
+        /**
+         * 分页查询操作日志列表
+         *
+         * @param pageNum  页码
+         * @param pageSize 每页个数
+         * @return
+         */
+        @OperationLogger("查询操作日志")
+        @GetMapping("/getOperationLogList")
+        public Result operationLogs(@RequestParam(defaultValue = "1") Integer pageNum,
+                                    @RequestParam(defaultValue = "10") Integer pageSize) {
+    
+            QueryWrapper<OperationLog> queryWrapper = new QueryWrapper<>();
+            // 根据创建时间查询逆序的列表结果，越新发布的博客越容易被看到
+            queryWrapper.orderByDesc("create_time");
+            // 新建一个分页规则，pageNum代表当前页码，pageSize代表每页数量
+            Page page = new Page(pageNum, pageSize);
+            // 借助Page实现分页查询，借助QueryWrapper实现多参数查询
+            IPage pageData = operationLogService.page(page, queryWrapper);
+            Map<String, Object> data = new HashMap<>(2);
+            data.put("pageData", pageData);
+            data.put("total", pageData.getTotal());
+            return Result.succ("请求成功", data);
+        }
+    
+        /**
+         * 按id删除操作日志
+         *
+         * @param id 日志id
+         * @return
+         */
+        @OperationLogger("按id删除操作日志")
+        @DeleteMapping("/deleteOperationLogById")
+        public Result delete(@RequestParam Long id) {
+            operationLogService.removeById(id);
+            return Result.succ("删除成功");
+        }
+    }
+    ```
++ 新增业务层[OperationLogService](src/main/java/cn/li98/blog/service/OperationLogService.java)
++ 新增业务实现层[OperationLogServiceImpl](src/main/java/cn/li98/blog/service/impl/OperationLogServiceImpl.java)
++ 新增持久层[OperationLogMapper](src/main/java/cn/li98/blog/dao/OperationLogMapper.java)
++ 新增mapper[OperationLogMapper.xml](src/main/resources/mapper/OperationLogMapper.xml)
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="cn.li98.blog.dao.OperationLogMapper">
+      <resultMap id="BaseResultMap" type="cn.li98.blog.model.OperationLog">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="username" jdbcType="VARCHAR" property="username" />
+        <result column="uri" jdbcType="VARCHAR" property="uri" />
+        <result column="method" jdbcType="VARCHAR" property="method" />
+        <result column="param" jdbcType="VARCHAR" property="param" />
+        <result column="description" jdbcType="VARCHAR" property="description" />
+        <result column="ip" jdbcType="VARCHAR" property="ip" />
+        <result column="ip_source" jdbcType="VARCHAR" property="ipSource" />
+        <result column="os" jdbcType="VARCHAR" property="os" />
+        <result column="browser" jdbcType="VARCHAR" property="browser" />
+        <result column="times" jdbcType="INTEGER" property="times" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="user_agent" jdbcType="VARCHAR" property="userAgent" />
+      </resultMap>
+      <sql id="Base_Column_List">
+        id, username, uri, `method`, param, description, ip, ip_source, os, browser, times, 
+        create_time, user_agent
+      </sql>
+    </mapper>
+    ```
+
+### 15.2 自定义AOP，在运行时实现记录操作日志
++ 新增依赖
+    ```xml
+            <!-- spring aop -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-aop</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>2.0.9</version>
+            </dependency>
+            <!-- 解析客户端操作系统、浏览器 -->
+            <dependency>
+                <groupId>nl.basjes.parse.useragent</groupId>
+                <artifactId>yauaa</artifactId>
+                <version>5.20</version>
+            </dependency>
+            <!-- ip2region -->
+            <dependency>
+                <groupId>org.lionsoul</groupId>
+                <artifactId>ip2region</artifactId>
+                <version>1.7.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.12.0</version>
+            </dependency>
+    ```
+
++ 在resource中添加[ip2region](src/main/resources/ipdb/ip2region.db)数据
+
++ 新增自定义的Aspect，[OperationLogAspect](src/main/java/cn/li98/blog/common/aspect/OperationLogAspect.java)
+    ```java
+    import cn.li98.blog.common.annotation.OperationLogger;
+    import cn.li98.blog.model.OperationLog;
+    import cn.li98.blog.service.OperationLogService;
+    import cn.li98.blog.utils.*;
+    import org.apache.commons.lang3.StringUtils;
+    import org.aspectj.lang.ProceedingJoinPoint;
+    import org.aspectj.lang.annotation.Around;
+    import org.aspectj.lang.annotation.Aspect;
+    import org.aspectj.lang.annotation.Pointcut;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.stereotype.Component;
+    import org.springframework.web.context.request.RequestContextHolder;
+    import org.springframework.web.context.request.ServletRequestAttributes;
+    
+    import javax.servlet.http.HttpServletRequest;
+    import java.util.Map;
+    
+    @Component
+    @Aspect
+    public class OperationLogAspect {
+        @Autowired
+        OperationLogService operationLogService;
+    
+        @Autowired
+        UserAgentUtils userAgentUtils;
+    
+        ThreadLocal<Long> currentTime = new ThreadLocal<>();
+    
+        /**
+         * 配置切入点
+         */
+        @Pointcut("@annotation(operationLogger)")
+        public void logPointcut(OperationLogger operationLogger) {
+        }
+        
+        /**
+         * 配置环绕通知
+         *
+         * @param joinPoint       切入点
+         * @param operationLogger 注解OperationLogger对象
+         * @return joinPoint.proceed()
+         * @throws Throwable
+         */
+        @Around("logPointcut(operationLogger)")
+        public Object logAround(ProceedingJoinPoint joinPoint, OperationLogger operationLogger) throws Throwable {
+            currentTime.set(System.currentTimeMillis());
+            Object result = joinPoint.proceed();
+            int times = (int) (System.currentTimeMillis() - currentTime.get());
+            currentTime.remove();
+            // 新建一个当前操作的日志对象并填充
+            OperationLog operationLog = handleLog(joinPoint, operationLogger, times);
+            // 将操作日志保持到数据库
+            operationLogService.save(operationLog);
+            return result;
+        }
+    
+        /**
+         * 获取HttpServletRequest请求对象，并设置OperationLog对象属性
+         *
+         * @param joinPoint       切入点
+         * @param operationLogger 注解OperationLogger对象
+         * @param times           操作所用时间
+         * @return
+         */
+        private OperationLog handleLog(ProceedingJoinPoint joinPoint, OperationLogger operationLogger, int times) {
+            // 从token中获取操作用户的名称
+            String username = TokenUtils.getCurrentUser().getUsername();
+            System.out.println("username: -----------  " + username);
+            // 获取操作描述
+            String description = operationLogger.value();
+    
+            // 获取请求内容中的属性
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            // 获取请求属性
+            HttpServletRequest request = attributes.getRequest();
+            // 获取请求接口
+            String uri = request.getRequestURI();
+            // 获取请求方式
+            String method = request.getMethod();
+            // 获取用户代理方式
+            String userAgent = request.getHeader("User-Agent");
+            // 借助IpAddressUtils工具类获取用户ip
+            String ip = IpAddressUtils.getIpAddress(request);
+            // 借助IpAddressUtils工具获取ip来源
+            String ipSource = IpAddressUtils.getCityInfo(ip);
+            // 借助AopUtils工具类获取请求参数
+            Map<String, Object> requestParams = AopUtils.getRequestParams(joinPoint);
+            String param = JacksonUtils.writeValueAsString(requestParams);
+            // String param = StringUtils.substring(JacksonUtils.writeValueAsString(requestParams), 0, 2000);
+            // 借助UserAgentUtils工具类获取操作系统和浏览器信息
+            Map<String, String> userAgentMap = userAgentUtils.parseOsAndBrowser(userAgent);
+            String os = userAgentMap.get("os");
+            String browser = userAgentMap.get("browser");
+            // 创建日志对象
+            OperationLog log = new OperationLog(username, description, uri, method, userAgent, ip, ipSource, times, param, os, browser);
+            return log;
+        }
+    }
+    ```
+
++ 新增自定义注解[OperationLogger](src/main/java/cn/li98/blog/common/annotation/OperationLogger.java)
+    ```java
+    /**
+     * @author: whtli
+     * @date: 2022/12/08
+     * @description: 用于需要记录操作日志的方法
+     * JDK元注解
+     *    @Retention：定义注解的保留策略
+     *       @Retention(RetentionPolicy.SOURCE)             //注解仅存在于源码中，在class字节码文件中不包含
+     *       @Retention(RetentionPolicy.CLASS)              //默认的保留策略，注解会在class字节码文件中存在，但运行时无法获得，
+     *       @Retention(RetentionPolicy.RUNTIME)            //注解会在class字节码文件中存在，在运行时可以通过反射获取到
+     *    @Target：指定被修饰的Annotation可以放置的位置(被修饰的目标)
+     *       @Target(ElementType.TYPE)                      // 接口、类
+     *       @Target(ElementType.FIELD)                     // 属性
+     *       @Target(ElementType.METHOD)                    // 方法
+     *       @Target(ElementType.PARAMETER)                 // 方法参数
+     *       @Target(ElementType.CONSTRUCTOR)               // 构造函数
+     *       @Target(ElementType.LOCAL_VARIABLE)            // 局部变量
+     *       @Target(ElementType.ANNOTATION_TYPE)           // 注解
+     *       @Target(ElementType.PACKAGE)                   // 包
+     *    @Inherited：指定被修饰的Annotation将具有继承性 
+     *    @Documented：指定被修饰的该Annotation可以被javadoc工具提取成文档
+     */
+    @Target(ElementType.METHOD)
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface OperationLogger {
+        /**
+         * 操作描述
+         */
+        String value() default "";
+    }
+    ```
+
++ 新增[UserAgentUtils](src/main/java/cn/li98/blog/utils/UserAgentUtils.java)用户代理解析工具类，可以获取操作系统和浏览器类型
+    ```java
+    @Component
+    public class UserAgentUtils {
+        private UserAgentAnalyzer uaa;
+    
+        public UserAgentUtils() {
+            this.uaa = UserAgentAnalyzer
+                    .newBuilder()
+                    .hideMatcherLoadStats()
+                    .withField(UserAgent.OPERATING_SYSTEM_NAME_VERSION_MAJOR)
+                    .withField(UserAgent.AGENT_NAME_VERSION)
+                    .build();
+        }
+    
+        /**
+         * 从User-Agent解析客户端操作系统和浏览器版本
+         *
+         * @param userAgent 用户代理信息
+         * @return 操作系统和浏览器类型组成的键值对map
+         */
+        public Map<String, String> parseOsAndBrowser(String userAgent) {
+            UserAgent agent = uaa.parse(userAgent);
+            String os = agent.getValue(UserAgent.OPERATING_SYSTEM_NAME_VERSION_MAJOR);
+            String browser = agent.getValue(UserAgent.AGENT_NAME_VERSION);
+            Map<String, String> map = new HashMap<>();
+            map.put("os", os);
+            map.put("browser", browser);
+            return map;
+        }
+    }
+    ```
+
++ 新增[IpAddressUtils](src/main/java/cn/li98/blog/utils/IpAddressUtils.java)ip记录工具类，可获取ip地址及其来源
+    ```java
+    @Slf4j
+    @Component
+    public class IpAddressUtils {
+        /**
+         * 在Nginx等代理之后获取用户真实IP地址
+         *
+         * @param request
+         * @return
+         */
+        public static String getIpAddress(HttpServletRequest request) {
+            String ip = request.getHeader("X-Real-IP");
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("x-forwarded-for");
+            }
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("Proxy-Client-IP");
+            }
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("WL-Proxy-Client-IP");
+            }
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("HTTP_CLIENT_IP");
+            }
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+            }
+            if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getRemoteAddr();
+                if ("127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip)) {
+                    //根据网卡取本机配置的IP
+                    InetAddress inet = null;
+                    try {
+                        inet = InetAddress.getLocalHost();
+                    } catch (UnknownHostException e) {
+                        log.error("getIpAddress exception:", e);
+                    }
+                    ip = inet.getHostAddress();
+                }
+            }
+            return StringUtils.substringBefore(ip, ",");
+        }
+    
+        private static DbSearcher searcher;
+        private static Method method;
+    
+        /**
+         * 在服务启动时加载 ip2region.db 到内存中
+         * 解决打包jar后找不到 ip2region.db 的问题
+         *
+         * @throws Exception 出现异常应该直接抛出终止程序启动，避免后续invoke时出现更多错误
+         */
+        @PostConstruct
+        private void initIp2regionResource() throws Exception {
+            InputStream inputStream = new ClassPathResource("/ipdb/ip2region.db").getInputStream();
+            // 将 ip2region.db 转为 ByteArray
+            byte[] dbBinStr = FileCopyUtils.copyToByteArray(inputStream);
+            DbConfig dbConfig = new DbConfig();
+            searcher = new DbSearcher(dbConfig, dbBinStr);
+            // 二进制方式初始化 DBSearcher，需要使用基于内存的查找算法 memorySearch
+            method = searcher.getClass().getMethod("memorySearch", String.class);
+        }
+    
+        /**
+         * 根据ip从 ip2region.db 中获取地理位置
+         *
+         * @param ip
+         * @return
+         */
+        public static String getCityInfo(String ip) {
+            if (ip == null || !Util.isIpAddress(ip)) {
+                log.error("Error: Invalid ip address");
+                return "";
+            }
+            try {
+                DataBlock dataBlock = (DataBlock) method.invoke(searcher, ip);
+                String ipInfo = dataBlock.getRegion();
+                if (!StringUtils.isEmpty(ipInfo)) {
+                    ipInfo = ipInfo.replace("|0", "");
+                    ipInfo = ipInfo.replace("0|", "");
+                    return ipInfo;
+                }
+            } catch (Exception e) {
+                log.error("getCityInfo exception:", e);
+            }
+            return "";
+        }
+    }
+    ```
+
++ 新增[AopUtils](src/main/java/cn/li98/blog/utils/AopUtils.java)工具类，可用于获取请求中的参数名与参数值
+    ```java
+    public class AopUtils {
+        // 自定义需要忽略的参数
+        private static Set<String> ignoreParams = new HashSet<String>() {
+            {
+                add("jwt");
+            }
+        };
+    
+        /**
+         * 获取请求参数
+         *
+         * @param joinPoint
+         * @return
+         */
+        public static Map<String, Object> getRequestParams(JoinPoint joinPoint) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            // 参数名数组
+            String[] parameterNames = ((MethodSignature) joinPoint.getSignature()).getParameterNames();
+            // 参数值数组
+            Object[] args = joinPoint.getArgs();
+            // 将符合条件的参数名与其对应的参数值，存到map中
+            for (int i = 0; i < args.length; i++) {
+                if (!isIgnoreParams(parameterNames[i]) && !isFilterObject(args[i])) {
+                    map.put(parameterNames[i], args[i]);
+                }
+            }
+            return map;
+        }
+    
+        /**
+         * 判断是否忽略参数
+         *
+         * @param params
+         * @return
+         */
+        private static boolean isIgnoreParams(String params) {
+            return ignoreParams.contains(params);
+        }
+    
+        /**
+         * consider if the data is file, httpRequest or response
+         *
+         * @param o the data
+         * @return if match return true, else return false
+         */
+        private static boolean isFilterObject(final Object o) {
+            return o instanceof HttpServletRequest || o instanceof HttpServletResponse || o instanceof MultipartFile;
+        }
+    }
+    
+    ```
+
++ 新增[JacksonUtils](src/main/java/cn/li98/blog/utils/JacksonUtils.java)，Jackson工具类
+    ```java
+    public class JacksonUtils {
+        private static ObjectMapper objectMapper = new ObjectMapper();
+    
+        public static String writeValueAsString(Object value) {
+            try {
+                return objectMapper.writeValueAsString(value);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+                return "";
+            }
+        }
+    
+        public static <T> T readValue(String content, Class<T> valueType) {
+            try {
+                return objectMapper.readValue(content, valueType);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+    
+        public static <T> T readValue(String content, TypeReference<T> valueTypeRef) {
+            try {
+                return objectMapper.readValue(content, valueTypeRef);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+    
+        public static <T> T readValue(InputStream src, Class<T> valueType) {
+            try {
+                return objectMapper.readValue(src, valueType);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+    
+        public static <T> T convertValue(Object fromValue, Class<T> toValueType) {
+            return objectMapper.convertValue(fromValue, toValueType);
+        }
+    }
+    ```
+
++ 在需要记录操作日志的方法前添加注解，如StatisticControllor中获取统计信息的方法
+    ```java
+        @OperationLogger("获取统计数据")
+        @GetMapping("/getStatistic")
+        public Result getStatistic() {
+            Map<String, Object> map = statisticService.getBlogStatistic();
+            int totalPageView = 0;
+            int todayPageView = statisticService.getTodayPageView();
+            int totalUniqueVisitor = 0;
+            int todayUniqueVisitor = 0;
+            int totalComment = statisticService.getTotalComment();
+            map.put("totalPageView", totalPageView);
+            map.put("todayPageView", todayPageView);
+            map.put("totalUniqueVisitor", totalUniqueVisitor);
+            map.put("todayUniqueVisitor", todayUniqueVisitor);
+            map.put("totalComment", totalComment);
+            return Result.succ(map);
+        }
+    ```

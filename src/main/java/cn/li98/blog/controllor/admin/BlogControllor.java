@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.li98.blog.common.Result;
+import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.model.Blog;
 import cn.li98.blog.model.Category;
 import cn.li98.blog.model.Tag;
@@ -55,6 +56,7 @@ public class BlogControllor {
      * @param multipartFile 图片文件
      * @return 上传成功后返回的图片地址作为data
      */
+    @OperationLogger("向七牛云服务器中上传图片")
     @PostMapping("/addImage")
     public Result addImage(@RequestParam(value = "image") MultipartFile multipartFile) {
         if (multipartFile.isEmpty()) {
@@ -73,6 +75,7 @@ public class BlogControllor {
      * @param url 图片在七牛云中的url（回显在前端）
      * @return 图片名（带路径）作为data
      */
+    @OperationLogger("删除七牛云中的指定图片")
     @PostMapping("/deleteImg")
     public Result deleteImg(@RequestHeader("Img-Delete") String url) {
         if (url.isEmpty()) {
@@ -95,6 +98,7 @@ public class BlogControllor {
      * @param form BlogWriteDTO实体类，包含博客和Tag列表两个属性
      * @return 成功则"发布成功"作为data
      */
+    @OperationLogger("创建/修改博客")
     @PostMapping("/submitBlog")
     public Result submitBlog(@RequestBody BlogWriteDTO form) {
         Blog blog = form.getBlog();
@@ -155,11 +159,12 @@ public class BlogControllor {
      * @param blogId 博客id
      * @return Result
      */
+    @OperationLogger("更新博客可见性状态")
     @PostMapping("/changeBlogStatusById")
     public Result changeBlogStatusById(@RequestParam Long blogId) {
         int res = blogService.changeBlogStatusById(blogId);
         if (res == 1) {
-            Result.succ("博客可见性更改成功", res);
+            return Result.succ("博客可见性更改成功", res);
         }
         return Result.fail("博客可见性更改失败", res);
     }
@@ -172,6 +177,7 @@ public class BlogControllor {
      * @throws IOException    IO异常
      * @throws ParseException 时间转换异常
      */
+    @OperationLogger("导入博客到数据库")
     @PostMapping("/uploadBlog")
     public Result uploadBlog(@RequestParam MultipartFile file) throws IOException, ParseException {
         String originalFilename = file.getOriginalFilename();
@@ -217,6 +223,7 @@ public class BlogControllor {
      * @param id 博客id（唯一）
      * @return 被逻辑删除的博客id作为data
      */
+    @OperationLogger("逻辑删除博客")
     @DeleteMapping("/deleteBlogById")
     public Result deleteBlogById(@RequestParam Long id) {
         log.info("blog to delete : " + id);
@@ -234,6 +241,7 @@ public class BlogControllor {
      * @param ids 多个博客id
      * @return 被逻辑删除的多个博客id列表
      */
+    @OperationLogger("批量删除博客")
     @DeleteMapping("/deleteBlogBatchByIds")
     public Result deleteBlogBatchByIds(@RequestParam String ids) {
         String[] list = ids.split(",");
@@ -262,6 +270,7 @@ public class BlogControllor {
      * @param blogId 博客id（唯一）
      * @return Result
      */
+    @OperationLogger("根据指定id查询博客")
     @GetMapping("/getBlogInfoById")
     public Result getBlogInfoById(@RequestParam Long blogId) {
         // 查询博客
@@ -293,6 +302,7 @@ public class BlogControllor {
      * @param pageSize   每页博客数量
      * @return 成功则Map作为data
      */
+    @OperationLogger("获取博客列表")
     @GetMapping("/getBlogs")
     public Result getBlogs(@RequestParam(value = "title", defaultValue = "") String title,
                            @RequestParam(value = "categoryId", defaultValue = "") Long categoryId,
@@ -327,6 +337,7 @@ public class BlogControllor {
      *
      * @return 所有分类和所有标签
      */
+    @OperationLogger("获取所有分类和标签")
     @GetMapping("/getCategoryAndTag")
     public Result getCategoryAndTag() {
         List<Category> categoryList = new LinkedList<>();
