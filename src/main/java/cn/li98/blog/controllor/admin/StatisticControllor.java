@@ -1,6 +1,7 @@
 package cn.li98.blog.controllor.admin;
 
 import cn.li98.blog.common.Result;
+import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.service.StatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ public class StatisticControllor {
      *
      * @return 存放了博客分类统计数据列表和分类名列表的哈希表
      */
+    @OperationLogger("获取统计数据")
     @GetMapping("/getStatistic")
     public Result getStatistic() {
         Map<String, Object> map = statisticService.getBlogStatistic();
