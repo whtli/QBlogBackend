@@ -5,6 +5,7 @@ import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
+import cn.li98.blog.common.Constant;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.model.Blog;
@@ -21,6 +22,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,6 +51,9 @@ public class BlogController {
 
     @Autowired
     QiniuUtils qiniuUtils;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 向七牛云服务器中上传一张图片
@@ -148,6 +153,7 @@ public class BlogController {
             log.error(e.toString());
         }
         if (flag == 1 && tagCount == tagList.size()) {
+            flushRedis(Constant.GUEST_BLOG_KEY);
             return Result.succ("博客发布成功");
         }
         return Result.fail("博客发布失败");
@@ -164,6 +170,8 @@ public class BlogController {
     public Result changeBlogStatusById(@RequestParam Long blogId) {
         int res = blogService.changeBlogStatusById(blogId);
         if (res == 1) {
+            // 修改成功后清空redis中的博客缓存
+            flushRedis(Constant.GUEST_BLOG_KEY);
             return Result.succ("博客可见性更改成功", res);
         }
         return Result.fail("博客可见性更改失败", res);
@@ -188,6 +196,7 @@ public class BlogController {
             Blog blog = blogService.fileToBlog(file);
             int flag = blogService.createBlog(blog);
             if (flag == 1) {
+                flushRedis(Constant.GUEST_BLOG_KEY);
                 return Result.succ(originalFilename + " 导入成功", blog);
             }
         } else if ("xlsx".equals(type) || "xls".equals(type)) {
@@ -204,10 +213,11 @@ public class BlogController {
                     return Result.fail("博客导入失败，停止继续导入，失败行数为：" + i, e.getMessage());
                 }
             }
+            flushRedis(Constant.GUEST_BLOG_KEY);
             if (count == list.size()) {
                 return Result.succ(originalFilename + " 导入成功", list);
             } else {
-                return Result.fail("成功导入的博客记录数与文件内记录数不匹配，未知原因");
+                return Result.fail("导入成功的博客记录数与文件内记录数不匹配，未知原因");
             }
         } else {
             return Result.fail("博客文件类型错误，应为.md或.xlsx或.xls文件");
@@ -229,6 +239,7 @@ public class BlogController {
         log.info("blog to delete : " + id);
         boolean delete = blogService.removeById(id);
         if (delete) {
+            flushRedis(Constant.GUEST_BLOG_KEY);
             return Result.succ("博客删除成功", id);
         } else {
             return Result.fail("博客删除失败", id);
@@ -350,5 +361,14 @@ public class BlogController {
         data.put("tagList", tagList);
 
         return Result.succ(data);
+    }
+
+    /**
+     * 删除redis缓存中对应指定键值的内容
+     *
+     * @param key redis中博客缓存对应的键值
+     */
+    private void flushRedis(String key) {
+        redisTemplate.delete(key);
     }
 }

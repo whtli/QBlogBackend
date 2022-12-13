@@ -27,5 +27,8 @@ public interface Constant {
      */
     Integer CODE_ELSE_ERROR = 600;
 
-    String FILES_KEY = "FILES_FRONT_ALL";
+    /**
+     * 通用的指向访客可见博客列表测试键值
+     */
+    String GUEST_BLOG_KEY = "GUEST_BLOG_KEY";
 }

@@ -2516,3 +2516,140 @@ public class Files {
             return Result.succ(map);
         }
     ```
+
+
+## 16. 集成redis缓存，以用户对博客的访问与管理员对博客的操作为例
++ 添加依赖
+    ```xml
+            <!-- redis -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-redis</artifactId>
+            </dependency>
+    ```
+
++ 配置redis（如果没有自定义的密码、端口，则不需要在yml文件中配置，默认就好）
+
++ 在[Constant](src/main/java/cn/li98/blog/common/Constant.java)中添加通用的指向访客可见博客列表测试键值
+    ```java
+        /**
+         * 通用的指向访客可见博客列表测试键值
+         */
+        String GUEST_BLOG_KEY = "GUEST_BLOG_KEY";
+    ```
+
++ 在接口层添加用户可用的方法以及缓存操作，见[BlogGuestController](src/main/java/cn/li98/blog/controller/guest/BlogGuestController.java)
+    ```java
+    package cn.li98.blog.controller.guest;
+    
+    import cn.li98.blog.common.Constant;
+    import cn.li98.blog.common.Result;
+    import cn.li98.blog.common.annotation.OperationLogger;
+    import cn.li98.blog.model.Blog;
+    import cn.li98.blog.service.BlogService;
+    import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+    import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+    import lombok.extern.slf4j.Slf4j;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.data.redis.core.RedisTemplate;
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RequestParam;
+    import org.springframework.web.bind.annotation.RestController;
+    
+    import java.util.List;
+    
+    /**
+     * @author: whtli
+     * @date: 2022/12/13
+     * @description: 访客访问博客的接口
+     */
+    @Slf4j
+    @RestController
+    @RequestMapping("/admin/guest")
+    public class BlogGuestController {
+        @Autowired
+        BlogService blogService;
+    
+        @Autowired
+        private RedisTemplate redisTemplate;
+    
+        /**
+         * 获取访客可见的博客列表
+         *
+         * @param title      博客标题
+         * @param categoryId 博客分类
+         * @param pageNum    页码
+         * @return 成功则Map作为data
+         */
+        @OperationLogger("获取博客列表")
+        @GetMapping("/getBlogList")
+        public Result getBlogList(@RequestParam(value = "title", defaultValue = "") String title,
+                                  @RequestParam(value = "categoryId", defaultValue = "") Long categoryId,
+                                  @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum) {
+    
+            List<Blog> blogList = null;
+            // 1. 尝试从redis缓存中获取指定键值对应的数据
+            List<Blog> list = redisTemplate.opsForList().range(Constant.GUEST_BLOG_KEY, 0, -1);
+            // 2. 如果redis中无对应的数据
+            if (list.isEmpty()) {
+                // 3. 从数据库取出数据
+                QueryWrapper<Blog> queryWrapper = new QueryWrapper<>();
+                // 3.1 将查询参数以键值对的形式存放到QueryWrapper中
+                if (!StringUtils.isEmpty(title) && !StringUtils.isBlank(title)) {
+                    queryWrapper.like("title", title);
+                }
+                if (categoryId != null) {
+                    queryWrapper.eq("category_id", categoryId);
+                }
+                // 3.2 博客的可见性需指定为“可见”，用户只能看到公开的博客
+                queryWrapper.eq("published", true);
+                // 3.3 根据创建时间查询逆序的列表结果，越新发布的博客越容易被看到
+                queryWrapper.orderByDesc("create_time");
+                // 3.4 查询符合条件的博客列表
+                blogList = blogService.list(queryWrapper);
+                if (blogList.size() == 0) {
+                    return Result.fail("查询失败，未查找到相应博客");
+                }
+    
+                // 4. 缓存到redis
+                redisTemplate.opsForList().rightPush(Constant.GUEST_BLOG_KEY, blogList);
+            } else {
+                blogList = (List<Blog>) list.get(0);
+            }
+            return Result.succ("查询成功", blogList);
+        }
+    }
+    ```
+
++ 在[BlogController](src/main/java/cn/li98/blog/controller/admin/BlogController.java)中添加管理员对博客做出增、删、改等操作之后清空redis中博客缓存的操作
+    ```java
+    // 以修改博客可见性接口为例
+    
+        /**
+         * 博客可见性更改
+         *
+         * @param blogId 博客id
+         * @return Result
+         */
+        @OperationLogger("更新博客可见性状态")
+        @PostMapping("/changeBlogStatusById")
+        public Result changeBlogStatusById(@RequestParam Long blogId) {
+            int res = blogService.changeBlogStatusById(blogId);
+            if (res == 1) {
+                // 修改成功后清空redis中的博客缓存
+                flushRedis(Constant.GUEST_BLOG_KEY);
+                return Result.succ("博客可见性更改成功", res);
+            }
+            return Result.fail("博客可见性更改失败", res);
+        }
+    
+        /**
+         * 删除redis缓存中对应指定键值的内容
+         *
+         * @param key redis中博客缓存对应的键值
+         */
+        private void flushRedis(String key) {
+            redisTemplate.delete(key);
+        }
+    ```
