@@ -1,4 +1,4 @@
-package cn.li98.blog.controllor.admin;
+package cn.li98.blog.controller.admin;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
@@ -27,7 +27,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/admin/file")
-public class FileControllor {
+public class FileController {
 
     @Value("${files.upload.path}")
     private String fileUploadPath;

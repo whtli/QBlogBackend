@@ -1,15 +1,10 @@
-package cn.li98.blog.controllor;
-
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.crypto.SecureUtil;
+package cn.li98.blog.controller;
 
 import cn.li98.blog.model.dto.LoginDTO;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.model.User;
 import cn.li98.blog.service.UserService;
 import cn.li98.blog.utils.TokenUtils;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -26,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 @CrossOrigin
 @RestController
 @RequestMapping("/admin")
-public class AccountControllor {
+public class AccountController {
     @Autowired
     UserService userService;
 

@@ -1,4 +1,4 @@
-package cn.li98.blog.controllor;
+package cn.li98.blog.controller;
 
 
 import cn.li98.blog.common.Result;
@@ -8,18 +8,17 @@ import cn.li98.blog.utils.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.sound.midi.SoundbankResource;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author: whtli
  * @date: 2022/11/09
- * @description: UserControllor
+ * @description: UserController
  */
 @RestController
 @RequestMapping("/admin")
-public class UserControllor {
+public class UserController {
     @Autowired
     UserService userService;
 

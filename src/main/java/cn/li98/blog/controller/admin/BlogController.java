@@ -1,4 +1,4 @@
-package cn.li98.blog.controllor.admin;
+package cn.li98.blog.controller.admin;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
@@ -37,7 +37,7 @@ import java.util.*;
 @Slf4j
 @RestController
 @RequestMapping("/admin/blog")
-public class BlogControllor {
+public class BlogController {
     @Autowired
     BlogService blogService;
 

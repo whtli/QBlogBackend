@@ -195,7 +195,7 @@
     domainName: 
   ```
   
-+ [BlogControllor](./src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)
++ [BlogController](src/main/java/cn/li98/blog/controller/admin/BlogController.java)
     ```java
     import cn.hutool.core.lang.Assert;
     import cn.li98.blog.common.Result;
@@ -221,7 +221,7 @@
     @Slf4j
     @RestController
     @RequestMapping("/admin/blog")
-    public class BlogControllor {
+    public class BlogController {
         @Autowired
         BlogService blogService;
     
@@ -406,10 +406,10 @@
 ## 5. 实现增删改查功能
 ### 新增、修改
 + 因为功能类似，只有个别的字段需要做区分设置，所以将增、改功能整合到同一个controllor中，然后根据id的有无来区分类型，并在service、impl等后续过程中进行不同的操作
-+ [BlogControllor](./src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)
++ [BlogController](src/main/java/cn/li98/blog/controller/admin/BlogController.java)
   ```java
   @RequestMapping("/admin/blog")
-  public class BlogControllor {
+  public class BlogController {
       @Autowired
       BlogService blogService;
   
@@ -572,12 +572,12 @@
         private Long isDeleted;
     ```
 
-+ [BlogControllor](./src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)
++ [BlogController](src/main/java/cn/li98/blog/controller/admin/BlogController.java)
   ```java
   @Slf4j
   @RestController
   @RequestMapping("/admin/blog")
-  public class BlogControllor {
+  public class BlogController {
       @Autowired
       BlogService blogService;
   
@@ -604,12 +604,12 @@
   ```
 
 ### 查询（多参数查询+分页查询）
-+ [BlogControllor](./src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)
++ [BlogController](src/main/java/cn/li98/blog/controller/admin/BlogController.java)
   ```java
   @Slf4j
   @RestController
   @RequestMapping("/admin/blog")
-  public class BlogControllor {
+  public class BlogController {
       @Autowired
       BlogService blogService;
       
@@ -680,12 +680,12 @@
   }
   ```
 
-+ [StatisticControllor](./src/main/java/cn/li98/blog/controllor/admin/StatisticControllor.java)
++ [StatisticController](src/main/java/cn/li98/blog/controller/admin/StatisticController.java)
   ```java
   @Slf4j
   @RestController
   @RequestMapping("/admin/statistic")
-  public class StatisticControllor {
+  public class StatisticController {
       @Autowired
       StatisticService statisticService;
   
@@ -777,7 +777,7 @@
 
 
 ## 7. 批量删除博客
-+ 在BlogControllor中添加接口，获取前端传来的列表，调用已有的删除单个博客的方法即可
++ 在BlogController中添加接口，获取前端传来的列表，调用已有的删除单个博客的方法即可
   ```java
       /**
        * 删除博客，逻辑删除，对应字段deleted
@@ -968,7 +968,7 @@ CREATE TABLE `sys_file` (
 ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-+ [FileControllor](src/main/java/cn/li98/blog/controllor/admin/FileControllor.java)
++ [FileController](src/main/java/cn/li98/blog/controller/admin/FileController.java)
 ```java
 import java.io.IOException;
 @RestController
@@ -1138,7 +1138,7 @@ public class Files {
 
 
 ## 10. 新增博客导入接口并实现功能
-+ [BlogControllor](src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)
++ [BlogControllor](src/main/java/cn/li98/blog/controller/admin/BlogController.java)
     ```java
     import java.io.IOException;
     import java.text.ParseException;
@@ -1330,7 +1330,7 @@ public class Files {
 
 
 ## 11. 新增博客批量导入功能
-+ 在[BlogControllor](./src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)中复用单个博客导入的接口和业务实现层，根据文件类型进行区分
++ 在[BlogControllor](src/main/java/cn/li98/blog/controller/admin/BlogController.java)中复用单个博客导入的接口和业务实现层，根据文件类型进行区分
 ```java
     @PostMapping("/submitBlog")
     public Result submitBlog(@Validated @RequestBody Blog blog) {
@@ -1792,7 +1792,7 @@ public class Files {
       }
   ```
 
-+ 修改[BlogControllor](src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)中创建博客的接口，关于标签的处理，如果是选择了已有的标签，则直接把选择的标签维护到新的标签列表tagList中；如果是输入的标签名，则判断是否已有之后进行不同的处理，如果已有则报错提示，如果是新标签名则创建，并维护到tagList中
++ 修改[BlogControllor](src/main/java/cn/li98/blog/controller/admin/BlogController.java)中创建博客的接口，关于标签的处理，如果是选择了已有的标签，则直接把选择的标签维护到新的标签列表tagList中；如果是输入的标签名，则判断是否已有之后进行不同的处理，如果已有则报错提示，如果是新标签名则创建，并维护到tagList中
   ```java
       /**
        * 创建、修改博客
@@ -1857,7 +1857,7 @@ public class Files {
 
 
 ## 14. 在阅读界面中联动展示博客所属的分类及其标签
-+ 修改[BlogController](src/main/java/cn/li98/blog/controllor/admin/BlogControllor.java)中的根据id查询博客接口
++ 修改[BlogController](src/main/java/cn/li98/blog/controller/admin/BlogController.java)中的根据id查询博客接口
   ```java
       /**
        * 修改、阅读操作对应的根据指定id查询博客的接口
@@ -2028,7 +2028,7 @@ public class Files {
         }
     }
     ```
-+ 新增控制层[OperationLogController](src/main/java/cn/li98/blog/controllor/admin/OperationLogController.java)
++ 新增控制层[OperationLogController](src/main/java/cn/li98/blog/controller/admin/OperationLogController.java)
     ```java
     public class OperationLogController {
         @Autowired

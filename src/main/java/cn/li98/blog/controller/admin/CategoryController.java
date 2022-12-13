@@ -1,4 +1,4 @@
-package cn.li98.blog.controllor.admin;
+package cn.li98.blog.controller.admin;
 
 import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Result;
@@ -24,7 +24,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/admin/category")
-public class CategoryControllor {
+public class CategoryController {
     @Autowired
     CategoryService categoryService;
 

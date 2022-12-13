@@ -1,4 +1,4 @@
-package cn.li98.blog.controllor.admin;
+package cn.li98.blog.controller.admin;
 
 import cn.li98.blog.common.Result;
 import cn.li98.blog.common.annotation.OperationLogger;
@@ -9,18 +9,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Map;
 
 /**
  * @author: whtli
  * @date: 2022/11/17
- * @description: 用于获取统计数据的Controllor
+ * @description: 用于获取统计数据的Controller
  */
 @Slf4j
 @RestController
 @RequestMapping("/admin/statistic")
-public class StatisticControllor {
+public class StatisticController {
     @Autowired
     StatisticService statisticService;
 

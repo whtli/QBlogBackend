@@ -1,4 +1,4 @@
-package cn.li98.blog.controllor.admin;
+package cn.li98.blog.controller.admin;
 
 import cn.li98.blog.common.Result;
 import cn.li98.blog.common.annotation.OperationLogger;
