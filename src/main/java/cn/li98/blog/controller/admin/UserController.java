@@ -30,7 +30,7 @@ public class UserController {
     @GetMapping("/test")
     public Result updateUserName(@RequestParam String name) {
         User currentUser = TokenUtils.getCurrentUser();
-        System.out.println("获取当前用户信息 ====== " + currentUser.getUsername());
+        log.info("获取当前用户信息 ====== " + currentUser.getUsername());
 
         Map<String, String> data = new HashMap<>(1);
         data.put("userBar", "Hello  " + name);
@@ -52,9 +52,8 @@ public class UserController {
         return Result.succ(user);
     }
 
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     public Result logout() {
-        System.out.println("in logout");
         return Result.succ(null);
     }
 }
