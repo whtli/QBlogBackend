@@ -43,4 +43,12 @@ public interface TagService extends IService<Tag> {
      * @return 标签列表
      */
     List<Tag> getTagsByBlogId(Long blogId);
+
+    /**
+     * 根据标签id查询使用了这个标签的博客总数
+     *
+     * @param id 标签id
+     * @return 博客总数
+     */
+    int getBlogCountByTagId(Long id);
 }

@@ -11,6 +11,7 @@ import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.model.Blog;
 import cn.li98.blog.model.Category;
 import cn.li98.blog.model.Tag;
+import cn.li98.blog.model.dto.BlogDisplayDTO;
 import cn.li98.blog.model.dto.BlogWriteDTO;
 import cn.li98.blog.service.BlogService;
 import cn.li98.blog.service.CategoryService;
@@ -21,6 +22,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -337,6 +339,21 @@ public class BlogController {
         if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
             return Result.fail("查询失败，未查找到相应博客");
         }
+        List<Category> categoryList = categoryService.list();
+        List<Blog> list = pageData.getRecords();
+        List<BlogDisplayDTO> blogDisplayList = new LinkedList<>();
+        for (Blog blog : list) {
+            BlogDisplayDTO item = new BlogDisplayDTO();
+            BeanUtils.copyProperties(blog, item);
+            for (Category category : categoryList){
+                if (blog.getCategoryId() == category.getId()) {
+                    item.setCategoryName(category.getCategoryName());
+                    blogDisplayList.add(item);
+                }
+            }
+        }
+
+        pageData.setRecords(blogDisplayList);
         Map<String, Object> data = new HashMap<>(2);
         data.put("pageData", pageData);
         data.put("total", pageData.getTotal());
@@ -351,10 +368,8 @@ public class BlogController {
     @OperationLogger("获取所有分类和标签")
     @GetMapping("/getCategoryAndTag")
     public Result getCategoryAndTag() {
-        List<Category> categoryList = new LinkedList<>();
-        List<Tag> tagList = new LinkedList<>();
-        categoryList = categoryService.list();
-        tagList = tagService.list();
+        List<Category> categoryList = categoryService.list();
+        List<Tag> tagList = tagService.list();
 
         Map<String, Object> data = new HashMap<>(2);
         data.put("categoryList", categoryList);

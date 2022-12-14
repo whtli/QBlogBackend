@@ -68,4 +68,15 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     public List<Tag> getTagsByBlogId(Long blogId) {
         return tagMapper.getTagsByBlogId(blogId);
     }
+
+    /**
+     * 根据标签id查询使用了这个标签的博客总数
+     *
+     * @param id 标签id
+     * @return 博客总数
+     */
+    @Override
+    public int getBlogCountByTagId(Long id) {
+        return tagMapper.getBlogCountByTagId(id);
+    }
 }

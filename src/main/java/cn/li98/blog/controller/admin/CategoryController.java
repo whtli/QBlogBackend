@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.model.Category;
+import cn.li98.blog.service.BlogService;
 import cn.li98.blog.service.CategoryService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -14,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,6 +29,9 @@ import java.util.Map;
 public class CategoryController {
     @Autowired
     CategoryService categoryService;
+
+    @Autowired
+    private BlogService blogService;
 
     /**
      * 分页查询，获取分类列表
@@ -64,6 +69,12 @@ public class CategoryController {
     @DeleteMapping("/deleteCategoryById")
     public Result deleteCategoryById(@RequestParam Long id) {
         log.info("category to delete : " + id);
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("category_id", id);
+        int count = blogService.list(queryWrapper).size();
+        if (count > 0) {
+            return Result.fail("当前分类下有" + count + "个博客存在，不能直接删除分类");
+        }
         boolean delete = categoryService.removeById(id);
         if (delete) {
             return Result.succ("分类删除成功", id);
@@ -103,9 +114,18 @@ public class CategoryController {
      * @return Result
      */
     public Result submitCategory(Category category) {
-        // 验证字段
+        // 验证分类名是否为空
         if (StrUtil.isEmpty(category.getCategoryName())) {
             return Result.fail("分类名不可为空");
+        }
+        // 验证分类名是否已经存在
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("category_name", category.getCategoryName());
+        List<Category> list = categoryService.list(queryWrapper);
+        for (Category item : list) {
+            if (item.getCategoryName().equals(category.getCategoryName())) {
+                return Result.fail("分类名 “" + category.getCategoryName() + "” 已存在！");
+            }
         }
         int flag = 0;
         try {

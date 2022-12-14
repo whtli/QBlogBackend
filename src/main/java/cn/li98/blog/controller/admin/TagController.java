@@ -3,6 +3,7 @@ package cn.li98.blog.controller.admin;
 import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.common.annotation.OperationLogger;
+import cn.li98.blog.model.Category;
 import cn.li98.blog.model.Tag;
 import cn.li98.blog.service.TagService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,7 +40,7 @@ public class TagController {
     @OperationLogger("获取标签列表")
     @GetMapping("/getTags")
     public Result getTags(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-                                @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+                          @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
 
         QueryWrapper<Tag> queryWrapper = new QueryWrapper<>();
         // 新建一个分页规则，pageNum代表当前页码，pageSize代表每页数量
@@ -64,6 +66,12 @@ public class TagController {
     @DeleteMapping("/deleteTagById")
     public Result deleteTagById(@RequestParam Long id) {
         log.info("tag to delete : " + id);
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("category_id", id);
+        int count = tagService.getBlogCountByTagId(id);
+        if (count > 0) {
+            return Result.fail("有" + count + "个博客正在使用当前标签，不能直接删除标签");
+        }
         boolean delete = tagService.removeById(id);
         if (delete) {
             return Result.succ("标签删除成功", id);
@@ -102,9 +110,18 @@ public class TagController {
      * @return Result
      */
     public Result submitTag(Tag tag) {
-        // 验证字段
+        // 验证标签名是否为空
         if (StrUtil.isEmpty(tag.getTagName())) {
             return Result.fail("标签名不可为空");
+        }
+        // 验证分类名是否已经存在
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("tag_name", tag.getTagName());
+        List<Tag> list = tagService.list(queryWrapper);
+        for (Tag item : list) {
+            if (item.getTagName().equals(tag.getTagName())) {
+                return Result.fail("标签名 “" + tag.getTagName() + "” 已存在！");
+            }
         }
         int flag = 0;
         try {
