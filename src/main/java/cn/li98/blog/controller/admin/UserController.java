@@ -1,6 +1,7 @@
 package cn.li98.blog.controller.admin;
 
 
+import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.model.User;
 import cn.li98.blog.model.dto.LoginDTO;
@@ -35,6 +36,17 @@ public class UserController {
         Map<String, String> data = new HashMap<>(1);
         data.put("userBar", "Hello  " + name);
         return Result.succ("测试连接成功!", data);
+    }
+
+    @GetMapping("/getInfo")
+    public Result getInfo(@RequestParam String token) {
+        log.info("token ====== " + token);
+        if (StrUtil.isBlank(token) || StrUtil.isEmpty(token)) {
+            return Result.fail("没有可以用于获取用户信息的token，请重新登录");
+        }
+        User currentUser = TokenUtils.getCurrentUser();
+        log.info("获取当前用户信息 ====== " + currentUser);
+        return Result.succ("获取当前用户信息成功!", currentUser);
     }
 
     @PostMapping("/login")
