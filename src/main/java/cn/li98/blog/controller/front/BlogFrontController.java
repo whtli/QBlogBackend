@@ -114,7 +114,7 @@ public class BlogFrontController {
                 BlogDisplayDTO item = new BlogDisplayDTO();
                 BeanUtils.copyProperties(blog, item);
                 for (Category category : categoryList){
-                    if (blog.getCategoryId() == category.getId()) {
+                    if (blog.getCategoryId().equals(category.getId())) {
                         item.setCategoryName(category.getCategoryName());
                         blogDisplayList.add(item);
                     }
