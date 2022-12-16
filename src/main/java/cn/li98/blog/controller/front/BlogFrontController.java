@@ -1,4 +1,4 @@
-package cn.li98.blog.controller.guest;
+package cn.li98.blog.controller.front;
 
 import cn.li98.blog.common.Constant;
 import cn.li98.blog.common.Result;
@@ -29,8 +29,8 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/admin/guest")
-public class BlogGuestController {
+@RequestMapping("/admin/front")
+public class BlogFrontController {
     @Autowired
     BlogService blogService;
 

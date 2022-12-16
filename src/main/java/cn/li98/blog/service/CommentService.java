@@ -1,18 +1,19 @@
-package cn.li98.blog.dao;
+package cn.li98.blog.service;
 
 import cn.li98.blog.model.Comment;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
 
 /**
  * @author: whtli
- * @date: 2022/12/01
- * @description: 评论相关的持久层
+ * @date: 2022/12/15
+ * @description: 评论业务层
  */
-public interface CommentMapper extends BaseMapper<Comment> {
+public interface CommentService extends IService<Comment> {
     /**
      * 查询某一博客下的所有评论
+     *
      * @param blogId 博客id
      * @return
      */

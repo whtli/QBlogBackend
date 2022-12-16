@@ -770,6 +770,8 @@
   </mapper>
   ```
 
++ 新增了[Comment](src/main/java/cn/li98/blog/model/Comment.java)实体类
+
 ### 6.2 VO的设计注意事项：字段的使用
 + 因为要用于前端的echarts展示，所以字段名需要与echarts的规范设定，不能自行指定。
 + 比如分类名字段，不能定义为`categoryName`，必须定义为`name`；博客数量字段，不能定义为`blogCount`，必须定义为`value`，以方便前端的直接获取匹配。
@@ -2538,9 +2540,9 @@ public class Files {
         String GUEST_BLOG_KEY = "GUEST_BLOG_KEY";
     ```
 
-+ 在接口层添加用户可用的方法以及缓存操作，见[BlogGuestController](src/main/java/cn/li98/blog/controller/guest/BlogGuestController.java)
++ 在接口层添加用户可用的方法以及缓存操作，见[BlogGuestController](src/main/java/cn/li98/blog/controller/front/BlogGuestController.java)
     ```java
-    package cn.li98.blog.controller.guest;
+    package cn.li98.blog.controller.front;
     
     import cn.li98.blog.common.Constant;
     import cn.li98.blog.common.Result;
@@ -2652,4 +2654,227 @@ public class Files {
         private void flushRedis(String key) {
             redisTemplate.delete(key);
         }
+    ```
+
+## 17. 新增多级评论功能
++ [Comment](src/main/java/cn/li98/blog/model/Comment.java)实体类
+    ```java
+    @NoArgsConstructor
+    @Data
+    @TableName("comment")
+    public class Comment implements Serializable {
+        @TableId(value = "id", type = IdType.AUTO)
+        private Long id;
+    
+        /**
+         * 评论内容
+         */
+        private String content;
+    
+        /**
+         * 评论人id
+         */
+        private Long userId;
+    
+        /**
+         * 评论时间
+         */
+        private String time;
+    
+        /**
+         * 父id
+         */
+        private Long pid;
+    
+        /**
+         * 最上级评论id
+         */
+        private Long originId;
+    
+        /**
+         * 关联的博客id
+         */
+        private Long blogId;
+    
+        /**
+         * 发布评论的用户名
+         */
+        @TableField(exist = false)
+        private String username;
+    
+        /**
+         * 发布评论的用户头像
+         */
+        @TableField(exist = false)
+        private String avatar;
+    
+        /**
+         * 当前评论的子评论
+         */
+        @TableField(exist = false)
+        private List<Comment> children;
+    
+        /**
+         * 父节点的用户昵称
+         */
+        @TableField(exist = false)
+        private String pUsername;
+    
+        /**
+         * 父节点的用户id
+         */
+        @TableField(exist = false)
+        private Long pUserId;
+    
+        private static final long serialVersionUID = 1L;
+    }
+    ```
+
++ 新增[CommentFrontController](src/main/java/cn/li98/blog/controller/front/CommentFrontController.java)
+    ```java
+    @Slf4j
+    @RestController
+    @RequestMapping("/admin/front")
+    public class CommentFrontController {
+        @Autowired
+        private CommentService commentService;
+    
+        /**
+         * 查询某一博客下的所有评论
+         * 实现多级评论嵌套
+         *
+         * @param blogId 博客id
+         * @return 某一博客下的所有评论
+         */
+        @GetMapping("/loadComment")
+        public Result loadComment(@RequestParam Long blogId) {
+            // 查询所有的评论和回复数据
+            List<Comment> articleComments = commentService.getAllComments(blogId);
+            // 查询首层评论数据（不包括回复）
+            List<Comment> originList = articleComments.stream().filter(comment -> comment.getOriginId() == null).collect(Collectors.toList());
+    
+            // 设置评论数据的子节点，也就是回复内容
+            for (Comment origin : originList) {
+                // 表示回复对象集合
+                List<Comment> comments = articleComments.stream().filter(comment -> origin.getId().equals(comment.getOriginId())).collect(Collectors.toList());
+                comments.forEach(comment -> {
+                    // 找到当前评论的父级
+                    Optional<Comment> pComment = articleComments.stream().filter(c1 -> c1.getId().equals(comment.getPid())).findFirst();
+                    // 找到父级评论的用户id和用户名，并设置给当前的回复对象
+                    pComment.ifPresent((v -> {
+                        comment.setPUserId(v.getUserId());
+                        comment.setPUsername(v.getUsername());
+                    }));
+                });
+                origin.setChildren(comments);
+            }
+            return Result.succ(originList);
+        }
+    
+        /**
+         * 新增或者更新评论
+         *
+         * @param comment 评论实体类（缺省）
+         * @return 评论发布成功返回true，否则返回false
+         */
+        @PostMapping("/saveComment")
+        public Result saveComment(@RequestBody Comment comment) {
+            comment.setUserId(TokenUtils.getCurrentUser().getId());
+            comment.setTime(DateUtil.now());
+            // 判断如果是回复，进行处理
+            if (comment.getPid() != null) {
+                Long pid = comment.getPid();
+                Comment pComment = commentService.getById(pid);
+                if (pComment.getOriginId() != null) {
+                    // 如果当前回复的父级有祖宗，那么就设置相同的祖宗
+                    comment.setOriginId(pComment.getOriginId());
+                } else {
+                    // 否则就设置父级为当前回复的祖宗
+                    comment.setOriginId(comment.getPid());
+                }
+            }
+            boolean flag = commentService.saveOrUpdate(comment);
+            return Result.succ(flag);
+        }
+    
+        /**
+         * 根据id删除评论
+         *
+         * @param id 评论id
+         * @return 被删除的评论id
+         */
+        @DeleteMapping("/deleteCommentById")
+        public Result deleteCommentById(@RequestParam Long id) {
+            commentService.removeById(id);
+            return Result.succ(id);
+        }
+    }
+    ```
+
++ 新增[CommentService](src/main/java/cn/li98/blog/service/CommentService.java)
+    ```java
+    public interface CommentService extends IService<Comment> {
+        /**
+         * 查询某一博客下的所有评论
+         *
+         * @param blogId 博客id
+         * @return
+         */
+        List<Comment> getAllComments(Long blogId);
+    }
+    ```
+
++ 新增[CommentServiceImpl](src/main/java/cn/li98/blog/service/impl/CommentServiceImpl.java)
+    ```java
+    @Service
+    public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> implements CommentService {
+        @Autowired
+        private CommentMapper commentMapper;
+        /**
+         * 查询某一博客下的所有评论
+         *
+         * @param blogId 博客id
+         * @return
+         */
+        @Override
+        public List<Comment> getAllComments(Long blogId) {
+            return commentMapper.getAllComments(blogId);
+        }
+    }
+    
+    ```
+
++ 新增[CommentMapper](src/main/java/cn/li98/blog/dao/CommentMapper.java)
+    ```java
+    public interface CommentMapper extends BaseMapper<Comment> {
+        /**
+         * 查询某一博客下的所有评论
+         * @param blogId 博客id
+         * @return
+         */
+        List<Comment> getAllComments(Long blogId);
+    }
+    ```
+
++ 新增[CommentMapper](src/main/resources/mapper/CommentMapper.xml)
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="cn.li98.blog.dao.CommentMapper">
+      <resultMap id="BaseResultMap" type="cn.li98.blog.model.Comment">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="content" jdbcType="VARCHAR" property="content" />
+        <result column="user_id" jdbcType="BIGINT" property="userId" />
+        <result column="time" jdbcType="TIMESTAMP" property="time" />
+        <result column="pid" jdbcType="INTEGER" property="pid" />
+        <result column="origin_id" jdbcType="INTEGER" property="originId" />
+        <result column="blog_id" jdbcType="INTEGER" property="blogId" />
+      </resultMap>
+      <sql id="Base_Column_List">
+        id, content, user_id, `time`, pid, origin_id, blog_id
+      </sql>
+      <select id="getAllComments" resultType="cn.li98.blog.model.Comment">
+        select c.*,u.username,u.avatar from comment c left join user u on c.user_id = u.id where c.blog_id = #{blogId} order by id desc
+      </select>
+    </mapper>
     ```

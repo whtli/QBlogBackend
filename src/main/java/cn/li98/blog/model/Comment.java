@@ -1,19 +1,21 @@
 package cn.li98.blog.model;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-
-import javax.validation.constraints.Email;
+import lombok.NoArgsConstructor;
 
 /**
- * comment
- * @author 
+ * @author: whtli
+ * @date: 2022/12/15
+ * @description: 评论实体类
  */
+@NoArgsConstructor
 @Data
 @TableName("comment")
 public class Comment implements Serializable {
@@ -21,75 +23,64 @@ public class Comment implements Serializable {
     private Long id;
 
     /**
-     * 昵称
-     */
-    private String nickname;
-
-    /**
-     * 邮箱
-     */
-    @Email
-    private String email;
-
-    /**
      * 评论内容
      */
     private String content;
 
     /**
-     * 头像(图片路径)
+     * 评论人id
      */
-    private String avatar;
+    private Long userId;
 
     /**
      * 评论时间
      */
-    private Date createTime;
+    private String time;
 
     /**
-     * 评论者ip地址
+     * 父id
      */
-    private String ip;
+    private Long pid;
 
     /**
-     * 公开或回收站
+     * 最上级评论id
      */
-    private Boolean isPublished;
+    private Long originId;
 
     /**
-     * 博主回复
-     */
-    private Boolean isAdminComment;
-
-    /**
-     * 0普通文章，1关于我页面，2友链页面
-     */
-    private Integer page;
-
-    /**
-     * 接收邮件提醒
-     */
-    private Boolean isNotice;
-
-    /**
-     * 所属的文章
+     * 关联的博客id
      */
     private Long blogId;
 
     /**
-     * 父评论id，-1为根评论
+     * 发布评论的用户名
      */
-    private Long parentCommentId;
+    @TableField(exist = false)
+    private String username;
 
     /**
-     * 个人网站
+     * 发布评论的用户头像
      */
-    private String website;
+    @TableField(exist = false)
+    private String avatar;
 
     /**
-     * 如果评论昵称为QQ号，则将昵称和头像置为QQ昵称和QQ头像，并将此字段置为QQ号备份
+     * 当前评论的子评论
      */
-    private String qq;
+    @TableField(exist = false)
+    private List<Comment> children;
+
+    /**
+     * 父节点的用户昵称
+     */
+    @TableField(exist = false)
+    private String pUsername;
+
+    /**
+     * 父节点的用户id
+     */
+    @TableField(exist = false)
+    private Long pUserId;
 
     private static final long serialVersionUID = 1L;
 }
