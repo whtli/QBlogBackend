@@ -2,7 +2,7 @@ package cn.li98.blog.service.impl;
 
 
 import cn.li98.blog.dao.OperationLogMapper;
-import cn.li98.blog.model.OperationLog;
+import cn.li98.blog.model.entity.OperationLog;
 import cn.li98.blog.service.OperationLogService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;

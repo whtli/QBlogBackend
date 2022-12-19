@@ -1,6 +1,6 @@
 package cn.li98.blog.dao;
 
-import cn.li98.blog.model.Files;
+import cn.li98.blog.model.entity.Files;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

@@ -3,7 +3,7 @@ package cn.li98.blog.controller.admin;
 import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.common.annotation.OperationLogger;
-import cn.li98.blog.model.Category;
+import cn.li98.blog.model.entity.Category;
 import cn.li98.blog.service.BlogService;
 import cn.li98.blog.service.CategoryService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;

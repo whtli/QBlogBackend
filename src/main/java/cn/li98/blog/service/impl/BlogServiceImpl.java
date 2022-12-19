@@ -2,7 +2,7 @@ package cn.li98.blog.service.impl;
 
 import cn.li98.blog.common.WordCount;
 import cn.li98.blog.dao.BlogMapper;
-import cn.li98.blog.model.Blog;
+import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.service.BlogService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

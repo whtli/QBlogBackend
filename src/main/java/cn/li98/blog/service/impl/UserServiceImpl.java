@@ -1,7 +1,7 @@
 package cn.li98.blog.service.impl;
 
 import cn.li98.blog.dao.UserMapper;
-import cn.li98.blog.model.User;
+import cn.li98.blog.model.entity.User;
 import cn.li98.blog.model.dto.LoginDTO;
 import cn.li98.blog.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;

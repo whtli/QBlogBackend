@@ -1,7 +1,7 @@
 package cn.li98.blog.service;
 
-import cn.li98.blog.model.Dict;
-import cn.li98.blog.model.Menu;
+import cn.li98.blog.model.entity.Dict;
+import cn.li98.blog.model.entity.Menu;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;

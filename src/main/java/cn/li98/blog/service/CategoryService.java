@@ -1,6 +1,6 @@
 package cn.li98.blog.service;
 
-import cn.li98.blog.model.Category;
+import cn.li98.blog.model.entity.Category;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

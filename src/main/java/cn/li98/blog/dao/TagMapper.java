@@ -1,6 +1,6 @@
 package cn.li98.blog.dao;
 
-import cn.li98.blog.model.Tag;
+import cn.li98.blog.model.entity.Tag;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 import java.util.List;

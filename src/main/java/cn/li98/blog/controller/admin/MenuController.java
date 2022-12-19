@@ -1,13 +1,12 @@
 package cn.li98.blog.controller.admin;
 
 import cn.li98.blog.common.Result;
-import cn.li98.blog.model.Dict;
-import cn.li98.blog.model.Menu;
+import cn.li98.blog.model.entity.Dict;
+import cn.li98.blog.model.entity.Menu;
 import cn.li98.blog.service.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

@@ -1,7 +1,7 @@
 package cn.li98.blog.service.impl;
 
 import cn.li98.blog.dao.CategoryMapper;
-import cn.li98.blog.model.Category;
+import cn.li98.blog.model.entity.Category;
 import cn.li98.blog.service.CategoryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

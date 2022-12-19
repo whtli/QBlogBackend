@@ -2,7 +2,7 @@ package cn.li98.blog.controller.front;
 
 import cn.hutool.core.date.DateUtil;
 import cn.li98.blog.common.Result;
-import cn.li98.blog.model.Comment;
+import cn.li98.blog.model.entity.Comment;
 import cn.li98.blog.service.CommentService;
 import cn.li98.blog.utils.TokenUtils;
 import lombok.extern.slf4j.Slf4j;

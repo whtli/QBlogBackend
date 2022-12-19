@@ -1,9 +1,7 @@
 package cn.li98.blog.dao;
 
-import cn.li98.blog.model.User;
+import cn.li98.blog.model.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
-import org.springframework.stereotype.Repository;
 
 /**
  * @author: whtli

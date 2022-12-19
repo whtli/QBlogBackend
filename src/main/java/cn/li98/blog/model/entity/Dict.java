@@ -1,4 +1,4 @@
-package cn.li98.blog.model;
+package cn.li98.blog.model.entity;
 
 import java.io.Serializable;
 

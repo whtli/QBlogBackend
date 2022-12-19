@@ -3,7 +3,7 @@ package cn.li98.blog.config.interceptor;
 import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Constant;
 import cn.li98.blog.exception.ServiceException;
-import cn.li98.blog.model.User;
+import cn.li98.blog.model.entity.User;
 import cn.li98.blog.service.UserService;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

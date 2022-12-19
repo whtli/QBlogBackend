@@ -1,7 +1,7 @@
 package cn.li98.blog.service.impl;
 
 import cn.li98.blog.dao.CommentMapper;
-import cn.li98.blog.model.Comment;
+import cn.li98.blog.model.entity.Comment;
 import cn.li98.blog.service.CommentService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

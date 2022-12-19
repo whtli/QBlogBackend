@@ -1,6 +1,6 @@
 package cn.li98.blog.dao;
 
-import cn.li98.blog.model.Dict;
+import cn.li98.blog.model.entity.Dict;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 /**
  * @author: whtli

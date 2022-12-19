@@ -1,6 +1,6 @@
 package cn.li98.blog.service;
 
-import cn.li98.blog.model.User;
+import cn.li98.blog.model.entity.User;
 import cn.li98.blog.model.dto.LoginDTO;
 import com.baomidou.mybatisplus.extension.service.IService;
 

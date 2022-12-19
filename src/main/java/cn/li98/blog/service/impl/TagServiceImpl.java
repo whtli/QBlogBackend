@@ -1,7 +1,7 @@
 package cn.li98.blog.service.impl;
 
 import cn.li98.blog.dao.TagMapper;
-import cn.li98.blog.model.Tag;
+import cn.li98.blog.model.entity.Tag;
 import cn.li98.blog.service.TagService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.ibatis.exceptions.PersistenceException;

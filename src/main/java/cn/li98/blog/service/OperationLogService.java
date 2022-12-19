@@ -1,6 +1,6 @@
 package cn.li98.blog.service;
 
-import cn.li98.blog.model.OperationLog;
+import cn.li98.blog.model.entity.OperationLog;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

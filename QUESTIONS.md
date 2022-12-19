@@ -197,16 +197,11 @@
   
 + [BlogController](src/main/java/cn/li98/blog/controller/admin/BlogController.java)
     ```java
-    import cn.hutool.core.lang.Assert;
+  
     import cn.li98.blog.common.Result;
-    import cn.li98.blog.model.Blog;
     import cn.li98.blog.service.BlogService;
     import cn.li98.blog.utils.QiniuUtils;
-    import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-    import com.baomidou.mybatisplus.core.metadata.IPage;
-    import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-    import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-    import lombok.extern.slf4j.Slf4j;
+        import lombok.extern.slf4j.Slf4j;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.web.bind.annotation.*;
     import org.springframework.web.multipart.MultipartFile;
@@ -546,7 +541,7 @@
 + [BlogMapper.xml](./src/main/resources/mapper/BlogMapper.xml)
   ```xml
   <!--  新增博客-->
-  <insert id="createBlog" parameterType="cn.li98.blog.model.Blog" useGeneratedKeys="true" keyProperty="id">
+  <insert id="createBlog" parameterType="cn.li98.blog.model.entity.Blog" useGeneratedKeys="true" keyProperty="id">
     insert into blog (title, first_picture, description, content, is_published, is_comment_enabled,
     is_top, create_time, update_time, views, words, read_time, category_id, user_id, password)
     values (#{title}, #{firstPicture}, #{description}, #{content},#{isPublished}, #{isCommentEnabled},
@@ -1935,7 +1930,7 @@ public class Files {
 + [TagMapper.xml](src/main/resources/mapper/TagMapper.xml)
   ```xml
       <!--根据博客id查询其拥有的标签列表-->
-      <select id="getTagsByBlogId" resultType="cn.li98.blog.model.Tag">
+      <select id="getTagsByBlogId" resultType="cn.li98.blog.model.entity.Tag">
           SELECT id, tag_name, color from tag WHERE id in (SELECT tag_id FROM blog_tag WHERE blog_id=#{blogId})
       </select>
   ```
@@ -2083,7 +2078,7 @@ public class Files {
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
     <mapper namespace="cn.li98.blog.dao.OperationLogMapper">
-      <resultMap id="BaseResultMap" type="cn.li98.blog.model.OperationLog">
+      <resultMap id="BaseResultMap" type="cn.li98.blog.model.entity.OperationLog">
         <id column="id" jdbcType="BIGINT" property="id" />
         <result column="username" jdbcType="VARCHAR" property="username" />
         <result column="uri" jdbcType="VARCHAR" property="uri" />
@@ -2142,10 +2137,9 @@ public class Files {
 + 新增自定义的Aspect，[OperationLogAspect](src/main/java/cn/li98/blog/common/aspect/OperationLogAspect.java)
     ```java
     import cn.li98.blog.common.annotation.OperationLogger;
-    import cn.li98.blog.model.OperationLog;
+    import cn.li98.blog.model.entity.OperationLog;
     import cn.li98.blog.service.OperationLogService;
     import cn.li98.blog.utils.*;
-    import org.apache.commons.lang3.StringUtils;
     import org.aspectj.lang.ProceedingJoinPoint;
     import org.aspectj.lang.annotation.Around;
     import org.aspectj.lang.annotation.Aspect;
@@ -2547,7 +2541,7 @@ public class Files {
     import cn.li98.blog.common.Constant;
     import cn.li98.blog.common.Result;
     import cn.li98.blog.common.annotation.OperationLogger;
-    import cn.li98.blog.model.Blog;
+    import cn.li98.blog.model.entity.Blog;
     import cn.li98.blog.service.BlogService;
     import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
     import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -2862,7 +2856,7 @@ public class Files {
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
     <mapper namespace="cn.li98.blog.dao.CommentMapper">
-      <resultMap id="BaseResultMap" type="cn.li98.blog.model.Comment">
+      <resultMap id="BaseResultMap" type="cn.li98.blog.model.entity.Comment">
         <id column="id" jdbcType="BIGINT" property="id" />
         <result column="content" jdbcType="VARCHAR" property="content" />
         <result column="user_id" jdbcType="BIGINT" property="userId" />
@@ -2874,7 +2868,7 @@ public class Files {
       <sql id="Base_Column_List">
         id, content, user_id, `time`, pid, origin_id, blog_id
       </sql>
-      <select id="getAllComments" resultType="cn.li98.blog.model.Comment">
+      <select id="getAllComments" resultType="cn.li98.blog.model.entity.Comment">
         select c.*,u.username,u.avatar from comment c left join user u on c.user_id = u.id where c.blog_id = #{blogId} order by id desc
       </select>
     </mapper>

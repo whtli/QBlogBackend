@@ -1,7 +1,7 @@
 package cn.li98.blog.controller.admin;
 
 import cn.li98.blog.common.Result;
-import cn.li98.blog.model.Role;
+import cn.li98.blog.model.entity.Role;
 import cn.li98.blog.service.RoleService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;

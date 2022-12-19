@@ -2,11 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.li98.blog.dao.UserMapper">
   <!--查询user表-->
-  <select id="getUserById" resultType="cn.li98.blog.model.User">
+  <select id="getUserById" resultType="cn.li98.blog.model.entity.User">
     select * from user where id = #{id};
   </select>
 
-  <select id="getUserByName" resultType="cn.li98.blog.model.User">
+  <select id="getUserByName" resultType="cn.li98.blog.model.entity.User">
     select * from user where binary username = #{username};
   </select>
 </mapper>

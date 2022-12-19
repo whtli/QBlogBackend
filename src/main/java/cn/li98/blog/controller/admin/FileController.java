@@ -6,7 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.dao.FilesMapper;
-import cn.li98.blog.model.Files;
+import cn.li98.blog.model.entity.Files;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;

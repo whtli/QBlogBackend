@@ -1,11 +1,9 @@
 package cn.li98.blog.controller.admin;
 
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Result;
-import cn.li98.blog.model.User;
-import cn.li98.blog.model.User;
+import cn.li98.blog.model.entity.User;
 import cn.li98.blog.model.dto.LoginDTO;
 import cn.li98.blog.service.UserService;
 import cn.li98.blog.utils.TokenUtils;

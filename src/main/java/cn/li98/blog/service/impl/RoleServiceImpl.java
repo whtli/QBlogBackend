@@ -2,8 +2,8 @@ package cn.li98.blog.service.impl;
 
 import cn.li98.blog.dao.RoleMapper;
 import cn.li98.blog.dao.RoleMenuMapper;
-import cn.li98.blog.model.Role;
-import cn.li98.blog.model.RoleMenu;
+import cn.li98.blog.model.entity.Role;
+import cn.li98.blog.model.entity.RoleMenu;
 import cn.li98.blog.service.RoleService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

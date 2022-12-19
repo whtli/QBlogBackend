@@ -1,6 +1,6 @@
 package cn.li98.blog.service;
 
-import cn.li98.blog.model.Blog;
+import cn.li98.blog.model.entity.Blog;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
 

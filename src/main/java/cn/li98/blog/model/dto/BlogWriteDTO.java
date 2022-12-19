@@ -1,6 +1,6 @@
 package cn.li98.blog.model.dto;
 
-import cn.li98.blog.model.Blog;
+import cn.li98.blog.model.entity.Blog;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -7,7 +7,7 @@
     </insert>
 
     <!--根据博客id查询其拥有的标签列表-->
-    <select id="getTagsByBlogId" resultType="cn.li98.blog.model.Tag">
+    <select id="getTagsByBlogId" resultType="cn.li98.blog.model.entity.Tag">
         SELECT id, tag_name, color from tag WHERE id in (SELECT tag_id FROM blog_tag WHERE blog_id=#{blogId})
     </select>
     <!--more 根据标签id查询使用了这个标签的博客总数 -->

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.li98.blog.dao.CommentMapper">
-  <resultMap id="BaseResultMap" type="cn.li98.blog.model.Comment">
+  <resultMap id="BaseResultMap" type="cn.li98.blog.model.entity.Comment">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="content" jdbcType="VARCHAR" property="content" />
     <result column="user_id" jdbcType="BIGINT" property="userId" />
@@ -13,7 +13,7 @@
   <sql id="Base_Column_List">
     id, content, user_id, `time`, pid, origin_id, blog_id
   </sql>
-  <select id="getAllComments" resultType="cn.li98.blog.model.Comment">
+  <select id="getAllComments" resultType="cn.li98.blog.model.entity.Comment">
     select c.*,u.username,u.avatar from comment c left join user u on c.user_id = u.id where c.blog_id = #{blogId} order by id desc
   </select>
 </mapper>

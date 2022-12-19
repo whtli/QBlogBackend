@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.li98.blog.dao.BlogMapper">
-    <resultMap id="BaseResultMap" type="cn.li98.blog.model.Blog">
+    <resultMap id="BaseResultMap" type="cn.li98.blog.model.entity.Blog">
         <id column="id" jdbcType="BIGINT" property="id"/>
         <result column="title" jdbcType="VARCHAR" property="title"/>
         <result column="first_picture" jdbcType="VARCHAR" property="firstPicture"/>
@@ -25,7 +25,7 @@
         views, words, read_time, category_id, top, `password`, user_id
     </sql>
     <!--  新增博客-->
-    <insert id="createBlog" parameterType="cn.li98.blog.model.Blog" useGeneratedKeys="true" keyProperty="id">
+    <insert id="createBlog" parameterType="cn.li98.blog.model.entity.Blog" useGeneratedKeys="true" keyProperty="id">
         insert into blog (title, first_picture, description, content, published, comment_enabled,
                           top, create_time, update_time, views, words, read_time, category_id, user_id, password)
         values (#{title}, #{firstPicture}, #{description}, #{content}, #{published}, #{commentEnabled},

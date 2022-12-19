@@ -1,10 +1,9 @@
 package cn.li98.blog.common.aspect;
 
 import cn.li98.blog.common.annotation.OperationLogger;
-import cn.li98.blog.model.OperationLog;
+import cn.li98.blog.model.entity.OperationLog;
 import cn.li98.blog.service.OperationLogService;
 import cn.li98.blog.utils.*;
-import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

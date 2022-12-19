@@ -1,6 +1,6 @@
 package cn.li98.blog.service;
 
-import cn.li98.blog.model.Comment;
+import cn.li98.blog.model.entity.Comment;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;

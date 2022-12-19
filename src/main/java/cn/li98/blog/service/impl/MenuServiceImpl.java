@@ -1,13 +1,12 @@
 package cn.li98.blog.service.impl;
 
-import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Constant;
 import cn.li98.blog.dao.DictMapper;
 import cn.li98.blog.dao.MenuMapper;
 import cn.li98.blog.dao.RoleMenuMapper;
-import cn.li98.blog.model.Dict;
-import cn.li98.blog.model.Menu;
-import cn.li98.blog.model.RoleMenu;
+import cn.li98.blog.model.entity.Dict;
+import cn.li98.blog.model.entity.Menu;
+import cn.li98.blog.model.entity.RoleMenu;
 import cn.li98.blog.service.MenuService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;

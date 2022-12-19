@@ -1,8 +1,7 @@
 package cn.li98.blog.dao;
 
-import cn.li98.blog.model.Blog;
+import cn.li98.blog.model.entity.Blog;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
 
 /**
  * @author: whtli
