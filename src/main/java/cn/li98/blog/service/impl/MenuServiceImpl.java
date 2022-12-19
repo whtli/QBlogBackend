@@ -47,25 +47,26 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
         // 查询所有数据
         List<Menu> list = menuMapper.selectList(queryWrapper);
-        // 找出pid为null的一级菜单
-        List<Menu> parentNodes = list.stream().filter(menu -> menu.getPid() == null).collect(Collectors.toList());
+        // 找出所有的一级菜单（pid为null）
+        List<Menu> firstLevel = list.stream().filter(menu -> menu.getPid() == null).collect(Collectors.toList());
+        // 找出所有的二级菜单（pid不为null）
+        List<Menu> secondLevel = list.stream().filter(menu -> menu.getPid() != null).collect(Collectors.toList());
 
-        // TODO: 考虑不全面，需要补充
-        if (!list.isEmpty() && parentNodes.isEmpty()) {
-            // 如果查询到的数据都不是一级菜单
-            for (Menu menu : list) {
-                // 找到二级菜单的上级菜单（即一级菜单）
-                Menu parentItem = menuMapper.selectById(menu.getPid());
-                parentItem.setChildren(new LinkedList<>());
-                parentItem.getChildren().add(menu);
-                parentNodes.add(parentItem);
-            }
-        } else {
-            // 找出一级菜单的子菜单
-            for (Menu menu : parentNodes) {
-                // 筛选所有数据中pid=父级id的数据就是二级菜单，把二级菜单拼接到其所属的一级菜单下
-                menu.setChildren(list.stream().filter(m -> menu.getId().equals(m.getPid())).collect(Collectors.toList()));
-            }
+        List<Menu> restSecondLevel = secondLevel;
+        // 对于查询到的一级菜单，把其下包含的符合查询条件的二级菜单添加到其children中
+        for (Menu menu : firstLevel) {
+            // 筛选所有数据中pid=父级id的数据就是二级菜单，把二级菜单拼接到一级菜单下
+            List<Menu> items = secondLevel.stream().filter(m -> menu.getId().equals(m.getPid())).collect(Collectors.toList());
+            menu.setChildren(items);
+            restSecondLevel = restSecondLevel.stream().filter(item -> !items.contains(item)).collect(Collectors.toList());
+        }
+        // 对于剩余的符合查询条件的二级菜单，找到他们的上级菜单（即一级菜单），然后组合
+        for (Menu menu : restSecondLevel) {
+            // 找到二级菜单的上级菜单（即一级菜单）
+            Menu parentItem = menuMapper.selectById(menu.getPid());
+            parentItem.setChildren(new LinkedList<>());
+            parentItem.getChildren().add(menu);
+            firstLevel.add(parentItem);
         }
 
         // 获取所有的菜单id
@@ -75,7 +76,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
         }
 
         Map<String, Object> data = new LinkedHashMap<>();
-        data.put("menuList", parentNodes);
+        data.put("menuList", firstLevel);
         data.put("allMenuIds", allMenuIds);
         data.put("total", list.size());
         return data;
