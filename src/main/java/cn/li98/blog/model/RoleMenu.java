@@ -7,8 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * sys_role_menu
- * @author 
+ * @author: whtli
+ * @date: 2022/12/18
+ * @description: 角色菜单关联表
  */
 @Data
 @AllArgsConstructor

@@ -84,9 +84,9 @@ public class RoleController {
     public Result updateRoleMenu(@RequestBody Map<String, Object> data) {
         // 获取参数中的roleId以及为这个role赋予权限（菜单id列表）
         Long roleId = Long.valueOf((Integer) data.get("roleId"));
-        List<Object> Ids = (List<Object>) data.get("menuIds");
+        List<Object> ids = (List<Object>) data.get("menuIds");
         List<Long> menuIds = new ArrayList<>();
-        for (Object item : Ids) {
+        for (Object item : ids) {
             menuIds.add((Long.valueOf((Integer) item)));
         }
         // 将角色及其新的菜单权限绑定在一起
