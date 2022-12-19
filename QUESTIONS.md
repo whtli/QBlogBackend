@@ -2879,3 +2879,282 @@ public class Files {
       </select>
     </mapper>
     ```
+
+
+## 18. 新增系统管理相关功能
+###  18.1 用户管理
++ 复用[UserController](src/main/java/cn/li98/blog/controller/admin/UserController.java)
++ 复用[User](src/main/java/cn/li98/blog/model/User.java)
++ 复用[UserService](src/main/java/cn/li98/blog/service/UserService.java)
++ 复用[UserServiceImpl](src/main/java/cn/li98/blog/service/impl/UserServiceImpl.java)
++ 复用[UserMapper](src/main/java/cn/li98/blog/dao/UserMapper.java)
++ 复用[UserMapper.xml](src/main/resources/mapper/UserMapper.xml)
+
+### 18.2 角色管理
++ 新增[RoleController](src/main/java/cn/li98/blog/controller/admin/RoleController.java)
+    - 更新角色和菜单的对应关系的接口
+        ```java
+            /**
+             * 更新角色和菜单的对应关系
+             *
+             * @param data 参数，包含roleId和
+             * @return
+             */
+            @PostMapping("updateRoleMenu")
+            public Result updateRoleMenu(@RequestBody Map<String, Object> data) {
+                // 获取参数中的roleId以及为这个role赋予权限（菜单id列表）
+                Long roleId = Long.valueOf((Integer) data.get("roleId"));
+                List<Object> Ids = (List<Object>) data.get("menuIds");
+                List<Long> menuIds = new ArrayList<>();
+                for (Object item : Ids) {
+                    menuIds.add((Long.valueOf((Integer) item)));
+                }
+                // 将角色及其新的菜单权限绑定在一起
+                try {
+                    roleService.setRoleMenu(roleId, menuIds);
+                    return Result.succ("绑定成功", roleId);
+        
+                } catch (Exception e) {
+                    return Result.fail("绑定失败", roleId);
+                }
+            }
+        ```
+
++ 新增[RoleService](src/main/java/cn/li98/blog/service/RoleService.java)
+    ```java
+    public interface RoleService extends IService<Role> {
+        /**
+         * 绑定角色和菜单的关系
+         *
+         * @param roleId  角色id
+         * @param menuIds 菜单id数组
+         * @return 角色id
+         */
+        int setRoleMenu(Long roleId, List<Long> menuIds);
+    }
+    ```
+
++ 新增[RoleServiceImpl](src/main/java/cn/li98/blog/service/impl/RoleServiceImpl.java)
+    ```java
+    @Service
+    public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
+    
+        @Resource
+        private RoleMenuMapper roleMenuMapper;
+    
+        /**
+         * 绑定角色和菜单的关系
+         *
+         * @param roleId  角色id
+         * @param menuIds 菜单id数组
+         * @return 角色id
+         */
+        @Override
+        public int setRoleMenu(Long roleId, List<Long> menuIds) {
+            // 先根据roleId查出已有的权限并删除
+            QueryWrapper<RoleMenu> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("role_id", roleId);
+            roleMenuMapper.delete(queryWrapper);
+    
+            // 再插入新的
+            for (Long menuId : menuIds) {
+                RoleMenu item = new RoleMenu(roleId, menuId);
+                roleMenuMapper.insert(item);
+            }
+            return menuIds.size();
+        }
+    }
+    ```
+
++ 新增[RoleMapper.java](src/main/java/cn/li98/blog/dao/RoleMapper.java)
+
++ 新增[RoleMapper.xml](src/main/resources/mapper/RoleMapper.xml)
+
+### 18.3 菜单管理
++ 新增[MenuController](src/main/java/cn/li98/blog/controller/admin/MenuController.java)
+    - 获取菜单列表（带层级关系）接口
+        ```java
+            /**
+             * 获取菜单列表（带层级关系）
+             *
+             * @param menuName 菜单名（缺省）
+             * @return 带层次关系的菜单列表
+             */
+            @GetMapping("/getMenuList")
+            public Result getMenuList(@RequestParam(defaultValue = "") String menuName) {
+                return Result.succ(menuService.getMenuList(menuName));
+            }
+        ```
+    - 获取图标信息接口
+        ```java
+            /**
+             * 获取图标信息
+             *
+             * @return 图标信息列表
+             */
+            @GetMapping("/getIconList")
+            public Result getIconList() {
+                List<Dict> iconList = menuService.getIconList();
+                return Result.succ(iconList);
+            }
+        ```
+    - 获取指定角色id拥有的菜单权限接口
+        ```java
+            /**
+             * 获取指定角色id拥有的菜单权限
+             *
+             * @param roleId 角色id
+             * @return 当前角色id所拥有的所有菜单权限
+             */
+            @GetMapping("/getMenusByRoleId")
+            public Result getMenusByRoleId(@RequestParam Long roleId) {
+                List<Long> rightList = menuService.getMenusByRoleId(roleId);
+                return Result.succ(rightList);
+            }
+        
+        ```
+
++ 新增[MenuService](src/main/java/cn/li98/blog/service/MenuService.java)
+    ```java
+    public interface MenuService extends IService<Menu> {
+        /**
+         * 查询菜单
+         *
+         * @param menuName 菜单名（缺省）
+         * @return 带层次关系的菜单列表
+         */
+        Map<String, Object> getMenuList(String menuName);
+    
+        /**
+         * 获取图标信息
+         *
+         * @return 图标信息列表
+         */
+        List<Dict> getIconList();
+    
+        /**
+         * 从role_menu表中获取指定角色id拥有的菜单权限
+         *
+         * @param roleId 角色id
+         * @return 当前角色id所拥有的所有菜单权限
+         */
+        List<Long> getMenusByRoleId(Long roleId);
+    }
+    ```
+
++ 新增[MenuServiceImpl](src/main/java/cn/li98/blog/service/impl/MenuServiceImpl.java)
+    ```java
+    @Service
+    public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements MenuService {
+        @Resource
+        private MenuMapper menuMapper;
+    
+        @Resource
+        private DictMapper dictMapper;
+    
+        @Resource
+        private RoleMenuMapper roleMenuMapper;
+    
+        /**
+         * 查询菜单
+         *
+         * @param menuName 菜单名（缺省）
+         * @return 带层次关系的菜单列表
+         */
+        @Override
+        public Map<String, Object> getMenuList(String menuName) {
+            QueryWrapper<Menu> queryWrapper = new QueryWrapper<>();
+            queryWrapper.orderByAsc("sort_num");
+            queryWrapper.like("name", menuName);
+    
+            // 查询所有数据
+            List<Menu> list = menuMapper.selectList(queryWrapper);
+            // 找出pid为null的一级菜单
+            List<Menu> parentNodes = list.stream().filter(menu -> menu.getPid() == null).collect(Collectors.toList());
+    
+            if (!list.isEmpty() && parentNodes.isEmpty()) {
+                // 如果查询到的数据都不是一级菜单
+                for (Menu menu : list) {
+                    // 找到二级菜单的上级菜单（即一级菜单）并将其添加到parentNodes中
+                    Menu parentItem = menuMapper.selectById(menu.getPid());
+                    parentItem.setChildren(new LinkedList<>());
+                    parentItem.getChildren().add(menu);
+                    parentNodes.add(parentItem);
+                }
+            } else {
+                // 找出一级菜单的子菜单
+                for (Menu menu : parentNodes) {
+                    // 筛选所有数据中pid=父级id的数据就是二级菜单，把二级菜单拼接到其所属的一级菜单下
+                    menu.setChildren(list.stream().filter(m -> menu.getId().equals(m.getPid())).collect(Collectors.toList()));
+                }
+            }
+    
+            // 获取所有的菜单id
+            List<Long> allMenuIds = new ArrayList<>();
+            for (Menu menu : list) {
+                allMenuIds.add(menu.getId());
+            }
+    
+            Map<String, Object> data = new LinkedHashMap<>();
+            data.put("menuList", parentNodes);
+            data.put("allMenuIds", allMenuIds);
+            data.put("total", list.size());
+            return data;
+        }
+    
+        /**
+         * 获取图标信息
+         *
+         * @return 图标信息列表
+         */
+        @Override
+        public List<Dict> getIconList() {
+            QueryWrapper<Dict> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("type", Constant.DICT_TYPE_ICON);
+            List<Dict> iconList = dictMapper.selectList(queryWrapper);
+            return iconList;
+        }
+    
+        /**
+         * 从role_menu表中获取指定角色id拥有的菜单权限
+         *
+         * @param roleId 角色id
+         * @return 当前角色id所拥有的所有菜单权限
+         */
+        @Override
+        public List<Long> getMenusByRoleId(Long roleId) {
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("role_id", roleId);
+            List<RoleMenu> roleMenu = roleMenuMapper.selectList(queryWrapper);
+            List<Long> rightList = new LinkedList();
+            for (RoleMenu item : roleMenu) {
+                rightList.add(item.getMenuId());
+            }
+            return rightList;
+        }
+    }
+    ```
+
++ 新增[MenuMapper.java](src/main/java/cn/li98/blog/dao/MenuMapper.java)
+
++ 新增[MenuMapper.xml](src/main/resources/mapper/MenuMapper.xml)
+
++ 新增字典表，用于存储一些常用的内容，如图标等
+    - 实体类[Dict](src/main/java/cn/li98/blog/model/Dict.java)
+    - 持久层[DictMapper.java](src/main/java/cn/li98/blog/dao/DictMapper.java)
+    - [DictMapper.xml](src/main/resources/mapper/DictMapper.xml)
+
++ [Constant](src/main/java/cn/li98/blog/common/Constant.java)中新增图标字典对应的常量
+    ```java
+        /**
+         * 图标
+         */
+        String DICT_TYPE_ICON = "icon";
+    ```
+
+### 18.4 角色菜单关联表，角色与菜单是一对多的关系
++ [RoleMenu](src/main/java/cn/li98/blog/model/RoleMenu.java)实体类
+
++ [RoleMenuMapper.java](src/main/java/cn/li98/blog/dao/RoleMenuMapper.java)
+
++ [RoleMenuMapper.xml](src/main/resources/mapper/RoleMenuMapper.xml)

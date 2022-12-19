@@ -31,4 +31,9 @@ public interface Constant {
      * 通用的指向访客可见博客列表测试键值
      */
     String GUEST_BLOG_KEY = "GUEST_BLOG_KEY";
+
+    /**
+     * 图标
+     */
+    String DICT_TYPE_ICON = "icon";
 }
