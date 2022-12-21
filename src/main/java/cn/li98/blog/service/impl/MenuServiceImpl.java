@@ -3,9 +3,11 @@ package cn.li98.blog.service.impl;
 import cn.li98.blog.common.Constant;
 import cn.li98.blog.dao.DictMapper;
 import cn.li98.blog.dao.MenuMapper;
+import cn.li98.blog.dao.RoleMapper;
 import cn.li98.blog.dao.RoleMenuMapper;
 import cn.li98.blog.model.entity.Dict;
 import cn.li98.blog.model.entity.Menu;
+import cn.li98.blog.model.entity.Role;
 import cn.li98.blog.model.entity.RoleMenu;
 import cn.li98.blog.service.MenuService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -31,6 +33,9 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
     @Resource
     private RoleMenuMapper roleMenuMapper;
+
+    @Resource
+    private RoleMapper roleMapper;
 
     /**
      * 查询菜单
@@ -98,7 +103,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
      * 从role_menu表中获取指定角色id拥有的菜单权限
      *
      * @param roleId 角色id
-     * @return 当前角色id所拥有的所有菜单权限
+     * @return 当前角色id所拥有的所有菜单ID
      */
     @Override
     public List<Long> getMenusByRoleId(Long roleId) {
@@ -110,5 +115,39 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
             rightList.add(item.getMenuId());
         }
         return rightList;
+    }
+
+    /**
+     * 从role_menu表中获取指定角色标识拥有的菜单权限
+     *
+     * @param flag 角色标识
+     * @return 当前角色标识所拥有的所有菜单权限（菜单实体类）
+     */
+    @Override
+    public List<Menu> getMenusByRoleFlag(String flag) {
+        // 找到当前用户的角色对应的角色id，然后根据角色id从role_menu表中查找对应的菜单id
+        QueryWrapper q1 = new QueryWrapper();
+        q1.eq("flag", flag);
+        Role role = roleMapper.selectOne(q1);
+        QueryWrapper q2 = new QueryWrapper();
+        q2.eq("role_id", role.getId());
+        List<RoleMenu> roleMenu = roleMenuMapper.selectList(q2);
+        // rightList是菜单id组成的权限列表
+        List<Long> rightList = new LinkedList();
+        for (RoleMenu item : roleMenu) {
+            rightList.add(item.getMenuId());
+        }
+        // 根据菜单id组成的权限列表查询其对应的菜单实体类列表
+        List<Menu> allMenuList = menuMapper.selectBatchIds(rightList);
+        // 找到一级菜单
+        List<Menu> firstLevel = allMenuList.stream().filter(menu -> menu.getPid() == null).collect(Collectors.toList());
+        // 找到二级菜单
+        List<Menu> secondLevel = allMenuList.stream().filter(menu -> menu.getPid() != null).collect(Collectors.toList());
+        // 将二级菜单组装到一级菜单下
+        for (Menu menu : firstLevel) {
+            List<Menu> items = secondLevel.stream().filter(m -> menu.getId().equals(m.getPid())).collect(Collectors.toList());
+            menu.setChildren(items);
+        }
+        return firstLevel;
     }
 }

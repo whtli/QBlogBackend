@@ -2885,6 +2885,8 @@ public class Files {
 + 复用[UserMapper.xml](src/main/resources/mapper/UserMapper.xml)
 
 ### 18.2 角色管理
++ 新增[Role](src/main/java/cn/li98/blog/model/entity/Role.java)实体类
+
 + 新增[RoleController](src/main/java/cn/li98/blog/controller/admin/RoleController.java)
     - 更新角色和菜单的对应关系的接口
         ```java
@@ -2965,6 +2967,8 @@ public class Files {
 + 新增[RoleMapper.xml](src/main/resources/mapper/RoleMapper.xml)
 
 ### 18.3 菜单管理
++ 新增[Menu](src/main/java/cn/li98/blog/model/entity/Menu.java)实体类
+
 + 新增[MenuController](src/main/java/cn/li98/blog/controller/admin/MenuController.java)
     - 获取菜单列表（带层级关系）接口
         ```java
@@ -3155,4 +3159,113 @@ public class Files {
 
 + [RoleMenuMapper.xml](src/main/resources/mapper/RoleMenuMapper.xml)
 
-## 
+## 19. 新增动态路由的后端控制
++ 用户实体类，添加表属性之外的菜单列表
+    ```java
+        @TableField(exist = false)
+        private List<Menu> menuList;
+    ```
+
++ 用户管理控制层
+    ```java
+    @Slf4j
+    @RestController
+    @RequestMapping("/admin")
+    public class UserController {
+        @Autowired
+        UserService userService;
+    
+        @Autowired
+        private MenuService menuService;
+    
+        @GetMapping("/getInfo")
+        public Result getInfo(@RequestParam String token) {
+            log.info("token ====== " + token);
+            if (StrUtil.isBlank(token) || StrUtil.isEmpty(token)) {
+                return Result.fail("没有可以用于获取用户信息的token，请重新登录");
+            }
+            User currentUser = TokenUtils.getCurrentUser();
+            // 获取菜单权限
+            List<Menu> menuList = menuService.getMenusByRoleFlag(currentUser.getRole());
+            currentUser.setMenuList(menuList);
+            log.info("获取当前用户信息 ====== " + currentUser);
+            return Result.succ("获取当前用户信息成功!", currentUser);
+        }
+    
+        @PostMapping("/login")
+        public Result login(@Validated @RequestBody LoginDTO loginDTO, HttpServletResponse response) {
+            log.info(loginDTO.toString());
+    
+            User user = userService.login(loginDTO);
+            if (user == null) {
+                return Result.fail("用户不存在或密码不正确");
+            }
+    
+            // 获取菜单权限
+            List<Menu> menuList = menuService.getMenusByRoleFlag(user.getRole());
+            user.setMenuList(menuList);
+    
+            String jwt = TokenUtils.genToken(user.getId(), user.getPassword());
+            response.setHeader("Authorization", jwt);
+            response.setHeader("Access-Control-Expose-Headers", "Authorization");
+            return Result.succ(user);
+        }
+    }
+    
+    ```
+
++ 菜单管理业务层[MenuService](src/main/java/cn/li98/blog/service/MenuService.java)
+    ```java
+    public interface MenuService extends IService<Menu> {
+    
+        /**
+         * 从role_menu表中获取指定角色标识拥有的菜单权限
+         *
+         * @param flag 角色标识
+         * @return 当前角色标识所拥有的所有菜单权限
+         */
+        List<Menu> getMenusByRoleFlag(String flag);
+    }
+    ```
+
++ 菜单管理业务实现层[MenuServiceImpl](src/main/java/cn/li98/blog/service/impl/MenuServiceImpl.java)
+    ```java
+    @Service
+    public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements MenuService {
+    
+    
+        /**
+         * 从role_menu表中获取指定角色标识拥有的菜单权限
+         *
+         * @param flag 角色标识
+         * @return 当前角色标识所拥有的所有菜单权限（菜单实体类）
+         */
+        @Override
+        public List<Menu> getMenusByRoleFlag(String flag) {
+            // 找到当前用户的角色对应的角色id，然后根据角色id从role_menu表中查找对应的菜单id
+            QueryWrapper q1 = new QueryWrapper();
+            q1.eq("flag", flag);
+            Role role = roleMapper.selectOne(q1);
+            QueryWrapper q2 = new QueryWrapper();
+            q2.eq("role_id", role.getId());
+            List<RoleMenu> roleMenu = roleMenuMapper.selectList(q2);
+            // rightList是菜单id组成的权限列表
+            List<Long> rightList = new LinkedList();
+            for (RoleMenu item : roleMenu) {
+                rightList.add(item.getMenuId());
+            }
+            // 根据菜单id组成的权限列表查询其对应的菜单实体类列表
+            List<Menu> allMenuList = menuMapper.selectBatchIds(rightList);
+            // 找到一级菜单
+            List<Menu> firstLevel = allMenuList.stream().filter(menu -> menu.getPid() == null).collect(Collectors.toList());
+            // 找到二级菜单
+            List<Menu> secondLevel = allMenuList.stream().filter(menu -> menu.getPid() != null).collect(Collectors.toList());
+            // 将二级菜单组装到一级菜单下
+            for (Menu menu : firstLevel) {
+                List<Menu> items = secondLevel.stream().filter(m -> menu.getId().equals(m.getPid())).collect(Collectors.toList());
+                menu.setChildren(items);
+            }
+            return firstLevel;
+        }
+    }
+    ```

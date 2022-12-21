@@ -24,34 +24,44 @@ public class Menu implements Serializable {
     private Long id;
 
     /**
-     * 名称
-     */
-    private String name;
-
-    /**
      * 路径
      */
     private String path;
 
     /**
-     * 图标
+     * 前端组件名
+     */
+    private String component;
+
+    /**
+     * 名称
+     */
+    private String name;
+
+    /**
+     * meta标题
+     */
+    private String title;
+
+    /**
+     * meta图标
      */
     private String icon;
 
     /**
-     * 描述
+     * 是否展示只有一个子菜单的一级菜单
      */
-    private String description;
+    private boolean alwaysShow;
 
     /**
-     * 父id
+     * 备注
+     */
+    private String remark;
+
+    /**
+     * 父级菜单id
      */
     private Long pid;
-
-    /**
-     * 前端组件名
-     */
-    private String component;
 
     /**
      * 排序

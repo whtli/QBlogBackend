@@ -35,4 +35,12 @@ public interface MenuService extends IService<Menu> {
      * @return 当前角色id所拥有的所有菜单权限
      */
     List<Long> getMenusByRoleId(Long roleId);
+
+    /**
+     * 从role_menu表中获取指定角色标识拥有的菜单权限
+     *
+     * @param flag 角色标识
+     * @return 当前角色标识所拥有的所有菜单权限
+     */
+    List<Menu> getMenusByRoleFlag(String flag);
 }

@@ -3,8 +3,10 @@ package cn.li98.blog.controller.admin;
 
 import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Result;
+import cn.li98.blog.model.entity.Menu;
 import cn.li98.blog.model.entity.User;
 import cn.li98.blog.model.dto.LoginDTO;
+import cn.li98.blog.service.MenuService;
 import cn.li98.blog.service.UserService;
 import cn.li98.blog.utils.TokenUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,6 +34,9 @@ import java.util.Map;
 public class UserController {
     @Autowired
     UserService userService;
+
+    @Autowired
+    private MenuService menuService;
 
     @GetMapping("/test")
     public Result updateUserName(@RequestParam String name) {
@@ -49,6 +55,11 @@ public class UserController {
             return Result.fail("没有可以用于获取用户信息的token，请重新登录");
         }
         User currentUser = TokenUtils.getCurrentUser();
+
+        // 获取菜单权限
+        List<Menu> menuList = menuService.getMenusByRoleFlag(currentUser.getRole());
+        currentUser.setMenuList(menuList);
+
         log.info("获取当前用户信息 ====== " + currentUser);
         return Result.succ("获取当前用户信息成功!", currentUser);
     }
@@ -61,6 +72,10 @@ public class UserController {
         if (user == null) {
             return Result.fail("用户不存在或密码不正确");
         }
+
+        // 获取菜单权限
+        List<Menu> menuList = menuService.getMenusByRoleFlag(user.getRole());
+        user.setMenuList(menuList);
 
         String jwt = TokenUtils.genToken(user.getId(), user.getPassword());
         response.setHeader("Authorization", jwt);
