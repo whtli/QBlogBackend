@@ -34,6 +34,11 @@ public class Menu implements Serializable {
     private String component;
 
     /**
+     * 是否隐藏
+     */
+    private boolean hidden;
+
+    /**
      * 名称
      */
     private String name;

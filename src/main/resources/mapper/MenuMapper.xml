@@ -5,6 +5,7 @@
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="path" jdbcType="VARCHAR" property="path" />
     <result column="component" jdbcType="VARCHAR" property="component" />
+    <result column="hidden" jdbcType="BOOLEAN" property="hidden" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="title" jdbcType="VARCHAR" property="title" />
     <result column="icon" jdbcType="VARCHAR" property="icon" />
@@ -14,6 +15,6 @@
     <result column="sort_num" jdbcType="BIGINT" property="sortNum" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, `path`, component, `name`, title, icon, always_show, remark, pid, sort_num
+    id, `path`, component, hidden, `name`, title, icon, always_show, remark, pid, sort_num
   </sql>
 </mapper>
