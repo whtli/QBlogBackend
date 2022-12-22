@@ -28,9 +28,14 @@ public interface Constant {
     Integer CODE_ELSE_ERROR = 600;
 
     /**
-     * 通用的指向访客可见博客列表测试键值
+     * 通用的指向访客可见博客列表键值
      */
     String GUEST_BLOG_KEY = "GUEST_BLOG_KEY";
+
+    /**
+     * 前端可见的博客分页数
+     */
+    String PAGE_NUMBER_OF_PUBLISHED_BLOGS = "PAGE_NUMBER_OF_PUBLISHED_BLOGS";
 
     /**
      * 图标

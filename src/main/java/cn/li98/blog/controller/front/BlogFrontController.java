@@ -5,13 +5,13 @@ import cn.li98.blog.common.Result;
 import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.Category;
-import cn.li98.blog.model.dto.BlogDisplayDTO;
 import cn.li98.blog.service.BlogService;
 import cn.li98.blog.service.CategoryService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.LinkedList;
+import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: whtli
@@ -37,7 +39,7 @@ public class BlogFrontController {
     @Autowired
     private CategoryService categoryService;
 
-    @Autowired
+    @Resource
     private RedisTemplate redisTemplate;
 
     /**
@@ -50,7 +52,9 @@ public class BlogFrontController {
     @OperationLogger("获取博客列表")
     @GetMapping("/getBlogList")
     public Result getBlogList(@RequestParam(value = "title", defaultValue = "") String title,
-                              @RequestParam(value = "categoryId", defaultValue = "") Long categoryId) {
+                              @RequestParam(value = "categoryId", defaultValue = "") Long categoryId,
+                              @RequestParam(value = "pageNum", defaultValue = "") Integer pageNum,
+                              @RequestParam(value = "pageSize", defaultValue = "") Integer pageSize) {
         /*
         // 1. 尝试从redis缓存中获取指定键值对应的数据
         Map<Object, Object> data = redisTemplate.opsForHash().entries(Constant.GUEST_BLOG_KEY + "_" + pageNum);
@@ -85,9 +89,8 @@ public class BlogFrontController {
         return Result.succ("查询成功", data);
         */
 
-        List<BlogDisplayDTO> blogDisplayList = new LinkedList<>();
         // 1. 尝试从redis缓存中获取指定键值对应的数据
-        List<Blog> list = redisTemplate.opsForList().range(Constant.GUEST_BLOG_KEY, 0, -1);
+        List<Blog> list = redisTemplate.opsForList().range(Constant.GUEST_BLOG_KEY + "_" + pageNum, 0, -1);
         // 2. 如果redis中无对应的数据
         if (list.isEmpty()) {
             // 3. 从数据库取出数据
@@ -104,27 +107,37 @@ public class BlogFrontController {
             // 3.3 根据创建时间查询逆序的列表结果，越新发布的博客越容易被看到
             queryWrapper.orderByDesc("create_time");
             // 3.4 查询符合条件的博客列表
-            List<Blog> blogList = blogService.list(queryWrapper);
-            if (blogList.size() == 0) {
+            Page page = new Page(pageNum, pageSize);
+            IPage pageData = blogService.page(page, queryWrapper);
+            if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
                 return Result.fail("查询失败，未查找到相应博客");
             }
+            list = pageData.getRecords();
+            // 3.5 处理博客列表
             List<Category> categoryList = categoryService.list();
-
-            for (Blog blog : blogList) {
-                BlogDisplayDTO item = new BlogDisplayDTO();
-                BeanUtils.copyProperties(blog, item);
-                for (Category category : categoryList){
-                    if (blog.getCategoryId().equals(category.getId())) {
-                        item.setCategoryName(category.getCategoryName());
-                        blogDisplayList.add(item);
+            for (int i = 0; i < list.size(); i++) {
+                for (Category category : categoryList) {
+                    if (list.get(i).getCategoryId().equals(category.getId())) {
+                        list.get(i).setCategoryName(category.getCategoryName());
                     }
                 }
             }
+            pageData.setRecords(list);
             // 4. 缓存到redis
-            redisTemplate.opsForList().rightPush(Constant.GUEST_BLOG_KEY, blogDisplayList);
-        } else {
-            blogDisplayList = (List<BlogDisplayDTO>) list.get(0);
+            redisTemplate.opsForList().rightPush(Constant.GUEST_BLOG_KEY + "_" + pageNum, list);
+            redisTemplate.opsForValue().set("PAGE_NUMBER_OF_PUBLISHED_BLOGS", pageData.getTotal());
+            // 5. 返回给前端
+            Map<String, Object> data = new HashMap<>(2);
+            data.put("blogList", list);
+            data.put("total", pageData.getTotal());
+            return Result.succ("查询成功", data);
+        } else if (!list.isEmpty()) {
+            list = (List<Blog>) list.get(0);
+            Map<String, Object> data = new HashMap<>(2);
+            data.put("blogList", list);
+            data.put("total", redisTemplate.opsForValue().get("total"));
+            return Result.succ("查询成功", data);
         }
-        return Result.succ("查询成功", blogDisplayList);
+        return Result.fail("查询失败");
     }
 }

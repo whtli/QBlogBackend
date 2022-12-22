@@ -3270,3 +3270,9 @@ public class Files {
         }
     }
     ```
+
+
+## 20. 弃用BlogDisplay类，改造使用Blog实体类，调整redis的使用代码
+见以下文件
++ [BlogFrontController](src/main/java/cn/li98/blog/controller/front/BlogFrontController.java)
++ [BlogController](src/main/java/cn/li98/blog/controller/admin/BlogController.java)

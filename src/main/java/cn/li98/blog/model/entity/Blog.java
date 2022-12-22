@@ -3,10 +3,7 @@ package cn.li98.blog.model.entity;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -104,6 +101,12 @@ public class Blog implements Serializable {
      */
     @TableLogic
     private Long deleted;
+
+    /**
+     * 分类名
+     */
+    @TableField(exist = false)
+    private String categoryName;
 
     private static final long serialVersionUID = 1L;
 }

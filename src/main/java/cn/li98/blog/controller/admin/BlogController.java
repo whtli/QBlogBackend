@@ -11,7 +11,6 @@ import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.Category;
 import cn.li98.blog.model.entity.Tag;
-import cn.li98.blog.model.dto.BlogDisplayDTO;
 import cn.li98.blog.model.dto.BlogWriteDTO;
 import cn.li98.blog.service.BlogService;
 import cn.li98.blog.service.CategoryService;
@@ -22,12 +21,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
@@ -43,18 +42,18 @@ import java.util.*;
 @RequestMapping("/admin/blog")
 public class BlogController {
     @Autowired
-    BlogService blogService;
+    private BlogService blogService;
 
     @Autowired
-    CategoryService categoryService;
+    private CategoryService categoryService;
 
     @Autowired
-    TagService tagService;
+    private TagService tagService;
 
     @Autowired
-    QiniuUtils qiniuUtils;
+    private QiniuUtils qiniuUtils;
 
-    @Autowired
+    @Resource
     private RedisTemplate redisTemplate;
 
     /**
@@ -155,7 +154,7 @@ public class BlogController {
             log.error(e.toString());
         }
         if (flag == 1 && tagCount == tagList.size()) {
-            flushRedis(Constant.GUEST_BLOG_KEY);
+            flushRedis();
             return Result.succ("博客发布成功");
         }
         return Result.fail("博客发布失败");
@@ -173,7 +172,7 @@ public class BlogController {
         int res = blogService.changeBlogStatusById(blogId);
         if (res == 1) {
             // 修改成功后清空redis中的博客缓存
-            flushRedis(Constant.GUEST_BLOG_KEY);
+            flushRedis();
             return Result.succ("博客可见性更改成功", res);
         }
         return Result.fail("博客可见性更改失败", res);
@@ -198,7 +197,7 @@ public class BlogController {
             Blog blog = blogService.fileToBlog(file);
             int flag = blogService.createBlog(blog);
             if (flag == 1) {
-                flushRedis(Constant.GUEST_BLOG_KEY);
+                flushRedis();
                 return Result.succ(originalFilename + " 导入成功", blog);
             }
         } else if ("xlsx".equals(type) || "xls".equals(type)) {
@@ -215,7 +214,7 @@ public class BlogController {
                     return Result.fail("博客导入失败，停止继续导入，失败行数为：" + i, e.getMessage());
                 }
             }
-            flushRedis(Constant.GUEST_BLOG_KEY);
+            flushRedis();
             if (count == list.size()) {
                 return Result.succ(originalFilename + " 导入成功", list);
             } else {
@@ -241,7 +240,7 @@ public class BlogController {
         log.info("blog to delete : " + id);
         boolean delete = blogService.removeById(id);
         if (delete) {
-            flushRedis(Constant.GUEST_BLOG_KEY);
+            flushRedis();
             return Result.succ("博客删除成功", id);
         } else {
             return Result.fail("博客删除失败", id);
@@ -341,19 +340,16 @@ public class BlogController {
         }
         List<Category> categoryList = categoryService.list();
         List<Blog> list = pageData.getRecords();
-        List<BlogDisplayDTO> blogDisplayList = new LinkedList<>();
-        for (Blog blog : list) {
-            BlogDisplayDTO item = new BlogDisplayDTO();
-            BeanUtils.copyProperties(blog, item);
-            for (Category category : categoryList){
-                if (blog.getCategoryId().equals(category.getId())) {
-                    item.setCategoryName(category.getCategoryName());
-                    blogDisplayList.add(item);
+
+        for (int i = 0; i < list.size(); i++) {
+            for (Category category : categoryList) {
+                if (list.get(i).getCategoryId().equals(category.getId())) {
+                    list.get(i).setCategoryName(category.getCategoryName());
                 }
             }
         }
 
-        pageData.setRecords(blogDisplayList);
+        pageData.setRecords(list);
         Map<String, Object> data = new HashMap<>(2);
         data.put("pageData", pageData);
         data.put("total", pageData.getTotal());
@@ -380,10 +376,16 @@ public class BlogController {
 
     /**
      * 删除redis缓存中对应指定键值的内容
-     *
-     * @param key redis中博客缓存对应的键值
      */
-    private void flushRedis(String key) {
-        redisTemplate.delete(key);
+    private void flushRedis() {
+        Long total = (Long) redisTemplate.opsForValue().get(Constant.PAGE_NUMBER_OF_PUBLISHED_BLOGS);
+        if (total != null) {
+            int count = (int) Math.ceil(total * 1.0 / 10);
+            log.info("可见博客的总页数 ================= : {}",count);
+            for (int i = 1; i <= count; i++) {
+                redisTemplate.delete(Constant.GUEST_BLOG_KEY + "_" + i);
+            }
+            redisTemplate.delete(Constant.PAGE_NUMBER_OF_PUBLISHED_BLOGS);
+        }
     }
 }
