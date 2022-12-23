@@ -3272,7 +3272,191 @@ public class Files {
     ```
 
 
-## 20. 弃用BlogDisplay类，改造使用Blog实体类，调整redis的使用代码
+## 20. 调整redis的使用代码，分页查询根据查询参数实现自定义sql，弃用BlogDisplay类后改造使用Blog类，
 见以下文件
 + [BlogFrontController](src/main/java/cn/li98/blog/controller/front/BlogFrontController.java)
+    ```java
+        /**
+         * 获取访客可见的博客列表
+         *
+         * @param pageNum 页码
+         * @param pageSize 页内数量
+         * @return 访客可见的博客列表
+         */
+        @OperationLogger("获取博客列表")
+        @GetMapping("/getBlogList")
+        public Result getBlogList(@RequestParam(value = "pageNum", defaultValue = "") Integer pageNum,
+                                  @RequestParam(value = "pageSize", defaultValue = "") Integer pageSize) {
+            Map<String, Object> data = new HashMap<>(2);
+            // 1. 尝试从redis缓存中获取指定键值对应的数据
+            List<Blog> list = redisTemplate.opsForList().range(Constant.GUEST_BLOG_KEY + "_" + pageNum, 0, -1);
+            // 2. 如果redis中无对应的数据
+            if (list.isEmpty()) {
+                // 3. 从数据库取出数据
+                // 3.1 将查询参数以键值对的形式存放到QueryWrapper
+                QueryWrapper<Blog> queryWrapper = new QueryWrapper<>();
+                // 3.2 博客的可见性需指定为“可见”，用户只能看到公开的博客
+                queryWrapper.eq("published", true);
+                // 3.3 根据创建时间查询逆序的列表结果，越新发布的博客越容易被看到
+                queryWrapper.orderByDesc("create_time");
+                // 3.4 查询符合条件的博客列表
+                Page page = new Page(pageNum, pageSize);
+                IPage pageData = blogService.page(page, queryWrapper);
+                if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
+                    data.put("pageData", pageData);
+                    data.put("total", pageData.getTotal());
+                    return Result.succ("未查找到相应博客", data);
+                }
+                list = pageData.getRecords();
+                // 3.5 处理博客列表
+                List<Category> categoryList = categoryService.list();
+                for (int i = 0; i < list.size(); i++) {
+                    for (Category category : categoryList) {
+                        if (list.get(i).getCategoryId().equals(category.getId())) {
+                            list.get(i).setCategoryName(category.getCategoryName());
+                        }
+                    }
+                }
+                pageData.setRecords(list);
+                // 4. 缓存到redis
+                redisTemplate.opsForList().rightPush(Constant.GUEST_BLOG_KEY + "_" + pageNum, list);
+                redisTemplate.opsForValue().set("PAGE_NUMBER_OF_PUBLISHED_BLOGS", pageData.getTotal());
+                // 5. 返回给前端
+                data.put("blogList", list);
+                data.put("total", pageData.getTotal());
+                return Result.succ("查询成功", data);
+            } else if (!list.isEmpty()) {
+                list = (List<Blog>) list.get(0);
+                // 将查询结果填充到Map中
+                data.put("blogList", list);
+                data.put("total", redisTemplate.opsForValue().get("total"));
+                return Result.succ("查询成功", data);
+            }
+            return Result.fail("查询失败");
+        }
+    ```
+
 + [BlogController](src/main/java/cn/li98/blog/controller/admin/BlogController.java)
+    ```java
+        /**
+         * 获取博客列表
+         * 可以实现无参数和多参数的分页查询
+         * 将分页列表和总记录数作为键值对存储到Map中
+         * 分页列表用于前端的当前页展示
+         * 总记录数用于前端展示博客总数，这个数值是当前数据库中未被删除的博客总数，是所有分页中的博客个数的和
+         *
+         * @return 成功则Map作为data
+         */
+        @OperationLogger("获取博客列表")
+        @PostMapping("/getBlogs")
+        public Result getBlogs(@RequestBody Map<String, Object> params) {
+    
+            /*QueryWrapper<Blog> queryWrapper = new QueryWrapper<>();
+            // 将查询参数以键值对的形式存放到QueryWrapper中
+            if (!StringUtils.isEmpty(title) && !StringUtils.isBlank(title)) {
+                queryWrapper.like("title", title);
+            }
+            if (categoryId != null) {
+                queryWrapper.eq("category_id", categoryId);
+            }
+            // 根据创建时间查询逆序的列表结果，越新发布的博客越容易被看到
+            queryWrapper.orderByDesc("create_time");
+            // 新建一个分页规则，pageNum代表当前页码，pageSize代表每页数量
+            Page page = new Page(pageNum, pageSize);
+            // 借助Page实现分页查询，借助QueryWrapper实现多参数查询
+            IPage pageData = blogService.page(page, queryWrapper);*/
+    
+            Map<String, Object> data = new HashMap<>(2);
+            IPage<Blog> pageData = blogService.getBlogList(params);
+            if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
+                data.put("pageData", pageData);
+                data.put("total", pageData.getTotal());
+                return Result.succ("未查找到相应博客", data);
+            }
+            
+            List<Category> categoryList = categoryService.list();
+            List<Blog> list = pageData.getRecords();
+            for (int i = 0; i < list.size(); i++) {
+                for (Category category : categoryList) {
+                    if (list.get(i).getCategoryId().equals(category.getId())) {
+                        list.get(i).setCategoryName(category.getCategoryName());
+                    }
+                }
+            }
+    
+            pageData.setRecords(list);
+            data.put("pageData", pageData);
+            data.put("total", pageData.getTotal());
+            return Result.succ("查询成功", data);
+        }
+    ```
+
++ [Blog](src/main/java/cn/li98/blog/model/entity/Blog.java)中新增不属于数据库字段的属性
+    ```java
+        /**
+         * 分类名
+         */
+        @TableField(exist = false)
+        private String categoryName;
+    ```
+
++ [BlogService](src/main/java/cn/li98/blog/service/BlogService.java)
+    ```java
+        /**
+         * 获取博客列表
+         *
+         * @param params 标题、分类id、标签id列表等参数
+         * @return 符合查询条件的博客列表
+         */
+        IPage<Blog> getBlogList(Map<String, Object> params);
+    ```
+
++ [BlogServiceImpl](src/main/java/cn/li98/blog/service/impl/BlogServiceImpl.java)
+    ```java
+        /**
+         * 获取博客列表
+         *
+         * @param params 标题、分类id、标签id列表等参数
+         * @return 符合查询条件的博客列表
+         */
+        @Override
+        public IPage<Blog> getBlogList(@Param("params") Map<String, Object> params) {
+            int pageNum = (int) params.get("pageNum");
+            int pageSize = (int) params.get("pageSize");
+            Page page = new Page(pageNum, pageSize);
+            return blogMapper.getBlogList(page, params);
+        }
+    ```
+
++ [BaseMapper.java](src/main/java/cn/li98/blog/dao/BlogMapper.java)
+    ```java
+        /**
+         * 获取博客列表
+         *
+         * @param page   分页
+         * @param params 标题、分类id、标签id列表等参数
+         * @return 符合查询条件的博客列表
+         */
+        IPage<Blog> getBlogList(Page page, Map<String, Object> params);
+    ```
+
++ [BlogMapper.xml](src/main/resources/mapper/BlogMapper.xml)
+    ```xml
+        <!-- 根据查询条件获取博客列表-->
+        <select id="getBlogList" resultType="cn.li98.blog.model.entity.Blog">
+            select * from blog where deleted='0'
+            <if test="params.title != null and params.title != ''">
+                and title like CONCAT('%', #{params.title}, '%')
+            </if>
+            <if test="params.categoryId != null and params.categoryId != ''">
+                and category_id = #{params.categoryId}
+            </if>
+            <if test="params.tagIds != null and params.tagIds.size > 0">
+                and id in (SELECT blog_id FROM blog_tag WHERE tag_id in
+                <foreach collection="params.tagIds" index="index" item="tag_id" open="(" separator="," close=")">
+                    #{tag_id}
+                </foreach>
+                )
+            </if>
+        </select>
+    ```

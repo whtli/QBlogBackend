@@ -56,4 +56,22 @@
         set published=1-published
         where id = #{blogId}
     </update>
+    <!-- 根据查询条件获取博客列表-->
+    <select id="getBlogList" resultType="cn.li98.blog.model.entity.Blog">
+        select * from blog where deleted='0'
+        <if test="params.title != null and params.title != ''">
+            and title like CONCAT('%', #{params.title}, '%')
+        </if>
+        <if test="params.categoryId != null and params.categoryId != ''">
+            and category_id = #{params.categoryId}
+        </if>
+        <if test="params.tagIds != null and params.tagIds.size > 0">
+            and id in (SELECT blog_id FROM blog_tag WHERE tag_id in
+            <foreach collection="params.tagIds" index="index" item="tag_id" open="(" separator="," close=")">
+                #{tag_id}
+            </foreach>
+            )
+        </if>
+    </select>
+
 </mapper>

@@ -302,26 +302,18 @@ public class BlogController {
 
     /**
      * 获取博客列表
-     * 可以实现无参数查询和多参数查询
-     * 可以实现分页查询
+     * 可以实现无参数和多参数的分页查询
      * 将分页列表和总记录数作为键值对存储到Map中
      * 分页列表用于前端的当前页展示
      * 总记录数用于前端展示博客总数，这个数值是当前数据库中未被删除的博客总数，是所有分页中的博客个数的和
      *
-     * @param title      博客标题
-     * @param categoryId 博客分类
-     * @param pageNum    页码
-     * @param pageSize   每页博客数量
      * @return 成功则Map作为data
      */
     @OperationLogger("获取博客列表")
-    @GetMapping("/getBlogs")
-    public Result getBlogs(@RequestParam(value = "title", defaultValue = "") String title,
-                           @RequestParam(value = "categoryId", defaultValue = "") Long categoryId,
-                           @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-                           @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+    @PostMapping("/getBlogs")
+    public Result getBlogs(@RequestBody Map<String, Object> params) {
 
-        QueryWrapper<Blog> queryWrapper = new QueryWrapper<>();
+        /*QueryWrapper<Blog> queryWrapper = new QueryWrapper<>();
         // 将查询参数以键值对的形式存放到QueryWrapper中
         if (!StringUtils.isEmpty(title) && !StringUtils.isBlank(title)) {
             queryWrapper.like("title", title);
@@ -334,13 +326,18 @@ public class BlogController {
         // 新建一个分页规则，pageNum代表当前页码，pageSize代表每页数量
         Page page = new Page(pageNum, pageSize);
         // 借助Page实现分页查询，借助QueryWrapper实现多参数查询
-        IPage pageData = blogService.page(page, queryWrapper);
+        IPage pageData = blogService.page(page, queryWrapper);*/
+
+        Map<String, Object> data = new HashMap<>(2);
+        IPage<Blog> pageData = blogService.getBlogList(params);
         if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
-            return Result.fail("查询失败，未查找到相应博客");
+            data.put("pageData", pageData);
+            data.put("total", pageData.getTotal());
+            return Result.succ("未查找到相应博客", data);
         }
+
         List<Category> categoryList = categoryService.list();
         List<Blog> list = pageData.getRecords();
-
         for (int i = 0; i < list.size(); i++) {
             for (Category category : categoryList) {
                 if (list.get(i).getCategoryId().equals(category.getId())) {
@@ -350,7 +347,6 @@ public class BlogController {
         }
 
         pageData.setRecords(list);
-        Map<String, Object> data = new HashMap<>(2);
         data.put("pageData", pageData);
         data.put("total", pageData.getTotal());
         return Result.succ("查询成功", data);

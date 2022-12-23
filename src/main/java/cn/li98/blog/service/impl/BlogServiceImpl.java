@@ -4,11 +4,15 @@ import cn.li98.blog.common.WordCount;
 import cn.li98.blog.dao.BlogMapper;
 import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.service.BlogService;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -17,6 +21,8 @@ import java.util.Date;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author: whtli
@@ -25,8 +31,8 @@ import java.io.BufferedReader;
  */
 @Service
 public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements BlogService {
-    @Autowired
-    BlogMapper blogMapper;
+    @Resource
+    private BlogMapper blogMapper;
 
     /**
      * 为新增或修改的博客设置参数
@@ -156,5 +162,19 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
     @Override
     public int changeBlogStatusById(Long blogId) {
         return blogMapper.changeBlogStatusById(blogId);
+    }
+
+    /**
+     * 获取博客列表
+     *
+     * @param params 标题、分类id、标签id列表等参数
+     * @return 符合查询条件的博客列表
+     */
+    @Override
+    public IPage<Blog> getBlogList(@Param("params") Map<String, Object> params) {
+        int pageNum = (int) params.get("pageNum");
+        int pageSize = (int) params.get("pageSize");
+        Page page = new Page(pageNum, pageSize);
+        return blogMapper.getBlogList(page, params);
     }
 }
