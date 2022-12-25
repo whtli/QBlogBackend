@@ -2,6 +2,7 @@ package cn.li98.blog.model.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
@@ -107,6 +108,12 @@ public class Blog implements Serializable {
      */
     @TableField(exist = false)
     private String categoryName;
+
+    /**
+     * 博客标签列表
+     */
+    @TableField(exist = false)
+    private List<Tag> tagList;
 
     private static final long serialVersionUID = 1L;
 }

@@ -1,4 +1,4 @@
-package cn.li98.blog.controller.front;
+package cn.li98.blog.controller.admin;
 
 import cn.hutool.core.date.DateUtil;
 import cn.li98.blog.common.Result;
@@ -15,13 +15,13 @@ import java.util.stream.Collectors;
 
 /**
  * @author: whtli
- * @date: 2022/12/15
- * @description: 前端评论接口
+ * @date: 2022/12/25
+ * @description: 评论接口
  */
 @Slf4j
 @RestController
-@RequestMapping("/front")
-public class CommentFrontController {
+@RequestMapping("/admin/comment")
+public class CommentController {
     @Autowired
     private CommentService commentService;
 

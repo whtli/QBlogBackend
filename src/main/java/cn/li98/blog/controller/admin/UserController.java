@@ -30,7 +30,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/admin/user")
 public class UserController {
     @Autowired
     UserService userService;

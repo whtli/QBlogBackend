@@ -3,6 +3,7 @@ package cn.li98.blog.controller.admin;
 import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.common.annotation.OperationLogger;
+import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.Tag;
 import cn.li98.blog.service.TagService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -67,7 +68,11 @@ public class TagController {
         log.info("tag to delete : " + id);
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("category_id", id);
-        int count = tagService.getBlogCountByTagId(id);
+        List<Blog> blogsByTagId = tagService.getBlogsByTagId(id);
+        int count = 0;
+        if (blogsByTagId != null) {
+            count = blogsByTagId.size();
+        }
         if (count > 0) {
             return Result.fail("有" + count + "个博客正在使用当前标签，不能直接删除标签");
         }

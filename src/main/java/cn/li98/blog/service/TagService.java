@@ -1,5 +1,6 @@
 package cn.li98.blog.service;
 
+import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.Tag;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -45,10 +46,10 @@ public interface TagService extends IService<Tag> {
     List<Tag> getTagsByBlogId(Long blogId);
 
     /**
-     * 根据标签id查询使用了这个标签的博客总数
+     * 根据标签id查询使用了这个标签的博客
      *
-     * @param id 标签id
-     * @return 博客总数
+     * @param tagId 标签id
+     * @return 博客列表
      */
-    int getBlogCountByTagId(Long id);
+    List<Blog> getBlogsByTagId(Long tagId);
 }

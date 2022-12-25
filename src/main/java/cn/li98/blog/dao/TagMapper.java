@@ -29,10 +29,10 @@ public interface TagMapper extends BaseMapper<Tag> {
     List<Tag> getTagsByBlogId(Long blogId);
 
     /**
-     * 根据标签id查询使用了这个标签的博客总数
+     * 根据标签id查询使用了这个标签的博客
      *
-     * @param id 标签id
-     * @return 博客总数
+     * @param tagId 标签id
+     * @return 博客id列表
      */
-    int getBlogCountByTagId(Long id);
+    List<Integer> getBlogsByTagId(Long tagId);
 }

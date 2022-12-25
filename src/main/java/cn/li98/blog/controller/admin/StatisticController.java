@@ -18,7 +18,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/admin/statistic")
+@RequestMapping("/admin/data")
 public class StatisticController {
     @Autowired
     StatisticService statisticService;

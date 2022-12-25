@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
+import java.io.Serializable;
+
 /**
  * @author: whtli
  * @date: 2022/11/29
@@ -12,7 +14,7 @@ import lombok.*;
  */
 @Data
 @TableName("tag")
-public class Tag {
+public class Tag implements Serializable {
 	/**
 	 * 标签id
 	 */
@@ -26,4 +28,7 @@ public class Tag {
 	 * 标签颜色(与Semantic UI提供的颜色对应，可选)
 	 */
 	private String color;
+
+	private static final long serialVersionUID = 1L;
+
 }

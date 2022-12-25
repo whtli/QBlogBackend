@@ -1,12 +1,15 @@
 package cn.li98.blog.controller.front;
 
+import cn.hutool.core.lang.Assert;
 import cn.li98.blog.common.Constant;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.Category;
+import cn.li98.blog.model.entity.Tag;
 import cn.li98.blog.service.BlogService;
 import cn.li98.blog.service.CategoryService;
+import cn.li98.blog.service.TagService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -14,6 +17,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +36,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/admin/front")
+@RequestMapping("/front/blog")
 public class BlogFrontController {
     @Autowired
     BlogService blogService;
@@ -39,20 +44,25 @@ public class BlogFrontController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private TagService tagService;
+
     @Resource
     private RedisTemplate redisTemplate;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 获取访客可见的博客列表
      *
-     * @param pageNum 页码
+     * @param pageNum  页码
      * @param pageSize 页内数量
      * @return 访客可见的博客列表
      */
-    @OperationLogger("获取博客列表")
     @GetMapping("/getBlogList")
-    public Result getBlogList(@RequestParam(value = "pageNum", defaultValue = "") Integer pageNum,
-                              @RequestParam(value = "pageSize", defaultValue = "") Integer pageSize) {
+    public Result getBlogList(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                              @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
         Map<String, Object> data = new HashMap<>(2);
         // 1. 尝试从redis缓存中获取指定键值对应的数据
         List<Blog> list = redisTemplate.opsForList().range(Constant.GUEST_BLOG_KEY + "_" + pageNum, 0, -1);
@@ -82,6 +92,8 @@ public class BlogFrontController {
                         list.get(i).setCategoryName(category.getCategoryName());
                     }
                 }
+                List<Tag> tagList = tagService.getTagsByBlogId(list.get(i).getId());
+                list.get(i).setTagList(tagList);
             }
             pageData.setRecords(list);
             // 4. 缓存到redis
@@ -95,9 +107,112 @@ public class BlogFrontController {
             list = (List<Blog>) list.get(0);
             // 将查询结果填充到Map中
             data.put("blogList", list);
-            data.put("total", redisTemplate.opsForValue().get("total"));
+            data.put("total", redisTemplate.opsForValue().get("PAGE_NUMBER_OF_PUBLISHED_BLOGS"));
             return Result.succ("查询成功", data);
         }
         return Result.fail("查询失败");
     }
+
+    /**
+     * 获取所有分类和标签以供前端选择使用
+     *
+     * @return 所有分类和所有标签
+     */
+    @GetMapping("/getCategoryAndTag")
+    public Result getCategoryAndTag() {
+        List<Category> categoryList = categoryService.list();
+        List<Tag> tagList = tagService.list();
+
+        Map<String, Object> data = new HashMap<>(2);
+        data.put("categoryList", categoryList);
+        data.put("tagList", tagList);
+
+        return Result.succ(data);
+    }
+
+    /**
+     * 根据指定的唯一id查询对应的博客、博客所属的分类、博客拥有的标签
+     *
+     * @param blogId 博客id（唯一）
+     * @return Result
+     */
+    @GetMapping("/getBlogInfoById")
+    public Result getBlogInfoById(@RequestParam Long blogId) {
+        // 查询博客
+        Blog blog = blogService.getById(blogId);
+        Assert.notNull(blog, "该博客不存在");
+        // 查询所属分类
+        Category category = categoryService.getById(blog.getCategoryId());
+        // 查询拥有的标签
+        List<Tag> tagList = tagService.getTagsByBlogId(blogId);
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("blog", blog);
+        data.put("category", category);
+        data.put("tagList", tagList);
+        return Result.succ("查询成功", data);
+    }
+
+    /**
+     * 根据分类id查询博客列表
+     *
+     * @param categoryId 分类id
+     * @return 指定分类中的博客列表
+     */
+    @GetMapping("/getBlogByCategoryId")
+    public Result getBlogByCategoryId(@RequestParam Long categoryId) {
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("category_id", categoryId);
+        queryWrapper.orderByDesc("create_time");
+        // 查询博客
+        List<Blog> blogList = blogService.list(queryWrapper);
+        // 查询分类名
+        Category category = categoryService.getById(categoryId);
+        String categoryName = category.getCategoryName();
+        for (int i = 0; i < blogList.size(); i ++) {
+            blogList.get(i).setCategoryName(categoryName);
+            List<Tag> tagList = tagService.getTagsByBlogId(blogList.get(i).getId());
+            blogList.get(i).setTagList(tagList);
+        }
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("blogList", blogList);
+        data.put("total", blogList.size());
+        data.put("categoryName", categoryName);
+
+        return Result.succ("查询成功", data);
+    }
+
+    /**
+     * 根据标签id查询博客列表
+     *
+     * @param tagId 分类id
+     * @return 指定分类中的博客列表
+     */
+    @GetMapping("/getBlogByTagId")
+    public Result getBlogByTagId(@RequestParam Long tagId) {
+        // 查询博客id列表
+        List<Blog> blogList = tagService.getBlogsByTagId(tagId);
+        // 查询标签名
+        Tag tag = tagService.getById(tagId);
+        String tagName = tag.getTagName();
+
+        List<Category> categoryList = categoryService.list();
+        for (int i = 0; i < blogList.size(); i ++) {
+            for (Category category : categoryList) {
+                if (blogList.get(i).getCategoryId().equals(category.getId())) {
+                    blogList.get(i).setCategoryName(category.getCategoryName());
+                }
+            }            List<Tag> tagList = tagService.getTagsByBlogId(blogList.get(i).getId());
+            blogList.get(i).setTagList(tagList);
+        }
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("blogList", blogList);
+        data.put("total", blogList.size());
+        data.put("tagName", tagName);
+
+        return Result.succ("查询成功", data);
+    }
 }
+

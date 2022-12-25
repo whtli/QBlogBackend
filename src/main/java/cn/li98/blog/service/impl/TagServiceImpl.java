@@ -1,13 +1,17 @@
 package cn.li98.blog.service.impl;
 
+import cn.li98.blog.dao.BlogMapper;
 import cn.li98.blog.dao.TagMapper;
+import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.Tag;
 import cn.li98.blog.service.TagService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.ibatis.exceptions.PersistenceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -17,8 +21,11 @@ import java.util.List;
  */
 @Service
 public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagService {
-    @Autowired
-    TagMapper tagMapper;
+    @Resource
+    private TagMapper tagMapper;
+
+    @Resource
+    private BlogMapper blogMapper;
 
     /**
      * 创建标签业务实现层
@@ -70,13 +77,22 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     }
 
     /**
-     * 根据标签id查询使用了这个标签的博客总数
+     * 根据标签id查询使用了这个标签的博客
      *
-     * @param id 标签id
-     * @return 博客总数
+     * @param tagId 标签id
+     * @return 博客列表
      */
     @Override
-    public int getBlogCountByTagId(Long id) {
-        return tagMapper.getBlogCountByTagId(id);
+    public  List<Blog> getBlogsByTagId(Long tagId) {
+        List<Integer> list = tagMapper.getBlogsByTagId(tagId);
+        if (list.isEmpty()) {
+            return null;
+        }
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.in("id", list);
+        queryWrapper.orderByDesc("create_time");
+
+        List<Blog> blogList = blogMapper.selectList(queryWrapper);
+        return blogList;
     }
 }
