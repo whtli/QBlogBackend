@@ -48,6 +48,25 @@ public class UserController {
         return Result.succ("测试连接成功!", data);
     }
 
+    @PostMapping("/login")
+    public Result login(@Validated @RequestBody LoginDTO loginDTO, HttpServletResponse response) {
+        log.info(loginDTO.toString());
+
+        User user = userService.login(loginDTO);
+        if (user == null) {
+            return Result.fail("用户不存在或密码不正确");
+        }
+
+        // 获取菜单权限
+        // List<Menu> menuList = menuService.getMenusByRoleFlag(user.getRole());
+        // user.setMenuList(menuList);
+
+        String jwt = TokenUtils.genToken(user.getId(), user.getPassword());
+        // response.setHeader("Authorization", jwt);
+        // response.setHeader("Access-Control-Expose-Headers", "Authorization");
+        return Result.succ(jwt);
+    }
+
     @GetMapping("/getInfo")
     public Result getInfo(@RequestParam String token) {
         log.info("token ====== " + token);
@@ -62,25 +81,6 @@ public class UserController {
 
         log.info("获取当前用户信息 ====== " + currentUser);
         return Result.succ("获取当前用户信息成功!", currentUser);
-    }
-
-    @PostMapping("/login")
-    public Result login(@Validated @RequestBody LoginDTO loginDTO, HttpServletResponse response) {
-        log.info(loginDTO.toString());
-
-        User user = userService.login(loginDTO);
-        if (user == null) {
-            return Result.fail("用户不存在或密码不正确");
-        }
-
-        // 获取菜单权限
-        List<Menu> menuList = menuService.getMenusByRoleFlag(user.getRole());
-        user.setMenuList(menuList);
-
-        String jwt = TokenUtils.genToken(user.getId(), user.getPassword());
-        response.setHeader("Authorization", jwt);
-        response.setHeader("Access-Control-Expose-Headers", "Authorization");
-        return Result.succ(user);
     }
 
     @PostMapping("/logout")
