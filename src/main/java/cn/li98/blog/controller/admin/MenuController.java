@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * @author: whtli
  * @date: 2022/12/16
- * @description: 菜单接口
+ * @description: 菜单控制层
  */
 @RestController
 @RequestMapping("/admin/menu")

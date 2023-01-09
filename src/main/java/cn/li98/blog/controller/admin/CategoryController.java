@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * @author: whtli
  * @date: 2022/11/10
- * @description: 分类接口
+ * @description: 分类控制层
  */
 @Slf4j
 @RestController

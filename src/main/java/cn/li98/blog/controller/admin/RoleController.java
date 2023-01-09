@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * @author: whtli
  * @date: 2022/12/16
- * @description: 角色接口
+ * @description: 角色控制层
  */
 @RestController
 @RequestMapping("/admin/role")

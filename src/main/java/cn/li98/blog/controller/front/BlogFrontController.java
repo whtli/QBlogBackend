@@ -32,7 +32,7 @@ import java.util.Map;
 /**
  * @author: whtli
  * @date: 2022/12/13
- * @description: 访客访问博客的接口
+ * @description: 访客访问博客的控制层
  */
 @Slf4j
 @RestController
@@ -169,7 +169,7 @@ public class BlogFrontController {
         // 查询分类名
         Category category = categoryService.getById(categoryId);
         String categoryName = category.getCategoryName();
-        for (int i = 0; i < blogList.size(); i ++) {
+        for (int i = 0; i < blogList.size(); i++) {
             blogList.get(i).setCategoryName(categoryName);
             List<Tag> tagList = tagService.getTagsByBlogId(blogList.get(i).getId());
             blogList.get(i).setTagList(tagList);
@@ -198,12 +198,13 @@ public class BlogFrontController {
         String tagName = tag.getTagName();
 
         List<Category> categoryList = categoryService.list();
-        for (int i = 0; i < blogList.size(); i ++) {
+        for (int i = 0; i < blogList.size(); i++) {
             for (Category category : categoryList) {
                 if (blogList.get(i).getCategoryId().equals(category.getId())) {
                     blogList.get(i).setCategoryName(category.getCategoryName());
                 }
-            }            List<Tag> tagList = tagService.getTagsByBlogId(blogList.get(i).getId());
+            }
+            List<Tag> tagList = tagService.getTagsByBlogId(blogList.get(i).getId());
             blogList.get(i).setTagList(tagList);
         }
 

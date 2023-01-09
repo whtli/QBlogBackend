@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * @author: whtli
  * @date: 2022/12/25
- * @description: 评论接口
+ * @description: 评论控制层
  */
 @Slf4j
 @RestController

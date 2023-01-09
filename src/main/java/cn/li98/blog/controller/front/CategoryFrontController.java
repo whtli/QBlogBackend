@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * @author: whtli
  * @date: 2022/12/24
- * @description: 前端分类接口
+ * @description: 前端分类控制层
  */
 @RestController
 @RequestMapping("/front/category")

@@ -42,6 +42,7 @@ public class UserController {
 
     /**
      * 管理员/用户登录后台管理系统
+     *
      * @param loginDTO 登录信息DTO
      * @return Json Web Token
      */
@@ -61,6 +62,7 @@ public class UserController {
 
     /**
      * 获取当前登录用户的信息
+     *
      * @param token 用户登录时返回的token串
      * @return 当前登录用户的信息
      */
@@ -83,6 +85,7 @@ public class UserController {
 
     /**
      * 退出登录
+     *
      * @return null
      */
     @OperationLogger("退出登录")

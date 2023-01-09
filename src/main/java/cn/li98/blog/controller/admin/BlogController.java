@@ -360,7 +360,7 @@ public class BlogController {
         Long total = (Long) redisTemplate.opsForValue().get(Constant.PAGE_NUMBER_OF_PUBLISHED_BLOGS);
         if (total != null) {
             int count = (int) Math.ceil(total * 1.0 / 10);
-            log.info("可见博客的总页数 ================= : {}",count);
+            log.info("可见博客的总页数 ================= : {}", count);
             for (int i = 1; i <= count; i++) {
                 redisTemplate.delete(Constant.GUEST_BLOG_KEY + "_" + i);
             }

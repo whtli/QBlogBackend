@@ -154,6 +154,7 @@ public class FileController {
 
     /**
      * 批量删除文件
+     *
      * @param ids 待删除文件的id列表
      * @return Result
      */
