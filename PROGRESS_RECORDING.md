@@ -3272,7 +3272,7 @@ public class Files {
     ```
 
 
-## 20. 调整redis的使用代码，分页查询根据查询参数实现自定义sql，弃用BlogDisplay类后改造使用Blog类，
+## 20. 调整redis的使用代码，分页查询根据查询参数实现自定义sql，弃用BlogDisplay类后改造使用Blog类
 见以下文件
 + [BlogFrontController](src/main/java/cn/li98/blog/controller/front/BlogFrontController.java)
     ```java
@@ -3460,3 +3460,104 @@ public class Files {
             </if>
         </select>
     ```
+
+
+## 21. 完善用户登录与创建用户时的密码加密与判断
+
++ 取消User类中password字段的JsonIgnore注解
+  ```java
+  @Data
+  @Accessors(chain = true)
+  @TableName("user")
+  public class User implements Serializable {
+      @TableId(value = "id", type = IdType.AUTO)
+      private Long id;
+  
+      @NotBlank(message = "昵称不能为空")
+      private String username;
+  
+      // @JsonIgnore 取消此处注解
+      private String password;
+  
+      private String nickname;
+  
+      private String avatar;
+      @NotBlank(message = "邮箱不能为空")
+      @Email(message = "邮箱格式不正确")
+      private String email;
+  
+      private Date createTime;
+  
+      private Date updateTime;
+  
+      private String role;
+  
+      @TableField(exist = false)
+      private List<Menu> menuList;
+  
+      private static final long serialVersionUID = 1L;
+  
+  }
+  ```
+
++ 创建用户时，用户密码使用hutool的工具类SecureUtil.md5进行加密后再存入数据库
+  ```java
+  @Slf4j
+  @RestController
+  @RequestMapping("/admin/user")
+  public class UserController {
+      @Autowired
+      UserService userService;
+  
+      @Autowired
+      private MenuService menuService;
+  
+      /**
+       * 新增或者更新
+       *
+       * @param user 用户实体类
+       * @return 是否维护成功的提示
+       */
+      @PostMapping("/saveOrUpdate")
+      public Result saveOrUpdate(@RequestBody User user) {
+          Date date = new Date();
+          if (user.getId() == null) {
+              user.setCreateTime(date);
+          }
+          user.setUpdateTime(date);
+          // 密码加密
+          String md5Password = SecureUtil.md5(user.getPassword());
+          user.setPassword(md5Password);
+  
+          boolean flag = userService.saveOrUpdate(user);
+          if (flag) {
+              return Result.succ("用户信息维护成功");
+          }
+          return Result.fail("用户信息维护失败");
+      }
+  }
+  ```
+
++ 登录时对输入的原密码进行加密，然后与数据库中的密码信息做对比
+
+  ```java
+  @Service
+  public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+      @Resource
+      private UserMapper userMapper;
+  
+      @Override
+      public User login(LoginDTO loginDTO) {
+          QueryWrapper wrapper = new QueryWrapper();
+          wrapper.eq("username", loginDTO.getUsername());
+          // 密码通过md5加密后再判断
+          String md5Password = SecureUtil.md5(loginDTO.getPassword());
+          wrapper.eq("password", md5Password);
+          User one = getOne(wrapper);
+          if (one != null) {
+              return one;
+          }
+          return null;
+      }
+  }
+  ```

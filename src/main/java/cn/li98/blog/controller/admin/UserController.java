@@ -112,7 +112,7 @@ public class UserController {
     /**
      * 新增或者更新
      *
-     * @param user 用户实体
+     * @param user 用户实体类
      * @return 是否维护成功的提示
      */
     @PostMapping("/saveOrUpdate")
