@@ -71,10 +71,8 @@ public class OperationLogAspect {
     private OperationLog handleLog(ProceedingJoinPoint joinPoint, OperationLogger operationLogger, int times) {
         // 从token中获取操作用户的名称
         String username = TokenUtils.getCurrentUser().getUsername();
-        System.out.println("username: -----------  " + username);
         // 获取操作描述
         String description = operationLogger.value();
-
         // 获取请求内容中的属性
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         // 获取请求属性

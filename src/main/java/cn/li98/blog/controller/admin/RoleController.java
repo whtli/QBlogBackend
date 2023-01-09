@@ -1,6 +1,7 @@
 package cn.li98.blog.controller.admin;
 
 import cn.li98.blog.common.Result;
+import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.model.entity.Role;
 import cn.li98.blog.service.RoleService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -32,6 +33,7 @@ public class RoleController {
      * @param pageSize 页容量
      * @return 角色列表的分页查询结果
      */
+    @OperationLogger("获取角色列表")
     @GetMapping("/getRoleList")
     public Result findPage(@RequestParam(value = "roleName", defaultValue = "") String roleName,
                            @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
@@ -45,11 +47,12 @@ public class RoleController {
     }
 
     /**
-     * 新增或者更新
+     * 新增或者更新角色
      *
      * @param role 角色实体
      * @return 是否维护成功的提示
      */
+    @OperationLogger("新增或者更新角色")
     @PostMapping("/saveOrUpdate")
     public Result saveOrUpdate(@RequestBody Role role) {
         boolean flag = roleService.saveOrUpdate(role);
@@ -65,6 +68,7 @@ public class RoleController {
      * @param id 角色id
      * @return 是否删除成功的提示以及角色id
      */
+    @OperationLogger("删除指定角色")
     @DeleteMapping("/deleteRoleById")
     public Result delete(@RequestParam Long id) {
         boolean flag = roleService.removeById(id);
@@ -77,9 +81,10 @@ public class RoleController {
     /**
      * 更新角色和菜单的对应关系
      *
-     * @param data 参数，包含roleId和
+     * @param data 参数，包含roleId和菜单id列表
      * @return
      */
+    @OperationLogger("更新指定角色和菜单的对应关系")
     @PostMapping("updateRoleMenu")
     public Result updateRoleMenu(@RequestBody Map<String, Object> data) {
         // 获取参数中的roleId以及为这个role赋予权限（菜单id列表）

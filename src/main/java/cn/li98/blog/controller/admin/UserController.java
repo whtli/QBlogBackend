@@ -4,6 +4,7 @@ package cn.li98.blog.controller.admin;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.li98.blog.common.Result;
+import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.model.entity.Menu;
 import cn.li98.blog.model.entity.User;
 import cn.li98.blog.model.dto.LoginDTO;
@@ -39,32 +40,31 @@ public class UserController {
     @Autowired
     private MenuService menuService;
 
-    @GetMapping("/test")
-    public Result updateUserName(@RequestParam String name) {
-        User currentUser = TokenUtils.getCurrentUser();
-        log.info("获取当前用户信息 ====== " + currentUser.getUsername());
-
-        Map<String, String> data = new HashMap<>(1);
-        data.put("userBar", "Hello  " + name);
-        return Result.succ("测试连接成功!", data);
-    }
-
+    /**
+     * 管理员/用户登录后台管理系统
+     * @param loginDTO 登录信息DTO
+     * @return Json Web Token
+     */
+    @OperationLogger("登录后台管理系统")
     @PostMapping("/login")
-    public Result login(@Validated @RequestBody LoginDTO loginDTO, HttpServletResponse response) {
+    public Result login(@Validated @RequestBody LoginDTO loginDTO) {
         log.info(loginDTO.toString());
-
         User user = userService.login(loginDTO);
         if (user == null) {
             return Result.fail("用户不存在或密码不正确");
         }
-
-
         String jwt = TokenUtils.genToken(user.getId(), user.getPassword());
         // response.setHeader("Authorization", jwt);
         // response.setHeader("Access-Control-Expose-Headers", "Authorization");
         return Result.succ(jwt);
     }
 
+    /**
+     * 获取当前登录用户的信息
+     * @param token 用户登录时返回的token串
+     * @return 当前登录用户的信息
+     */
+    @OperationLogger("获取当前登录用户的信息")
     @GetMapping("/getInfo")
     public Result getInfo(@RequestParam String token) {
         log.info("token ====== " + token);
@@ -81,6 +81,11 @@ public class UserController {
         return Result.succ("获取当前用户信息成功!", currentUser);
     }
 
+    /**
+     * 退出登录
+     * @return null
+     */
+    @OperationLogger("退出登录")
     @PostMapping("/logout")
     public Result logout() {
         return Result.succ(null);
@@ -94,6 +99,7 @@ public class UserController {
      * @param pageSize 页容量
      * @return 用户列表的分页查询结果
      */
+    @OperationLogger("获取用户列表")
     @GetMapping("/getUserList")
     public Result findPage(@RequestParam(value = "username", defaultValue = "") String username,
                            @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
@@ -107,11 +113,12 @@ public class UserController {
     }
 
     /**
-     * 新增或者更新
+     * 新增或者更新用户
      *
      * @param user 用户实体类
      * @return 是否维护成功的提示
      */
+    @OperationLogger("新增或者更新用户")
     @PostMapping("/saveOrUpdate")
     public Result saveOrUpdate(@RequestBody User user) {
         Date date = new Date();
@@ -136,6 +143,7 @@ public class UserController {
      * @param id 用户id
      * @return 是否删除成功的提示以及用户id
      */
+    @OperationLogger("删除指定用户")
     @DeleteMapping("/deleteUserById")
     public Result delete(@RequestParam Long id) {
         boolean flag = userService.removeById(id);

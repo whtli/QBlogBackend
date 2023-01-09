@@ -102,6 +102,7 @@ public class TagController {
      * @param tag 标签实体类
      * @return Result
      */
+    @OperationLogger("修改标签")
     @PutMapping("/editTag")
     public Result updateTag(@Validated @RequestBody Tag tag) {
         return submitTag(tag);

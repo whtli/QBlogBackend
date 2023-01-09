@@ -2,6 +2,7 @@ package cn.li98.blog.controller.admin;
 
 import cn.hutool.core.date.DateUtil;
 import cn.li98.blog.common.Result;
+import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.model.entity.Comment;
 import cn.li98.blog.service.CommentService;
 import cn.li98.blog.utils.TokenUtils;
@@ -26,12 +27,13 @@ public class CommentController {
     private CommentService commentService;
 
     /**
-     * 查询某一博客下的所有评论
+     * 查询指定博客下的所有评论
      * 实现多级评论嵌套
      *
      * @param blogId 博客id
      * @return 某一博客下的所有评论
      */
+    @OperationLogger("查询指定博客下的所有评论")
     @GetMapping("/loadComment")
     public Result loadComment(@RequestParam Long blogId) {
         // 查询所有的评论和回复数据
@@ -63,6 +65,7 @@ public class CommentController {
      * @param comment 评论实体类（缺省）
      * @return 评论发布成功返回true，否则返回false
      */
+    @OperationLogger("新增或者更新评论")
     @PostMapping("/saveComment")
     public Result saveComment(@RequestBody Comment comment) {
         comment.setUserId(TokenUtils.getCurrentUser().getId());
@@ -89,6 +92,7 @@ public class CommentController {
      * @param id 评论id
      * @return 被删除的评论id
      */
+    @OperationLogger("删除指定评论")
     @DeleteMapping("/deleteCommentById")
     public Result deleteCommentById(@RequestParam Long id) {
         commentService.removeById(id);

@@ -5,6 +5,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.li98.blog.common.Result;
+import cn.li98.blog.common.annotation.OperationLogger;
 import cn.li98.blog.dao.FilesMapper;
 import cn.li98.blog.model.entity.Files;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -42,6 +43,7 @@ public class FileController {
      * @return url作为data
      * @throws IOException IO异常
      */
+    @OperationLogger("上传文件")
     @PostMapping("/upload")
     public Result upload(@RequestParam MultipartFile file) throws IOException {
         String originalFilename = file.getOriginalFilename();
@@ -93,6 +95,7 @@ public class FileController {
      * @param response HttpServletResponse
      * @throws IOException IO异常
      */
+    @OperationLogger("下载文件")
     @GetMapping("/{fileUuid}")
     public void download(@PathVariable String fileUuid, HttpServletResponse response) throws IOException {
         // 根据文件的唯一标识码获取文件
@@ -128,6 +131,7 @@ public class FileController {
      * @param files 待更新的文件
      * @return Result
      */
+    @OperationLogger("更新文件")
     @PostMapping("/update")
     public Result update(@RequestBody Files files) {
         return Result.succ(fileMapper.updateById(files));
@@ -139,6 +143,7 @@ public class FileController {
      * @param id 待删除文件的id
      * @return Result
      */
+    @OperationLogger("删除文件")
     @DeleteMapping("/{id}")
     public Result delete(@PathVariable Integer id) {
         Files files = fileMapper.selectById(id);
@@ -152,6 +157,7 @@ public class FileController {
      * @param ids 待删除文件的id列表
      * @return Result
      */
+    @OperationLogger("批量删除文件")
     @PostMapping("/del/batch")
     public Result deleteBatch(@RequestBody List<Integer> ids) {
         // select * from sys_file where id in (id,id,id...)

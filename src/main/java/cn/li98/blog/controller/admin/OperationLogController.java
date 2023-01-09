@@ -56,7 +56,7 @@ public class OperationLogController {
      * @param id 日志id
      * @return
      */
-    @OperationLogger("按id删除操作日志")
+    @OperationLogger("删除指定操作日志")
     @DeleteMapping("/deleteOperationLogById")
     public Result delete(@RequestParam Long id) {
         operationLogService.removeById(id);
