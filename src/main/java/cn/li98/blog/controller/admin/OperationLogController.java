@@ -37,15 +37,6 @@ public class OperationLogController {
     public Result operationLogs(@RequestParam(defaultValue = "") String[] date,
                                 @RequestParam(defaultValue = "1") Integer pageNum,
                                 @RequestParam(defaultValue = "10") Integer pageSize) {
-        /*String startDate = null;
-        String endDate = null;
-        if (date.length == 2) {
-            startDate = date[0];
-            endDate = date[1];
-        }
-        String orderBy = "create_time desc";
-        PageHelper.startPage(pageNum, pageSize, orderBy);
-        PageInfo<OperationLog> pageInfo = new PageInfo<>(operationLogService.getOperationLogListByDate(startDate, endDate));*/
         QueryWrapper<OperationLog> queryWrapper = new QueryWrapper<>();
         // 根据创建时间查询逆序的列表结果，越新发布的博客越容易被看到
         queryWrapper.orderByDesc("create_time");

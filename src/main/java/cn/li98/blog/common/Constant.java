@@ -41,4 +41,23 @@ public interface Constant {
      * 图标
      */
     String DICT_TYPE_ICON = "icon";
+
+    /**
+     * .xlsx文件
+     */
+    String FILE_TYPE_XLSX = "xlsx";
+    /**
+     * .xls文件
+     */
+    String FILE_TYPE_XLS = "xls";
+    /**
+     * .md文件
+     */
+    String FILE_TYPE_MD = "md";
+
+    String IP_UNKNOWN = "unknown";
+
+    String IP_V4_LOCALHOST = "127.0.0.1";
+    String IP_V6_LOCALHOST = "0:0:0:0:0:0:0:1";
+
 }

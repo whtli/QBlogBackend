@@ -192,7 +192,7 @@ public class BlogController {
         String originalFilename = file.getOriginalFilename();
         String type = FileUtil.extName(originalFilename);
 
-        if ("md".equals(type)) {
+        if (Constant.FILE_TYPE_MD.equals(type)) {
             // 是md文件，需要把规定格式的博客内容读取并拆分处理之后得到博客类对象才可以插入到数据库
             Blog blog = blogService.fileToBlog(file);
             int flag = blogService.createBlog(blog);
@@ -200,7 +200,7 @@ public class BlogController {
                 flushRedis();
                 return Result.succ(originalFilename + " 导入成功", blog);
             }
-        } else if ("xlsx".equals(type) || "xls".equals(type)) {
+        } else if (Constant.FILE_TYPE_XLSX.equals(type) || Constant.FILE_TYPE_XLS.equals(type)) {
             // 逐行读取记录，每行是一个博客，列名对应数据库字段名
             InputStream inputStream = file.getInputStream();
             ExcelReader reader = ExcelUtil.getReader(inputStream);
@@ -312,21 +312,6 @@ public class BlogController {
     @OperationLogger("获取博客列表")
     @PostMapping("/getBlogs")
     public Result getBlogs(@RequestBody Map<String, Object> params) {
-
-        /*QueryWrapper<Blog> queryWrapper = new QueryWrapper<>();
-        // 将查询参数以键值对的形式存放到QueryWrapper中
-        if (!StringUtils.isEmpty(title) && !StringUtils.isBlank(title)) {
-            queryWrapper.like("title", title);
-        }
-        if (categoryId != null) {
-            queryWrapper.eq("category_id", categoryId);
-        }
-        // 根据创建时间查询逆序的列表结果，越新发布的博客越容易被看到
-        queryWrapper.orderByDesc("create_time");
-        // 新建一个分页规则，pageNum代表当前页码，pageSize代表每页数量
-        Page page = new Page(pageNum, pageSize);
-        // 借助Page实现分页查询，借助QueryWrapper实现多参数查询
-        IPage pageData = blogService.page(page, queryWrapper);*/
 
         Map<String, Object> data = new HashMap<>(2);
         IPage<Blog> pageData = blogService.getBlogList(params);

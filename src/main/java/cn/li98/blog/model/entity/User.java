@@ -30,7 +30,9 @@ public class User implements Serializable {
     @NotBlank(message = "昵称不能为空")
     private String username;
 
-    // @JsonIgnore
+    /**
+     * @JsonIgnore
+     */
     private String password;
 
     private String nickname;

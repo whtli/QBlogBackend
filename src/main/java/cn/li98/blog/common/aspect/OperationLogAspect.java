@@ -92,7 +92,6 @@ public class OperationLogAspect {
         // 借助AopUtils工具类获取请求参数
         Map<String, Object> requestParams = AopUtils.getRequestParams(joinPoint);
         String param = JacksonUtils.writeValueAsString(requestParams);
-        // String param = StringUtils.substring(JacksonUtils.writeValueAsString(requestParams), 0, 2000);
         // 借助UserAgentUtils工具类获取操作系统和浏览器信息
         Map<String, String> userAgentMap = userAgentUtils.parseOsAndBrowser(userAgent);
         String os = userAgentMap.get("os");

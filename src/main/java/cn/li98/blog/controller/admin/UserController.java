@@ -58,9 +58,6 @@ public class UserController {
             return Result.fail("用户不存在或密码不正确");
         }
 
-        // 获取菜单权限
-        // List<Menu> menuList = menuService.getMenusByRoleFlag(user.getRole());
-        // user.setMenuList(menuList);
 
         String jwt = TokenUtils.genToken(user.getId(), user.getPassword());
         // response.setHeader("Authorization", jwt);
