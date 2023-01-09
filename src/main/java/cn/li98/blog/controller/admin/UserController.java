@@ -2,6 +2,7 @@ package cn.li98.blog.controller.admin;
 
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.SecureUtil;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.model.entity.Menu;
 import cn.li98.blog.model.entity.User;
@@ -26,7 +27,7 @@ import java.util.Map;
 /**
  * @author: whtli
  * @date: 2022/11/09
- * @description: UserController
+ * @description: 用户相关功能的控制层
  */
 @Slf4j
 @RestController
@@ -121,11 +122,15 @@ public class UserController {
             user.setCreateTime(date);
         }
         user.setUpdateTime(date);
+        // 密码加密
+        String md5Password = SecureUtil.md5(user.getPassword());
+        user.setPassword(md5Password);
+
         boolean flag = userService.saveOrUpdate(user);
         if (flag) {
-            return Result.succ("用户维护成功");
+            return Result.succ("用户信息维护成功");
         }
-        return Result.fail("用户维护失败");
+        return Result.fail("用户信息维护失败");
     }
 
     /**
