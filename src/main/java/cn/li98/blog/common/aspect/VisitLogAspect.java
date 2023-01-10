@@ -1,5 +1,6 @@
 package cn.li98.blog.common.aspect;
 
+import cn.li98.blog.common.Constant;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.common.annotation.VisitLogger;
 import cn.li98.blog.common.enums.VisitBehavior;
@@ -78,7 +79,7 @@ public class VisitLogAspect {
      * @param request
      * @return
      */
-    private String saveUUID(HttpServletRequest request) {
+    private String saveUuid(HttpServletRequest request) {
         //获取响应对象
         HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
         //获取当前时间戳，精确到小时，防刷访客数据
@@ -90,8 +91,8 @@ public class VisitLogAspect {
         String ip = IpAddressUtils.getIpAddress(request);
         String userAgent = request.getHeader("User-Agent");
         //根据时间戳、ip、userAgent生成UUID
-        String nameUUID = timestamp + ip + userAgent;
-        String uuid = UUID.nameUUIDFromBytes(nameUUID.getBytes()).toString();
+        String nameUuid = timestamp + ip + userAgent;
+        String uuid = UUID.nameUUIDFromBytes(nameUuid.getBytes()).toString();
         //添加访客标识码UUID至响应头
         response.addHeader("identification", uuid);
         //暴露自定义header供页面资源使用
@@ -108,7 +109,7 @@ public class VisitLogAspect {
     private String checkIdentification(HttpServletRequest request) {
         String identification = request.getHeader("identification");
         //请求头没有uuid，签发uuid并保存到数据库和Redis
-        identification = saveUUID(request);
+        identification = saveUuid(request);
         return identification;
     }
 
@@ -139,7 +140,7 @@ public class VisitLogAspect {
             case FRIEND:
                 break;
             case BLOG:
-                if (result.getCode() == 200) {
+                if (result.getCode().equals(Constant.CODE_SUCCESSFUL)) {
                     Map object = (Map) result.getData();
                     Blog blog = (Blog) object.get("blog");
                     Long id = blog.getId();
@@ -159,7 +160,7 @@ public class VisitLogAspect {
                 remark = "标签ID：" + tagId;
                 break;
             case SEARCH:
-                if (result.getCode() == 200) {
+                if (result.getCode().equals(Constant.CODE_SUCCESSFUL)) {
                     String query = (String) requestParams.get("query");
                     content = query;
                     remark = "搜索内容：" + query;

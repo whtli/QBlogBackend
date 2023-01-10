@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * @author: whtli
  * @date: 2022/12/07
- * @description:
+ * @description: 操作日志控制层
  */
 @RestController
 @RequestMapping("/admin/log")
