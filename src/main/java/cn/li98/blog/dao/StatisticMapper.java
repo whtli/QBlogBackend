@@ -20,9 +20,30 @@ public interface StatisticMapper extends BaseMapper<Blog> {
     List<StatisticBlogCount> getBlogCategoryList();
 
     /**
+     * 获取总PV
+     *
+     * @return 总PV值
+     */
+    int getTotalPageView();
+
+    /**
      * 获取当日PV
      *
-     * @return PV值
+     * @return 日PV值
      */
     int getTodayPageView();
+
+    /**
+     * 获取总UV
+     *
+     * @return 总UV值
+     */
+    int getTotalUniqueVisitor();
+
+    /**
+     * 获取日UV
+     *
+     * @return 日UV值
+     */
+    int getTodayUniqueVisitor();
 }

@@ -9,8 +9,17 @@
         WHERE b.deleted = 0
         group by category_id
     </select>
+    <select id="getTotalPageView" resultType="java.lang.Integer">
+        SELECT count(*) FROM visit_log
+    </select>
     <select id="getTodayPageView" resultType="java.lang.Integer">
-        select count(*) from visit_log where date(create_time)=curdate()
+        SELECT count(*) FROM visit_log WHERE DATE(create_time)=curdate()
+    </select>
+    <select id="getTotalUniqueVisitor" resultType="java.lang.Integer">
+        SELECT count(DISTINCT ip, to_days(create_time)) FROM visit_log
+    </select>
+    <select id="getTodayUniqueVisitor" resultType="java.lang.Integer">
+        SELECT count(DISTINCT ip) FROM visit_log where to_days(create_time) = to_days(now())
     </select>
 
 </mapper>

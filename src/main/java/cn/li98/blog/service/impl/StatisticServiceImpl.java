@@ -9,25 +9,25 @@ import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.Comment;
 import cn.li98.blog.model.vo.StatisticBlogCount;
 import cn.li98.blog.service.StatisticService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @author: whtli
  * @date: 2022/11/17
- * @description: 用于获取统计数据的service实现层
+ * @description: 用于获取统计数据的业务实现层
  */
 @Service
 public class StatisticServiceImpl implements StatisticService {
 
-    @Autowired
-    StatisticMapper statisticMapper;
+    @Resource
+    private StatisticMapper statisticMapper;
 
-    @Autowired
-    CommentMapper commentMapper;
+    @Resource
+    private CommentMapper commentMapper;
 
     /**
      * 调用Mapper层获取统计数据
@@ -45,7 +45,6 @@ public class StatisticServiceImpl implements StatisticService {
         List<Blog> blogList = statisticMapper.selectList(null);
         // 获取博客总数
         int blogCount = blogList.size();
-
 
         // 获取各年份、当年每月博客发布量数据
         Map<Integer, Integer> blogYearCount = new LinkedHashMap<>();
@@ -119,15 +118,58 @@ public class StatisticServiceImpl implements StatisticService {
         return map;
     }
 
+    /**
+     * 获取总PV
+     *
+     * @return 总PV值
+     */
+    @Override
+    public int getTotalPageView() {
+        int totalPageView = statisticMapper.getTotalPageView();
+        return totalPageView;
+    }
+
+    /**
+     * 获取当日PV
+     *
+     * @return 日PV值
+     */
     @Override
     public int getTodayPageView() {
         int todayPageView = statisticMapper.getTodayPageView();
         return todayPageView;
     }
 
+    /**
+     * 获取评论总数
+     *
+     * @return 评论总数
+     */
     @Override
     public int getTotalComment() {
         List<Comment> commentList = commentMapper.selectList(null);
         return commentList.size();
+    }
+
+    /**
+     * 获取总UV
+     *
+     * @return 总UV值
+     */
+    @Override
+    public int getTotalUniqueVisitor() {
+        int totalUniqueVisitor = statisticMapper.getTotalUniqueVisitor();
+        return totalUniqueVisitor;
+    }
+
+    /**
+     * 获取日UV
+     *
+     * @return 日UV值
+     */
+    @Override
+    public int getTodayUniqueVisitor() {
+        int todayUniqueVisitor = statisticMapper.getTodayUniqueVisitor();
+        return todayUniqueVisitor;
     }
 }

@@ -32,11 +32,10 @@ public class StatisticController {
     @GetMapping("/getStatistic")
     public Result getStatistic() {
         Map<String, Object> map = statisticService.getBlogStatistic();
-        // TODO: PV和UV的统计
-        int totalPageView = 0;
+        int totalPageView = statisticService.getTotalPageView();
         int todayPageView = statisticService.getTodayPageView();
-        int totalUniqueVisitor = 0;
-        int todayUniqueVisitor = 0;
+        int totalUniqueVisitor = statisticService.getTotalUniqueVisitor();
+        int todayUniqueVisitor = statisticService.getTodayUniqueVisitor();
         int totalComment = statisticService.getTotalComment();
         map.put("totalPageView", totalPageView);
         map.put("todayPageView", todayPageView);
