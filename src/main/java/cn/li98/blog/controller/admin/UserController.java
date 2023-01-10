@@ -46,7 +46,6 @@ public class UserController {
      * @param loginDTO 登录信息DTO
      * @return Json Web Token
      */
-    @OperationLogger("登录后台管理系统")
     @PostMapping("/login")
     public Result login(@Validated @RequestBody LoginDTO loginDTO) {
         log.info(loginDTO.toString());

@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 /**
  * @author: whtli
  * @date: 2022/12/08
- * @description:
+ * @description: 操作日志业务层
  */
 public interface OperationLogService extends IService<OperationLog> {
 }

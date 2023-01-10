@@ -3464,7 +3464,7 @@ public class Files {
 
 ## 21. 完善用户登录与创建用户时的密码加密与判断
 
-+ 取消User类中password字段的JsonIgnore注解
++ 取消[User](src/main/java/cn/li98/blog/model/entity/User.java)类中password字段的JsonIgnore注解
   ```java
   @Data
   @Accessors(chain = true)
@@ -3500,7 +3500,7 @@ public class Files {
   }
   ```
 
-+ 创建用户时，用户密码使用hutool的工具类SecureUtil.md5进行加密后再存入数据库
++ 创建用户时，用户密码使用HuTool的工具类SecureUtil.md5进行加密后再存入数据库，见[UserController](src/main/java/cn/li98/blog/controller/admin/UserController.java)
   ```java
   @Slf4j
   @RestController
@@ -3538,8 +3538,7 @@ public class Files {
   }
   ```
 
-+ 登录时对输入的原密码进行加密，然后与数据库中的密码信息做对比
-
++ 登录时对输入的原密码进行加密，然后与数据库中的密码信息做对比，见[UserServiceImpl](src/main/java/cn/li98/blog/service/impl/UserServiceImpl.java)
   ```java
   @Service
   public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -3560,4 +3559,160 @@ public class Files {
           return null;
       }
   }
+  ```
+
+
+## 22. 完善统计功能，实现前端访问操作的日志进而实现PV和UV的统计
+### 22.1 实现前端访问操作的自定义AOP记录访问日志，参考[15. 自定义AOP记录操作日志]
++ 新增[VisitLogger.java](src/main/java/cn/li98/blog/common/annotation/VisitLogger.java)
++ 新增[VisitLogAspect.java](src/main/java/cn/li98/blog/common/aspect/VisitLogAspect.java)
++ 新增[VisitLog.java](src/main/java/cn/li98/blog/model/entity/VisitLog.java)
++ 新增[VisitLogService.java](src/main/java/cn/li98/blog/service/VisitLogService.java)
++ 新增[VisitLogServiceImpl.java](src/main/java/cn/li98/blog/service/impl/VisitLogServiceImpl.java)
++ 新增[VisitLogMapper.java](src/main/java/cn/li98/blog/dao/VisitLogMapper.java)
++ 新增[VisitLogMapper.xml](src/main/resources/mapper/VisitLogMapper.xml)
++ 新增[VisitLogRemark.java](src/main/java/cn/li98/blog/model/dto/VisitLogRemark.java)
++ 新增[VisitBehavior.java](src/main/java/cn/li98/blog/common/enums/VisitBehavior.java)
++ 在前端访问相关的接口上添加VisitLogger注解，如[CategoryFrontController.java](src/main/java/cn/li98/blog/controller/front/CategoryFrontController.java)
+
+### 22.2 完成PV和UV的统计
++ 在[StatisticController](src/main/java/cn/li98/blog/controller/admin/StatisticController.java)中添加查询业务
+  ```java
+  @Slf4j
+  @RestController
+  @RequestMapping("/admin/data")
+  public class StatisticController {
+      @Autowired
+      StatisticService statisticService;
+  
+      /**
+       * 获取统计数据
+       *
+       * @return 存放了博客分类统计数据列表和分类名列表的哈希表
+       */
+      @OperationLogger("获取统计数据")
+      @GetMapping("/getStatistic")
+      public Result getStatistic() {
+          Map<String, Object> map = statisticService.getBlogStatistic();
+          int totalPageView = statisticService.getTotalPageView();
+          int todayPageView = statisticService.getTodayPageView();
+          int totalUniqueVisitor = statisticService.getTotalUniqueVisitor();
+          int todayUniqueVisitor = statisticService.getTodayUniqueVisitor();
+          int totalComment = statisticService.getTotalComment();
+          map.put("totalPageView", totalPageView);
+          map.put("todayPageView", todayPageView);
+          map.put("totalUniqueVisitor", totalUniqueVisitor);
+          map.put("todayUniqueVisitor", todayUniqueVisitor);
+          map.put("totalComment", totalComment);
+          return Result.succ(map);
+      }
+  }
+  ```
+
++ 在[StatisticService.java](src/main/java/cn/li98/blog/service/StatisticService.java)中添加接口
+  ```java
+  public interface StatisticService {
+      /**
+       * 获取总PV
+       *
+       * @return 总PV值
+       */
+      int getTotalPageView();
+  
+      /**
+       * 获取总UV
+       *
+       * @return 总UV值
+       */
+      int getTotalUniqueVisitor();
+  
+      /**
+       * 获取日UV
+       *
+       * @return 日UV值
+       */
+      int getTodayUniqueVisitor();
+  }
+  ```
+
++ 在业务实现层[StatisticServiceImpl.java](src/main/java/cn/li98/blog/service/impl/StatisticServiceImpl.java)中实现功能
+  ```java
+  @Service
+  public class StatisticServiceImpl implements StatisticService {
+  
+      @Resource
+      private StatisticMapper statisticMapper;
+  
+      /**
+       * 获取总PV
+       *
+       * @return 总PV值
+       */
+      @Override
+      public int getTotalPageView() {
+          int totalPageView = statisticMapper.getTotalPageView();
+          return totalPageView;
+      }
+      
+      /**
+       * 获取总UV
+       *
+       * @return 总UV值
+       */
+      @Override
+      public int getTotalUniqueVisitor() {
+          int totalUniqueVisitor = statisticMapper.getTotalUniqueVisitor();
+          return totalUniqueVisitor;
+      }
+  
+      /**
+       * 获取日UV
+       *
+       * @return 日UV值
+       */
+      @Override
+      public int getTodayUniqueVisitor() {
+          int todayUniqueVisitor = statisticMapper.getTodayUniqueVisitor();
+          return todayUniqueVisitor;
+      }
+  }
+  ```
+
++ 在持久层中添加[StatisticMapper.java](src/main/java/cn/li98/blog/dao/StatisticMapper.java)方法
+  ```java
+  public interface StatisticMapper extends BaseMapper<Blog> {
+      /**
+       * 获取总PV
+       *
+       * @return 总PV值
+       */
+      int getTotalPageView();
+  
+      /**
+       * 获取总UV
+       *
+       * @return 总UV值
+       */
+      int getTotalUniqueVisitor();
+  
+      /**
+       * 获取日UV
+       *
+       * @return 日UV值
+       */
+      int getTodayUniqueVisitor();
+  }
+  ```
+
++ 在[StatisticMapper.xml](src/main/resources/mapper/StatisticMapper.xml)中添加sql语句
+  ```xml
+      <select id="getTotalPageView" resultType="java.lang.Integer">
+          SELECT count(*) FROM visit_log
+      </select>
+      <select id="getTotalUniqueVisitor" resultType="java.lang.Integer">
+          SELECT count(DISTINCT ip, to_days(create_time)) FROM visit_log
+      </select>
+      <select id="getTodayUniqueVisitor" resultType="java.lang.Integer">
+          SELECT count(DISTINCT ip) FROM visit_log where to_days(create_time) = to_days(now())
+      </select>
   ```
