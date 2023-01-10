@@ -1,11 +1,10 @@
 package cn.li98.blog.controller.front;
 
 import cn.li98.blog.common.Result;
+import cn.li98.blog.common.annotation.VisitLogger;
+import cn.li98.blog.common.enums.VisitBehavior;
 import cn.li98.blog.model.entity.Blog;
-import cn.li98.blog.model.entity.Category;
 import cn.li98.blog.model.entity.Tag;
-import cn.li98.blog.service.BlogService;
-import cn.li98.blog.service.CategoryService;
 import cn.li98.blog.service.TagService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +28,11 @@ public class TagFrontController {
     @Autowired
     private TagService tagService;
 
-    @Autowired
-    private BlogService blogService;
-
+    /**
+     * 获取标签信息
+     * @return 标签列表及各标签下的博客数量
+     */
+    @VisitLogger(VisitBehavior.TAG)
     @GetMapping("/getTagDetail")
     public Result getTagDetail() {
         List<Tag> tagList = tagService.list();

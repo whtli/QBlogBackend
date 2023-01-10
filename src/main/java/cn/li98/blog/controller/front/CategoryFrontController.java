@@ -1,6 +1,8 @@
 package cn.li98.blog.controller.front;
 
 import cn.li98.blog.common.Result;
+import cn.li98.blog.common.annotation.VisitLogger;
+import cn.li98.blog.common.enums.VisitBehavior;
 import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.Category;
 import cn.li98.blog.service.BlogService;
@@ -30,6 +32,11 @@ public class CategoryFrontController {
     @Autowired
     private BlogService blogService;
 
+    /**
+     * 获取分类信息
+     * @return 分类列表及各分类下的博客数量
+     */
+    @VisitLogger(VisitBehavior.CATEGORY)
     @GetMapping("/getCategoryDetail")
     public Result getCategoryDetail() {
         List<Category> categoryList = categoryService.list();

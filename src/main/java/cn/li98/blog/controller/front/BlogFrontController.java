@@ -3,7 +3,8 @@ package cn.li98.blog.controller.front;
 import cn.hutool.core.lang.Assert;
 import cn.li98.blog.common.Constant;
 import cn.li98.blog.common.Result;
-import cn.li98.blog.common.annotation.OperationLogger;
+import cn.li98.blog.common.annotation.VisitLogger;
+import cn.li98.blog.common.enums.VisitBehavior;
 import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.Category;
 import cn.li98.blog.model.entity.Tag;
@@ -12,7 +13,6 @@ import cn.li98.blog.service.CategoryService;
 import cn.li98.blog.service.TagService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +60,7 @@ public class BlogFrontController {
      * @param pageSize 页内数量
      * @return 访客可见的博客列表
      */
+    @VisitLogger(VisitBehavior.INDEX)
     @GetMapping("/getBlogList")
     public Result getBlogList(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                               @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
@@ -131,11 +132,12 @@ public class BlogFrontController {
     }
 
     /**
-     * 根据指定的唯一id查询对应的博客、博客所属的分类、博客拥有的标签
+     * 根据指定id查询对应的博客、博客所属的分类、博客拥有的标签
      *
      * @param blogId 博客id（唯一）
      * @return Result
      */
+    @VisitLogger(VisitBehavior.BLOG)
     @GetMapping("/getBlogInfoById")
     public Result getBlogInfoById(@RequestParam Long blogId) {
         // 查询博客
@@ -159,6 +161,7 @@ public class BlogFrontController {
      * @param categoryId 分类id
      * @return 指定分类中的博客列表
      */
+    @VisitLogger(VisitBehavior.CATEGORY_DETAIL)
     @GetMapping("/getBlogByCategoryId")
     public Result getBlogByCategoryId(@RequestParam Long categoryId) {
         QueryWrapper queryWrapper = new QueryWrapper();
@@ -189,6 +192,7 @@ public class BlogFrontController {
      * @param tagId 分类id
      * @return 指定分类中的博客列表
      */
+    @VisitLogger(VisitBehavior.TAG_DETAIL)
     @GetMapping("/getBlogByTagId")
     public Result getBlogByTagId(@RequestParam Long tagId) {
         // 查询博客id列表
