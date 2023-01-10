@@ -125,30 +125,39 @@ public class VisitLogAspect {
         String content = visitBehavior.getContent();
         switch (visitBehavior) {
             case UNKNOWN:
+                break;
             case INDEX:
+                break;
             case CATEGORY:
-                String categoryName = (String) requestParams.get("categoryName");
-                content = categoryName;
-                remark = "分类名称：" + categoryName + "，第" + requestParams.get("pageNum") + "页";
                 break;
             case TAG:
-                String tagName = (String) requestParams.get("tagName");
-                content = tagName;
-                remark = "标签名称：" + tagName + "，第" + requestParams.get("pageNum") + "页";
                 break;
             case ARCHIVE:
+                break;
             case ABOUT:
+                break;
             case FRIEND:
+                break;
             case BLOG:
                 if (result.getCode() == 200) {
-                    Blog blog = (Blog) result.getData();
+                    Map object = (Map) result.getData();
+                    Blog blog = (Blog) object.get("blog");
+                    Long id = blog.getId();
                     String title = blog.getTitle();
-                    content = title;
-                    remark = "文章标题：" + title;
+                    content = "博客标题：" + title;
+                    remark = "博客ID：" + id;
                 }
                 break;
             case CATEGORY_DETAIL:
+                Long categoryId = (Long) requestParams.get("categoryId");
+                content = String.valueOf(categoryId);
+                remark = "分类ID：" + categoryId;
+                break;
             case TAG_DETAIL:
+                Long tagId = (Long) requestParams.get("tagId");
+                content = String.valueOf(tagId);
+                remark = "标签ID：" + tagId;
+                break;
             case SEARCH:
                 if (result.getCode() == 200) {
                     String query = (String) requestParams.get("query");
@@ -162,6 +171,7 @@ public class VisitLogAspect {
                 remark = "友链名称：" + nickname;
                 break;
             default:
+                break;
         }
         return new VisitLogRemark(content, remark);
     }
@@ -196,8 +206,6 @@ public class VisitLogAspect {
         VisitLogRemark visitLogRemark = judgeBehavior(visitLogger.value(), requestParams, result);
         // 创建日志对象
         VisitLog log = new VisitLog(identification, uri, method, visitLogger.value().getBehavior(), visitLogRemark.getContent(), visitLogRemark.getRemark(), userAgent, ip, ipSource, times, param, os, browser);
-        System.out.println("log =========== ");
-        System.out.println(log);
         return log;
     }
 

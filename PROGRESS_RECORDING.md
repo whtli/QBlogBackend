@@ -3567,6 +3567,7 @@ public class Files {
 + 新增[VisitLogger.java](src/main/java/cn/li98/blog/common/annotation/VisitLogger.java)
 + 新增[VisitLogAspect.java](src/main/java/cn/li98/blog/common/aspect/VisitLogAspect.java)
 + 新增[VisitLog.java](src/main/java/cn/li98/blog/model/entity/VisitLog.java)
++ 新增[VisitLogController.java](src/main/java/cn/li98/blog/controller/admin/VisitLogController.java)
 + 新增[VisitLogService.java](src/main/java/cn/li98/blog/service/VisitLogService.java)
 + 新增[VisitLogServiceImpl.java](src/main/java/cn/li98/blog/service/impl/VisitLogServiceImpl.java)
 + 新增[VisitLogMapper.java](src/main/java/cn/li98/blog/dao/VisitLogMapper.java)
@@ -3574,7 +3575,10 @@ public class Files {
 + 新增[VisitLogRemark.java](src/main/java/cn/li98/blog/model/dto/VisitLogRemark.java)
 + 新增[VisitBehavior.java](src/main/java/cn/li98/blog/common/enums/VisitBehavior.java)
 + 在前端访问相关的接口上添加VisitLogger注解，如[CategoryFrontController.java](src/main/java/cn/li98/blog/controller/front/CategoryFrontController.java)
-
++ 在数据库的菜单表中添加权限记录
+```sql
+INSERT INTO `menu` VALUES (19, '/visitLog', 'VisitLog', 0, 'VisitLog', '访问日志', 'el-icon-notebook-2', 1, 'VisitLog', 8, 19);
+```
 ### 22.2 完成PV和UV的统计
 + 在[StatisticController](src/main/java/cn/li98/blog/controller/admin/StatisticController.java)中添加查询业务
   ```java
