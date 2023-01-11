@@ -27,7 +27,7 @@
 
 ### 后端
 
-+ 核心框架：[Spring Boot](https://github.com/spring-projects/spring-boot)
++ 核心框架：[Spring Boot](https://github.com/spring-projects/spring-boot)、MySQL
 + Token：[java-jwt](https://github.com/auth0/java-jwt)
 + ORM 框架：[MyBatis-Plus](https://github.com/baomidou/mybatis-plus)
 + NoSQL 缓存：[Redis](https://github.com/redis/redis)
