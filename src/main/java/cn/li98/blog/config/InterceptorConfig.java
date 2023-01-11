@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 /**
  * @author: whtli
  * @date: 2022/11/24
- * @description:
+ * @description: 拦截器配置
  */
 @Configuration
 public class InterceptorConfig implements WebMvcConfigurer {

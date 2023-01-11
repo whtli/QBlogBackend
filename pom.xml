@@ -84,6 +84,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- shiro-redis -->
         <!--<dependency>
             <groupId>org.crazycake</groupId>
             <artifactId>shiro-redis-spring-boot-starter</artifactId>
@@ -95,12 +96,6 @@
             <artifactId>hutool-all</artifactId>
             <version>5.3.3</version>
         </dependency>
-        <!-- jwt -->
-        <!--<dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>0.9.1</version>
-        </dependency>-->
         <!-- JWT -->
         <dependency>
             <groupId>com.auth0</groupId>

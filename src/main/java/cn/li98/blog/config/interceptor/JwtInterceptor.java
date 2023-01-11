@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @author: whtli
  * @date: 2022/11/24
- * @description:
+ * @description: JWT拦截器
  */
 public class JwtInterceptor implements HandlerInterceptor {
     @Autowired
