@@ -172,13 +172,20 @@ public class BlogFrontController {
         // 查询分类名
         Category category = categoryService.getById(categoryId);
         String categoryName = category.getCategoryName();
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        if (blogList == null) {
+            data.put("blogList", null);
+            data.put("total", 0);
+            data.put("categoryName", categoryName);
+            return Result.succ("查询成功", data);
+        }
         for (int i = 0; i < blogList.size(); i++) {
             blogList.get(i).setCategoryName(categoryName);
             List<Tag> tagList = tagService.getTagsByBlogId(blogList.get(i).getId());
             blogList.get(i).setTagList(tagList);
         }
 
-        Map<String, Object> data = new LinkedHashMap<>();
         data.put("blogList", blogList);
         data.put("total", blogList.size());
         data.put("categoryName", categoryName);
@@ -201,6 +208,13 @@ public class BlogFrontController {
         Tag tag = tagService.getById(tagId);
         String tagName = tag.getTagName();
 
+        Map<String, Object> data = new LinkedHashMap<>();
+        if (blogList == null) {
+            data.put("blogList", null);
+            data.put("total", 0);
+            data.put("tagName", tagName);
+            return Result.succ("查询成功", data);
+        }
         List<Category> categoryList = categoryService.list();
         for (int i = 0; i < blogList.size(); i++) {
             for (Category category : categoryList) {
@@ -212,11 +226,9 @@ public class BlogFrontController {
             blogList.get(i).setTagList(tagList);
         }
 
-        Map<String, Object> data = new LinkedHashMap<>();
         data.put("blogList", blogList);
         data.put("total", blogList.size());
         data.put("tagName", tagName);
-
         return Result.succ("查询成功", data);
     }
 }

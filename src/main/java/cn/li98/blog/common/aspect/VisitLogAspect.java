@@ -150,14 +150,22 @@ public class VisitLogAspect {
                 }
                 break;
             case CATEGORY_DETAIL:
-                Long categoryId = (Long) requestParams.get("categoryId");
-                content = String.valueOf(categoryId);
-                remark = "分类ID：" + categoryId;
+                if (result.getCode().equals(Constant.CODE_SUCCESSFUL)) {
+                    Map object = (Map) result.getData();
+                    String categoryName = (String) object.get("categoryName");
+                    content = "分类名：" + categoryName;
+                    Long categoryId = (Long) requestParams.get("categoryId");
+                    remark = "分类ID：" + categoryId;
+                }
                 break;
             case TAG_DETAIL:
-                Long tagId = (Long) requestParams.get("tagId");
-                content = String.valueOf(tagId);
-                remark = "标签ID：" + tagId;
+                if (result.getCode().equals(Constant.CODE_SUCCESSFUL)) {
+                    Map object = (Map) result.getData();
+                    String tagName = (String) object.get("tagName");
+                    content = "标签名：" + tagName;
+                    Long tagId = (Long) requestParams.get("tagId");
+                    remark = "标签ID：" + tagId;
+                }
                 break;
             case SEARCH:
                 if (result.getCode().equals(Constant.CODE_SUCCESSFUL)) {
