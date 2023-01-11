@@ -1,6 +1,6 @@
 # QBlog
 
-+ 基于SpringBoot和Vue的博客系统 
+## 基于SpringBoot和Vue的博客系统 
 
 <p align="center">
 	<img src="https://img.shields.io/badge/JDK-1.8+-orange">
@@ -59,7 +59,7 @@
 + 自定义 AOP 记录前台访问日志
 
 ## 注意事项
-+ 创建 MySQL 数据库，字符集为utf8mb4，并执行[qblog.sql](.qblog.sql)初始化表
++ 创建 MySQL 数据库，字符集为utf8mb4，并执行[qblog.sql](qblog.sql)初始化表
 + 确保 Maven 和 NPM 能够成功导入现版本依赖
 + 项目运行之前需要修改[application.yml](src/main/resources/application.yml)的配置信息，如本地数据库名、七牛云的accessKey和accessSecretKey
 + 安装 Redis 并启动，然后启动后端服务

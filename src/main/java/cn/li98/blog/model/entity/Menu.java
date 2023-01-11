@@ -15,7 +15,7 @@ import lombok.Data;
  * @description: 菜单实体类
  */
 @Data
-@TableName("menu")
+@TableName("sys_menu")
 public class Menu implements Serializable {
     /**
      * id

@@ -22,7 +22,7 @@ import javax.validation.constraints.NotBlank;
  */
 @Data
 @Accessors(chain = true)
-@TableName("user")
+@TableName("sys_user")
 public class User implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

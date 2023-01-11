@@ -13,7 +13,7 @@ import lombok.Data;
  * @description: 角色实体类
  */
 @Data
-@TableName("role")
+@TableName("sys_role")
 public class Role implements Serializable {
     /**
      * id
