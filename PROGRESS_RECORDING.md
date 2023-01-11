@@ -32,7 +32,7 @@
     ```
 
 
-## 2. 使用mybatis-generator (目前来看并不好用，暂时放弃)
+## 2.使用mybatis-generator (目前来看并不好用，暂时放弃)
 
 + 添加配置文件
 
@@ -398,7 +398,7 @@
   ```
 
 
-## 5. 实现增删改查功能
+## 5.实现增删改查功能
 ### 新增、修改
 + 因为功能类似，只有个别的字段需要做区分设置，所以将增、改功能整合到同一个controllor中，然后根据id的有无来区分类型，并在service、impl等后续过程中进行不同的操作
 + [BlogController](src/main/java/cn/li98/blog/controller/admin/BlogController.java)
@@ -652,7 +652,7 @@
   ```
 
 
-## 6. 添加获取统计数据的功能
+## 6.添加获取统计数据的功能
 ### 6.1 添加对应于前端获取统计数据的后端功能 
 + [StatisticBlogCount](./src/main/java/cn/li98/blog/model/vo/StatisticBlogCount.java)，注意事项见6.2
   ```java
@@ -773,7 +773,7 @@
 + 如果不安装echarts的字段设计来定义字段，则需要在VO传到前端之后，在前端复制一个字段正确的新列表，否则图表不能正常展示。
 
 
-## 7. 批量删除博客
+## 7.批量删除博客
 + 在BlogController中添加接口，获取前端传来的列表，调用已有的删除单个博客的方法即可
   ```java
       /**
@@ -825,7 +825,7 @@
   ```
 
 
-## 8. 把shiro-redis更换成jwt
+## 8.把shiro-redis更换成jwt
 + 删除所有shiro-redis相关的配置
 + pom中添加依赖 
 ```xml
@@ -945,7 +945,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 ```
 
 
-## 9. 新增文件上传接口并实现功能
+## 9.新增文件上传接口并实现功能
 + 数据库中创建`sys_file`表
 ```sql
 -- ----------------------------
@@ -1134,7 +1134,7 @@ public class Files {
 ```
 
 
-## 10. 新增博客导入接口并实现功能
+## 10.新增博客导入接口并实现功能
 + [BlogControllor](src/main/java/cn/li98/blog/controller/admin/BlogController.java)
     ```java
     import java.io.IOException;
@@ -1326,7 +1326,7 @@ public class Files {
     ```
 
 
-## 11. 新增博客批量导入功能
+## 11.新增博客批量导入功能
 + 在[BlogControllor](src/main/java/cn/li98/blog/controller/admin/BlogController.java)中复用单个博客导入的接口和业务实现层，根据文件类型进行区分
 ```java
     @PostMapping("/submitBlog")
@@ -1422,7 +1422,7 @@ public class Files {
 ```
 
 
-## 12. 新增博客分类、博客标签相关的功能
+## 12.新增博客分类、博客标签相关的功能
 ### 12.1 分类
 + 创建`博客分类`实体类
   ```java
@@ -1756,7 +1756,7 @@ public class Files {
   ```
 
 
-## 13. 整合写博客与选择（或直接创建）标签
+## 13.整合写博客与选择（或直接创建）标签
 + 创建[BlogWriteDTO](src/main/java/cn/li98/blog/model/dto/BlogWriteDTO.java)用于接收前端的RequestBody（Blog和Tags）
   ```java
   @NoArgsConstructor
@@ -1853,7 +1853,7 @@ public class Files {
   ```
 
 
-## 14. 在阅读界面中联动展示博客所属的分类及其标签
+## 14.在阅读界面中联动展示博客所属的分类及其标签
 + 修改[BlogController](src/main/java/cn/li98/blog/controller/admin/BlogController.java)中的根据id查询博客接口
   ```java
       /**
@@ -1936,7 +1936,7 @@ public class Files {
   ```
 
 
-## 15. 自定义AOP记录操作日志
+## 15.自定义AOP记录操作日志
 ### 15.1 添加操作日志实体类与查询操作日志的接口
 + 新增实体类[OperationLog](src/main/java/cn/li98/blog/model/OperationLog.java)
     ```java
@@ -2514,7 +2514,7 @@ public class Files {
     ```
 
 
-## 16. 集成redis缓存，以用户对博客的访问与管理员对博客的操作为例
+## 16.集成redis缓存，以用户对博客的访问与管理员对博客的操作为例
 + 添加依赖
     ```xml
             <!-- redis -->
@@ -2651,7 +2651,7 @@ public class Files {
     ```
 
 
-## 17. 新增多级评论功能
+## 17.新增多级评论功能
 + [Comment](src/main/java/cn/li98/blog/model/Comment.java)实体类
     ```java
     @NoArgsConstructor
@@ -2875,7 +2875,7 @@ public class Files {
     ```
 
 
-## 18. 新增系统管理相关功能
+## 18.新增系统管理相关功能
 ###  18.1 用户管理
 + 复用[UserController](src/main/java/cn/li98/blog/controller/admin/UserController.java)
 + 复用[User](src/main/java/cn/li98/blog/model/User.java)
@@ -3160,7 +3160,7 @@ public class Files {
 + [RoleMenuMapper.xml](src/main/resources/mapper/RoleMenuMapper.xml)
 
 
-## 19. 新增动态路由的后端控制
+## 19.新增动态路由的后端控制
 + 用户实体类，添加表属性之外的菜单列表
     ```java
         @TableField(exist = false)
@@ -3272,7 +3272,7 @@ public class Files {
     ```
 
 
-## 20. 调整redis的使用代码，分页查询根据查询参数实现自定义sql，弃用BlogDisplay类后改造使用Blog类
+## 20.调整redis的使用代码，分页查询根据查询参数实现自定义sql，弃用BlogDisplay类后改造使用Blog类
 见以下文件
 + [BlogFrontController](src/main/java/cn/li98/blog/controller/front/BlogFrontController.java)
     ```java
@@ -3462,7 +3462,7 @@ public class Files {
     ```
 
 
-## 21. 完善用户登录与创建用户时的密码加密与判断
+## 21.完善用户登录与创建用户时的密码加密与判断
 
 + 取消[User](src/main/java/cn/li98/blog/model/entity/User.java)类中password字段的JsonIgnore注解
   ```java
@@ -3500,7 +3500,7 @@ public class Files {
   }
   ```
 
-+ 创建用户时，用户密码使用HuTool的工具类SecureUtil.md5进行加密后再存入数据库，见[UserController](src/main/java/cn/li98/blog/controller/admin/UserController.java)
++ 创建用户时，用户密码使用Hutool的工具类SecureUtil.md5进行加密后再存入数据库，见[UserController](src/main/java/cn/li98/blog/controller/admin/UserController.java)
   ```java
   @Slf4j
   @RestController
@@ -3562,7 +3562,7 @@ public class Files {
   ```
 
 
-## 22. 完善统计功能，实现前端访问操作的日志进而实现PV和UV的统计
+## 22.完善统计功能，实现前端访问操作的日志进而实现PV和UV的统计
 ### 22.1 实现前端访问操作的自定义AOP记录访问日志，参考[15. 自定义AOP记录操作日志]
 + 新增[VisitLogger.java](src/main/java/cn/li98/blog/common/annotation/VisitLogger.java)
 + 新增[VisitLogAspect.java](src/main/java/cn/li98/blog/common/aspect/VisitLogAspect.java)
