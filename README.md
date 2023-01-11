@@ -38,10 +38,7 @@
 
 ### 前端
 
-+
-
-核心框架：[Vue2](https://github.com/vuejs/vue)、[Vue Router](https://github.com/vuejs/vue-router)、[Vuex](https://github.com/vuejs/vuex)
-
++ 核心框架：[Vue2](https://github.com/vuejs/vue)、[Vue Router](https://github.com/vuejs/vue-router)、[Vuex](https://github.com/vuejs/vuex)
 + UI 框架：[Element UI](https://github.com/ElemeFE/element)
 + 后台 UI：基于[vue-admin-template](https://github.com/PanJiaChen/vue-admin-template) 模板
 + 前台 UI：参考[Semantic UI](https://semantic-ui.com/)
