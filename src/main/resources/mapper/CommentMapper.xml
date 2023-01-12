@@ -14,6 +14,6 @@
     id, content, user_id, `time`, pid, origin_id, blog_id
   </sql>
   <select id="getAllComments" resultType="cn.li98.blog.model.entity.Comment">
-    select c.*,u.username,u.avatar from comment c left join user u on c.user_id = u.id where c.blog_id = #{blogId} order by id desc
+    select c.*,u.username,u.avatar from comment c left join sys_user u on c.user_id = u.id where c.blog_id = #{blogId} order by id desc
   </select>
 </mapper>
