@@ -78,7 +78,7 @@
 ## 注意事项
 
 + 创建 MySQL 数据库，字符集为utf8mb4，并执行[qblog.sql](qblog.sql)初始化表
-+ 确保 Maven 和 NPM 能够成功导入现版本依赖
++ 确保 Maven 和 npm 能够成功导入现版本依赖
 + 项目运行之前需要修改[application.yml](src/main/resources/application.yml)的配置信息，如本地数据库名、七牛云的accessKey和accessSecretKey
 + 安装 Redis 并启动，然后启动后端服务
 + 后台管理系统的默认用户名密码为admin，123456
