@@ -55,6 +55,103 @@ public class BlogController {
     private RedisTemplate redisTemplate;
 
     /**
+     * 获取博客列表
+     * 可以实现无参数和多参数的分页查询
+     * 将分页列表和总记录数作为键值对存储到Map中
+     * 分页列表用于前端的当前页展示
+     * 总记录数用于前端展示博客总数，这个数值是当前数据库中未被删除的博客总数，是所有分页中的博客个数的和
+     *
+     * @return 成功则Map作为data
+     */
+    @OperationLogger("获取博客列表")
+    @PostMapping("/getBlogList")
+    public Result getBlogList(@RequestBody Map<String, Object> params) {
+        IPage<Blog> pageData = blogService.getBlogList(params);
+        Map<String, Object> data = new HashMap<>(2);
+        data.put("pageData", pageData);
+        data.put("total", pageData.getTotal());
+        if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
+            return Result.succ("未查找到相应博客", data);
+        } else {
+            return Result.succ("查询成功", data);
+        }
+    }
+
+    /**
+     * 修改、阅读操作对应的根据指定id查询博客的接口
+     * 可以根据指定的唯一id查询对应的博客、博客所属的分类、博客拥有的标签
+     *
+     * @param blogId 博客id（唯一）
+     * @return Result
+     */
+    @OperationLogger("根据指定id查询博客")
+    @GetMapping("/getBlogInfoById")
+    public Result getBlogInfoById(@RequestParam Long blogId) {
+        // 查询博客
+        Blog blog = blogService.getById(blogId);
+        if (blog == null) {
+            return Result.fail("该博客不存在");
+        }
+        // 查询博客所属分类
+        Category category = categoryService.getById(blog.getCategoryId());
+        blog.setCategoryName(category.getCategoryName());
+        // 查询博客拥有的标签
+        List<Tag> tagList = tagService.getTagsByBlogId(blogId);
+        blog.setTagList(tagList);
+
+        return Result.succ("查询成功", blog);
+    }
+
+    /**
+     * 删除博客，逻辑删除，对应字段deleted
+     * 删除操作变为修改deleted字段的操作
+     * 1为逻辑删除，0（数据库字段默认值）为未删除
+     *
+     * @param id 博客id（唯一）
+     * @return 被逻辑删除的博客id作为data
+     */
+    @OperationLogger("逻辑删除博客")
+    @DeleteMapping("/deleteBlogById")
+    public Result deleteBlogById(@RequestParam Long id) {
+        log.info("blog to delete : " + id);
+        boolean delete = blogService.removeById(id);
+        if (delete) {
+            flushRedis();
+            return Result.succ("博客删除成功", id);
+        } else {
+            return Result.fail("博客删除失败", id);
+        }
+    }
+
+    /**
+     * 批量删除博客，逻辑删除
+     *
+     * @param ids 多个博客id
+     * @return 被逻辑删除的多个博客id列表
+     */
+    @OperationLogger("批量删除博客")
+    @DeleteMapping("/deleteBlogBatchByIds")
+    public Result deleteBlogBatchByIds(@RequestParam String ids) {
+        String[] list = ids.split(",");
+        List<Long> idList = new ArrayList<>();
+        for (String id : list) {
+            idList.add(Long.valueOf(id));
+        }
+        int deletedBlogCount = 0;
+        for (Long id : idList) {
+            if (blogService.removeById(id)) {
+                deletedBlogCount++;
+            } else {
+                return Result.fail("ID为 " + id + " 的博客删除失败，后续删除停止", id);
+            }
+        }
+        if (deletedBlogCount == idList.size()) {
+            return Result.succ("批量删除成功", idList);
+        }
+        return Result.fail("批量删除失败");
+    }
+
+    /**
      * 向七牛云服务器中上传一张图片
      *
      * @param multipartFile 图片文件
@@ -207,103 +304,6 @@ public class BlogController {
             return Result.fail("博客文件类型错误，应为.md或.xlsx或.xls文件");
         }
         return Result.fail(originalFilename + " 导入失败");
-    }
-
-    /**
-     * 删除博客，逻辑删除，对应字段deleted
-     * 删除操作变为修改deleted字段的操作
-     * 1为逻辑删除，0（数据库字段默认值）为未删除
-     *
-     * @param id 博客id（唯一）
-     * @return 被逻辑删除的博客id作为data
-     */
-    @OperationLogger("逻辑删除博客")
-    @DeleteMapping("/deleteBlogById")
-    public Result deleteBlogById(@RequestParam Long id) {
-        log.info("blog to delete : " + id);
-        boolean delete = blogService.removeById(id);
-        if (delete) {
-            flushRedis();
-            return Result.succ("博客删除成功", id);
-        } else {
-            return Result.fail("博客删除失败", id);
-        }
-    }
-
-    /**
-     * 批量删除博客，逻辑删除
-     *
-     * @param ids 多个博客id
-     * @return 被逻辑删除的多个博客id列表
-     */
-    @OperationLogger("批量删除博客")
-    @DeleteMapping("/deleteBlogBatchByIds")
-    public Result deleteBlogBatchByIds(@RequestParam String ids) {
-        String[] list = ids.split(",");
-        List<Long> idList = new ArrayList<>();
-        for (String id : list) {
-            idList.add(Long.valueOf(id));
-        }
-        int deletedBlogCount = 0;
-        for (Long id : idList) {
-            if (blogService.removeById(id)) {
-                deletedBlogCount++;
-            } else {
-                return Result.fail("ID为 " + id + " 的博客删除失败，后续删除停止", id);
-            }
-        }
-        if (deletedBlogCount == idList.size()) {
-            return Result.succ("批量删除成功", idList);
-        }
-        return Result.fail("批量删除失败");
-    }
-
-    /**
-     * 修改、阅读操作对应的根据指定id查询博客的接口
-     * 可以根据指定的唯一id查询对应的博客、博客所属的分类、博客拥有的标签
-     *
-     * @param blogId 博客id（唯一）
-     * @return Result
-     */
-    @OperationLogger("根据指定id查询博客")
-    @GetMapping("/getBlogInfoById")
-    public Result getBlogInfoById(@RequestParam Long blogId) {
-        // 查询博客
-        Blog blog = blogService.getById(blogId);
-        if (blog == null) {
-            return Result.fail("该博客不存在");
-        }
-        // 查询博客所属分类
-        Category category = categoryService.getById(blog.getCategoryId());
-        blog.setCategoryName(category.getCategoryName());
-        // 查询博客拥有的标签
-        List<Tag> tagList = tagService.getTagsByBlogId(blogId);
-        blog.setTagList(tagList);
-
-        return Result.succ("查询成功", blog);
-    }
-
-    /**
-     * 获取博客列表
-     * 可以实现无参数和多参数的分页查询
-     * 将分页列表和总记录数作为键值对存储到Map中
-     * 分页列表用于前端的当前页展示
-     * 总记录数用于前端展示博客总数，这个数值是当前数据库中未被删除的博客总数，是所有分页中的博客个数的和
-     *
-     * @return 成功则Map作为data
-     */
-    @OperationLogger("获取博客列表")
-    @PostMapping("/getBlogList")
-    public Result getBlogList(@RequestBody Map<String, Object> params) {
-        IPage<Blog> pageData = blogService.getBlogList(params);
-        Map<String, Object> data = new HashMap<>(2);
-        data.put("pageData", pageData);
-        data.put("total", pageData.getTotal());
-        if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
-            return Result.succ("未查找到相应博客", data);
-        } else {
-            return Result.succ("查询成功", data);
-        }
     }
 
     /**
