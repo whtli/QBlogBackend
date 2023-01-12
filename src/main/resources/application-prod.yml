@@ -1,0 +1,24 @@
+server:
+  port: 8080
+  address: xxx.xxx.xxx.xxx
+
+spring:
+  datasource:
+    url: jdbc:mysql://xxx.xxx.xxx.xxx:3306/qblog?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+    username: xxxx
+    password: xxxx
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  freemarker:
+    suffix: .html
+    cache: false
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+  redis:
+    host: 127.0.0.1
+    port: 6379
+
+files:
+  upload:
+    path: QBlogBackend\src\main\resources\files\
