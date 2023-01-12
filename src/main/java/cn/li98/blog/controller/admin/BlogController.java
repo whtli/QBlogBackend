@@ -106,36 +106,21 @@ public class BlogController {
     @PostMapping("/submitBlog")
     public Result submitBlog(@RequestBody BlogWriteDTO form) {
         Blog blog = form.getBlog();
-        List<Object> tags = form.getTags();
-        // tagList是遍历前端发送的所有标签并根据类型进行转换处理之后真正要使用的标签列表
-        List<Tag> tagList = new ArrayList<>();
-        for (Object t : tags) {
-            if (t instanceof Integer) {
-                // 选择了已存在的标签
-                Tag tag = tagService.getById(((Integer) t).longValue());
-                tagList.add(tag);
-            } else if (t instanceof String) {
-                // 直接输入的标签名，此时需要判断标签是否已存在
-                // 查询标签是否已存在
-                QueryWrapper wrapper = new QueryWrapper();
-                wrapper.eq("tag_name", (String) t);
-                if (tagService.getOne(wrapper) != null) {
-                    return Result.fail("不可新增已存在的标签");
-                }
-                // 不存在则添加新标签
-                Tag tag = new Tag();
-                tag.setTagName((String) t);
-                tagService.createTag(tag);
-                tagList.add(tag);
-            } else {
-                return Result.fail("标签不正确");
-            }
-        }
-
         // 验证字段
         if (StrUtil.isEmpty(blog.getTitle()) || StrUtil.isEmpty(blog.getDescription()) || StrUtil.isEmpty(blog.getContent())) {
             return Result.fail("参数有误");
         }
+        List<Object> tags = form.getTags();
+        // 验证字段
+        if (tags == null || tags.isEmpty()) {
+            return Result.fail("博客必须带有标签，可选择已有或手动输入创建");
+        }
+        // tagList是遍历前端发送的所有标签并根据类型进行转换处理之后真正要使用的标签列表
+        List<Tag> tagList = tagService.checkTagsBeforeSubmitBlog(tags);
+        if (tagList == null) {
+            return Result.fail("不可新增已存在的标签");
+        }
+        // 发布
         int flag = 0;
         int tagCount = 0;
         try {
@@ -159,7 +144,7 @@ public class BlogController {
     }
 
     /**
-     * 博客可见性更改
+     * 更改博客可见性
      *
      * @param blogId 博客id
      * @return Result
@@ -285,17 +270,17 @@ public class BlogController {
     public Result getBlogInfoById(@RequestParam Long blogId) {
         // 查询博客
         Blog blog = blogService.getById(blogId);
-        Assert.notNull(blog, "该博客不存在");
-        // 查询所属分类
+        if (blog == null) {
+            return Result.fail("该博客不存在");
+        }
+        // 查询博客所属分类
         Category category = categoryService.getById(blog.getCategoryId());
-        // 查询拥有的标签
+        blog.setCategoryName(category.getCategoryName());
+        // 查询博客拥有的标签
         List<Tag> tagList = tagService.getTagsByBlogId(blogId);
+        blog.setTagList(tagList);
 
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("blog", blog);
-        data.put("category", category);
-        data.put("tagList", tagList);
-        return Result.succ("查询成功", data);
+        return Result.succ("查询成功", blog);
     }
 
     /**
@@ -308,31 +293,17 @@ public class BlogController {
      * @return 成功则Map作为data
      */
     @OperationLogger("获取博客列表")
-    @PostMapping("/getBlogs")
-    public Result getBlogs(@RequestBody Map<String, Object> params) {
-
-        Map<String, Object> data = new HashMap<>(2);
+    @PostMapping("/getBlogList")
+    public Result getBlogList(@RequestBody Map<String, Object> params) {
         IPage<Blog> pageData = blogService.getBlogList(params);
-        if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
-            data.put("pageData", pageData);
-            data.put("total", pageData.getTotal());
-            return Result.succ("未查找到相应博客", data);
-        }
-
-        List<Category> categoryList = categoryService.list();
-        List<Blog> list = pageData.getRecords();
-        for (int i = 0; i < list.size(); i++) {
-            for (Category category : categoryList) {
-                if (list.get(i).getCategoryId().equals(category.getId())) {
-                    list.get(i).setCategoryName(category.getCategoryName());
-                }
-            }
-        }
-
-        pageData.setRecords(list);
+        Map<String, Object> data = new HashMap<>(2);
         data.put("pageData", pageData);
         data.put("total", pageData.getTotal());
-        return Result.succ("查询成功", data);
+        if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
+            return Result.succ("未查找到相应博客", data);
+        } else {
+            return Result.succ("查询成功", data);
+        }
     }
 
     /**

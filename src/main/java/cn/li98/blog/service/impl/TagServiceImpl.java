@@ -1,5 +1,6 @@
 package cn.li98.blog.service.impl;
 
+import cn.li98.blog.common.Result;
 import cn.li98.blog.dao.BlogMapper;
 import cn.li98.blog.dao.TagMapper;
 import cn.li98.blog.model.entity.Blog;
@@ -94,5 +95,39 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 
         List<Blog> blogList = blogMapper.selectList(queryWrapper);
         return blogList;
+    }
+
+    /**
+     * 在创建或更新博客之前检查当前博客所带的标签
+     * 若所带标签已经存在则存入标签列表
+     * 若所带标签不存在于数据库中则创建新标签然后存入标签列表
+     *
+     * @param tags 前端传来的选择的和手动输入的标签组成的列表
+     * @return 当前博客对应的标签列表
+     */
+    @Override
+    public List<Tag> checkTagsBeforeSubmitBlog(List<Object> tags) {
+        List<Tag> tagList = new LinkedList<>();
+        for (Object t : tags) {
+            if (t instanceof Integer) {
+                // 选择了已存在的标签
+                Tag tag = getById(((Integer) t).longValue());
+                tagList.add(tag);
+            } else if (t instanceof String) {
+                // 直接输入的标签名，此时需要判断标签是否已存在
+                QueryWrapper wrapper = new QueryWrapper();
+                wrapper.eq("tag_name", (String) t);
+                if (getOne(wrapper) != null) {
+                    log.error("不可新增已存在的标签");
+                    return null;
+                }
+                // 不存在则添加新标签
+                Tag tag = new Tag();
+                tag.setTagName((String) t);
+                tagMapper.insert(tag);
+                tagList.add(tag);
+            }
+        }
+        return tagList;
     }
 }

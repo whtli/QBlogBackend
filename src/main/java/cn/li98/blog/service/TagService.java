@@ -52,4 +52,14 @@ public interface TagService extends IService<Tag> {
      * @return 博客列表
      */
     List<Blog> getBlogsByTagId(Long tagId);
+
+    /**
+     * 在创建或更新博客之前检查当前博客所带的标签
+     * 若所带标签已经存在则存入标签列表
+     * 若所带标签不存在于数据库中则创建新标签然后存入标签列表
+     *
+     * @param tags 前端传来的选择的和手动输入的标签组成的列表
+     * @return 当前博客对应的标签列表
+     */
+    List<Tag> checkTagsBeforeSubmitBlog(List<Object> tags);
 }

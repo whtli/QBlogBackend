@@ -3,7 +3,11 @@ package cn.li98.blog.service.impl;
 import cn.li98.blog.common.WordCount;
 import cn.li98.blog.dao.BlogMapper;
 import cn.li98.blog.model.entity.Blog;
+import cn.li98.blog.model.entity.Category;
+import cn.li98.blog.model.entity.Tag;
 import cn.li98.blog.service.BlogService;
+import cn.li98.blog.service.CategoryService;
+import cn.li98.blog.service.TagService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -34,6 +38,11 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
     @Resource
     private BlogMapper blogMapper;
 
+    @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
+    private TagService tagService;
     /**
      * 为新增或修改的博客设置参数
      * 这些常规参数在新增和修改过程中具备相同的设置规则
@@ -175,6 +184,23 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         int pageNum = (int) params.get("pageNum");
         int pageSize = (int) params.get("pageSize");
         Page page = new Page(pageNum, pageSize);
-        return blogMapper.getBlogList(page, params);
+        IPage<Blog> pageData = blogMapper.getBlogList(page, params);
+        List<Blog> blogList = pageData.getRecords();
+        List<Category> categoryList = categoryService.list();
+        for (int i = 0; i < blogList.size(); i++) {
+            // 查询博客所属分类
+            for (Category category : categoryList) {
+                if (blogList.get(i).getCategoryId().equals(category.getId())) {
+                    blogList.get(i).setCategoryName(category.getCategoryName());
+                }
+            }
+            // Category category = categoryService.getById(blogList.get(i).getCategoryId());
+            // blogList.get(i).setCategoryName(category.getCategoryName());
+            // 查询博客拥有的标签
+            List<Tag> tagList = tagService.getTagsByBlogId(blogList.get(i).getId());
+            blogList.get(i).setTagList(tagList);
+        }
+        pageData.setRecords(blogList);
+        return pageData;
     }
 }
