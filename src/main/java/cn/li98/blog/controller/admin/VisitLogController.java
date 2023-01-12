@@ -43,6 +43,7 @@ public class VisitLogController {
         Page page = new Page(pageNum, pageSize);
         // 借助Page实现分页查询，借助QueryWrapper实现多参数查询
         IPage pageData = visitLogService.page(page, queryWrapper);
+
         Map<String, Object> data = new HashMap<>(2);
         data.put("pageData", pageData);
         data.put("total", pageData.getTotal());

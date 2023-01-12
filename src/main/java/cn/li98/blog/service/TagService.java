@@ -1,5 +1,6 @@
 package cn.li98.blog.service;
 
+import cn.li98.blog.common.Result;
 import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.Tag;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -12,22 +13,6 @@ import java.util.List;
  * @description: 博客标签业务层
  */
 public interface TagService extends IService<Tag> {
-    /**
-     * 创建标签业务层
-     *
-     * @param tag 标签实体类，无id
-     * @return 创建成功返回1
-     */
-    int createTag(Tag tag);
-
-    /**
-     * 编辑标签业务层
-     *
-     * @param tag 标签实体类，有id
-     * @return 修改成功返回1
-     */
-    int updateTag(Tag tag);
-
     /**
      * 建立博客和标签的映射关系到blog_tag表
      *
@@ -62,4 +47,6 @@ public interface TagService extends IService<Tag> {
      * @return 当前博客对应的标签列表
      */
     List<Tag> checkTagsBeforeSubmitBlog(List<Object> tags);
+
+    Result submitTag(Tag tag);
 }

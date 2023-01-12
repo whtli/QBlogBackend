@@ -3,6 +3,7 @@ package cn.li98.blog.controller.admin;
 import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.common.annotation.OperationLogger;
+import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.Category;
 import cn.li98.blog.service.BlogService;
 import cn.li98.blog.service.CategoryService;
@@ -41,8 +42,8 @@ public class CategoryController {
      * @return 成功则Map作为data
      */
     @OperationLogger("获取分类列表")
-    @GetMapping("/getCategories")
-    public Result getCategories(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+    @GetMapping("/getCategoryList")
+    public Result getCategoryList(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                                 @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
 
         QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
@@ -71,9 +72,9 @@ public class CategoryController {
         log.info("category to delete : " + id);
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("category_id", id);
-        int count = blogService.list(queryWrapper).size();
-        if (count > 0) {
-            return Result.fail("当前分类下有" + count + "个博客存在，不能直接删除分类");
+        List<Blog> list = blogService.list(queryWrapper);
+        if (list != null || !list.isEmpty()) {
+            return Result.fail("当前分类下有" + list.size() + "个博客存在，不能直接删除分类");
         }
         boolean delete = categoryService.removeById(id);
         if (delete) {
@@ -92,7 +93,7 @@ public class CategoryController {
     @OperationLogger("新增分类")
     @PostMapping("/addCategory")
     public Result addCategory(@Validated @RequestBody Category category) {
-        return submitCategory(category);
+        return categoryService.submitCategory(category);
     }
 
     /**
@@ -104,42 +105,6 @@ public class CategoryController {
     @OperationLogger("修改分类")
     @PutMapping("/editCategory")
     public Result updateCategory(@Validated @RequestBody Category category) {
-        return submitCategory(category);
-    }
-
-    /**
-     * 新增与修改分类的通用方法，通过判断id的有无来区分新增还是修改
-     *
-     * @param category 分类实体类
-     * @return Result
-     */
-    public Result submitCategory(Category category) {
-        // 验证分类名是否为空
-        if (StrUtil.isEmpty(category.getCategoryName())) {
-            return Result.fail("分类名不可为空");
-        }
-        // 验证分类名是否已经存在
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("category_name", category.getCategoryName());
-        List<Category> list = categoryService.list(queryWrapper);
-        for (Category item : list) {
-            if (item.getCategoryName().equals(category.getCategoryName())) {
-                return Result.fail("分类名 “" + category.getCategoryName() + "” 已存在！");
-            }
-        }
-        int flag = 0;
-        try {
-            if (category.getId() == null) {
-                flag = categoryService.createCategory(category);
-            } else {
-                flag = categoryService.updateCategory(category);
-            }
-        } catch (Exception e) {
-            log.error(e.toString());
-        }
-        if (flag == 1) {
-            return Result.succ("分类发布成功");
-        }
-        return Result.fail("分类发布失败");
+        return categoryService.submitCategory(category);
     }
 }

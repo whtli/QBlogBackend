@@ -41,7 +41,6 @@ public class TagController {
     @GetMapping("/getTags")
     public Result getTags(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                           @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
-
         QueryWrapper<Tag> queryWrapper = new QueryWrapper<>();
         // 新建一个分页规则，pageNum代表当前页码，pageSize代表每页数量
         Page page = new Page(pageNum, pageSize);
@@ -50,6 +49,7 @@ public class TagController {
         if (pageData.getTotal() == 0 && pageData.getRecords().isEmpty()) {
             return Result.fail("查询失败，未查找到相应标签");
         }
+
         Map<String, Object> data = new HashMap<>(2);
         data.put("pageData", pageData);
         data.put("total", pageData.getTotal());
@@ -67,15 +67,12 @@ public class TagController {
     public Result deleteTagById(@RequestParam Long id) {
         log.info("tag to delete : " + id);
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("category_id", id);
+        queryWrapper.eq("tag_id", id);
         List<Blog> blogsByTagId = tagService.getBlogsByTagId(id);
-        int count = 0;
         if (blogsByTagId != null) {
-            count = blogsByTagId.size();
+            return Result.fail("有" + blogsByTagId.size() + "个博客正在使用当前标签，不能直接删除标签");
         }
-        if (count > 0) {
-            return Result.fail("有" + count + "个博客正在使用当前标签，不能直接删除标签");
-        }
+        // 删除标签
         boolean delete = tagService.removeById(id);
         if (delete) {
             return Result.succ("标签删除成功", id);
@@ -93,7 +90,7 @@ public class TagController {
     @OperationLogger("新增标签")
     @PostMapping("/addTag")
     public Result addTag(@Validated @RequestBody Tag tag) {
-        return submitTag(tag);
+        return tagService.submitTag(tag);
     }
 
     /**
@@ -105,42 +102,7 @@ public class TagController {
     @OperationLogger("修改标签")
     @PutMapping("/editTag")
     public Result updateTag(@Validated @RequestBody Tag tag) {
-        return submitTag(tag);
+        return tagService.submitTag(tag);
     }
 
-    /**
-     * 新增与修改标签的通用方法，通过判断id的有无来区分新增还是修改
-     *
-     * @param tag 标签实体类
-     * @return Result
-     */
-    public Result submitTag(Tag tag) {
-        // 验证标签名是否为空
-        if (StrUtil.isEmpty(tag.getTagName())) {
-            return Result.fail("标签名不可为空");
-        }
-        // 验证分类名是否已经存在
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("tag_name", tag.getTagName());
-        List<Tag> list = tagService.list(queryWrapper);
-        for (Tag item : list) {
-            if (item.getTagName().equals(tag.getTagName())) {
-                return Result.fail("标签名 “" + tag.getTagName() + "” 已存在！");
-            }
-        }
-        int flag = 0;
-        try {
-            if (tag.getId() == null) {
-                flag = tagService.createTag(tag);
-            } else {
-                flag = tagService.updateTag(tag);
-            }
-        } catch (Exception e) {
-            log.error(e.toString());
-        }
-        if (flag == 1) {
-            return Result.succ("标签发布成功");
-        }
-        return Result.fail("标签发布失败");
-    }
 }

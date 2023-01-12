@@ -45,7 +45,11 @@ public class CategoryFrontController {
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("category_id", category.getId());
             List<Blog> blogList = blogService.list(queryWrapper);
-            blogCount.add(blogList.size());
+            int count = 0;
+            if (blogList != null) {
+                count = blogList.size();
+            }
+            blogCount.add(count);
         }
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("categoryList", categoryList);

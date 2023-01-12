@@ -141,8 +141,7 @@ public class VisitLogAspect {
                 break;
             case BLOG:
                 if (result.getCode().equals(Constant.CODE_SUCCESSFUL)) {
-                    Map object = (Map) result.getData();
-                    Blog blog = (Blog) object.get("blog");
+                    Blog blog = (Blog) result.getData();
                     Long id = blog.getId();
                     String title = blog.getTitle();
                     content = "博客标题：" + title;

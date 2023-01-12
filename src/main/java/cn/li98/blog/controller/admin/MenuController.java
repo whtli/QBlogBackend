@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: whtli
@@ -30,19 +31,8 @@ public class MenuController {
     @OperationLogger("获取菜单列表")
     @GetMapping("/getMenuList")
     public Result getMenuList(@RequestParam(defaultValue = "") String menuName) {
-        return Result.succ(menuService.getMenuList(menuName));
-    }
-
-    /**
-     * 获取图标信息
-     *
-     * @return 图标信息列表
-     */
-    @OperationLogger("获取图标信息")
-    @GetMapping("/getIconList")
-    public Result getIconList() {
-        List<Dict> iconList = menuService.getIconList();
-        return Result.succ(iconList);
+        Map<String, Object> data = menuService.getMenuList(menuName);
+        return Result.succ(data);
     }
 
     /**
@@ -88,6 +78,18 @@ public class MenuController {
     public Result getMenusByRoleId(@RequestParam Long roleId) {
         List<Long> rightList = menuService.getMenusByRoleId(roleId);
         return Result.succ(rightList);
+    }
+
+    /**
+     * 获取图标信息
+     *
+     * @return 图标信息列表
+     */
+    @OperationLogger("获取图标信息")
+    @GetMapping("/getIconList")
+    public Result getIconList() {
+        List<Dict> iconList = menuService.getIconList();
+        return Result.succ(iconList);
     }
 
 }

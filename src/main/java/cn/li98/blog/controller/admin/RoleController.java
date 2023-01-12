@@ -98,7 +98,6 @@ public class RoleController {
         try {
             roleService.setRoleMenu(roleId, menuIds);
             return Result.succ("绑定成功", roleId);
-
         } catch (Exception e) {
             return Result.fail("绑定失败", roleId);
         }

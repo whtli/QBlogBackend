@@ -3,6 +3,7 @@ package cn.li98.blog.controller.front;
 import cn.hutool.core.date.DateUtil;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.model.entity.Comment;
+import cn.li98.blog.model.entity.User;
 import cn.li98.blog.service.CommentService;
 import cn.li98.blog.utils.TokenUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -34,27 +35,9 @@ public class CommentFrontController {
      */
     @GetMapping("/loadComment")
     public Result loadComment(@RequestParam Long blogId) {
-        // 查询所有的评论和回复数据
-        List<Comment> articleComments = commentService.getAllComments(blogId);
-        // 查询首层评论数据（不包括回复）
-        List<Comment> originList = articleComments.stream().filter(comment -> comment.getOriginId() == null).collect(Collectors.toList());
-
-        // 设置评论数据的子节点，也就是回复内容
-        for (Comment origin : originList) {
-            // 表示回复对象集合
-            List<Comment> comments = articleComments.stream().filter(comment -> origin.getId().equals(comment.getOriginId())).collect(Collectors.toList());
-            comments.forEach(comment -> {
-                // 找到当前评论的父级
-                Optional<Comment> pComment = articleComments.stream().filter(c1 -> c1.getId().equals(comment.getPid())).findFirst();
-                // 找到父级评论的用户id和用户名，并设置给当前的回复对象
-                pComment.ifPresent((v -> {
-                    comment.setPUserId(v.getUserId());
-                    comment.setPUsername(v.getUsername());
-                }));
-            });
-            origin.setChildren(comments);
-        }
-        return Result.succ(originList);
+        // 查询所有的评论和回复
+        List<Comment> allComments = commentService.getAllComments(blogId);
+        return Result.succ(allComments);
     }
 
     /**
@@ -65,17 +48,19 @@ public class CommentFrontController {
      */
     @PostMapping("/saveComment")
     public Result saveComment(@RequestBody Comment comment) {
-        comment.setUserId(TokenUtils.getCurrentUser().getId());
+        User user = TokenUtils.getCurrentUser();
+        comment.setUserId(user.getId());
         comment.setTime(DateUtil.now());
         // 判断如果是回复，进行处理
         if (comment.getPid() != null) {
+            // 查询当前回复的父级节点
             Long pid = comment.getPid();
             Comment pComment = commentService.getById(pid);
             if (pComment.getOriginId() != null) {
-                // 如果当前回复的父级有祖宗，那么就设置相同的祖宗
+                // 如果当前回复的父级有祖宗节点，那么就为当前回复设置相同的祖宗节点
                 comment.setOriginId(pComment.getOriginId());
             } else {
-                // 否则就设置父级为当前回复的祖宗
+                // 否则就设置父级为当前回复的祖宗节点
                 comment.setOriginId(comment.getPid());
             }
         }

@@ -1,5 +1,6 @@
 package cn.li98.blog.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.dao.BlogMapper;
 import cn.li98.blog.dao.TagMapper;
@@ -34,7 +35,6 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
      * @param tag 标签实体类，无id
      * @return 创建成功返回1
      */
-    @Override
     public int createTag(Tag tag) {
         return tagMapper.insert(tag);
     }
@@ -45,9 +45,45 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
      * @param tag 标签实体类，有id
      * @return 修改成功返回1
      */
-    @Override
     public int updateTag(Tag tag) {
         return tagMapper.updateById(tag);
+    }
+
+    /**
+     * 新增与修改标签的通用方法，通过判断id的有无来区分新增还是修改
+     *
+     * @param tag 标签实体类
+     * @return Result
+     */
+    @Override
+    public Result submitTag(Tag tag) {
+        // 验证标签名是否为空
+        if (StrUtil.isEmpty(tag.getTagName())) {
+            return Result.fail("标签名不可为空");
+        }
+        // 验证分类名是否已经存在
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("tag_name", tag.getTagName());
+        List<Tag> tagList = list(queryWrapper);
+        for (Tag item : tagList) {
+            if (item.getTagName().equals(tag.getTagName())) {
+                return Result.fail("标签名 “" + tag.getTagName() + "” 已存在！");
+            }
+        }
+        int flag = 0;
+        try {
+            if (tag.getId() == null) {
+                flag = createTag(tag);
+            } else {
+                flag = updateTag(tag);
+            }
+        } catch (Exception e) {
+            log.error(e.toString());
+        }
+        if (flag == 1) {
+            return Result.succ("标签发布成功");
+        }
+        return Result.fail("标签发布失败");
     }
 
     /**
@@ -84,7 +120,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
      * @return 博客列表
      */
     @Override
-    public  List<Blog> getBlogsByTagId(Long tagId) {
+    public List<Blog> getBlogsByTagId(Long tagId) {
         List<Integer> list = tagMapper.getBlogsByTagId(tagId);
         if (list.isEmpty()) {
             return null;
@@ -130,4 +166,5 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
         }
         return tagList;
     }
+
 }

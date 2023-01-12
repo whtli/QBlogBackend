@@ -124,14 +124,21 @@ public class UserController {
     @PostMapping("/saveOrUpdate")
     public Result saveOrUpdate(@RequestBody User user) {
         Date date = new Date();
+        user.setUpdateTime(date);
+        // 如果是新用户，需要设置创建时间、对密码做加密
         if (user.getId() == null) {
             user.setCreateTime(date);
+            // 密码加密
+            String md5Password = SecureUtil.md5(user.getPassword());
+            user.setPassword(md5Password);
         }
-        user.setUpdateTime(date);
-        // 密码加密
-        String md5Password = SecureUtil.md5(user.getPassword());
-        user.setPassword(md5Password);
-
+        String originPassword = userService.getUserById(user.getId()).getPassword();
+        // 如果更改了已有用户的密码，需要对新密码重新加密
+        if (originPassword != user.getPassword()) {
+            String md5Password = SecureUtil.md5(user.getPassword());
+            user.setPassword(md5Password);
+        }
+        // 创建或更新用户
         boolean flag = userService.saveOrUpdate(user);
         if (flag) {
             return Result.succ("用户信息维护成功");

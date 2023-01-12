@@ -34,9 +34,9 @@ public class OperationLogController {
      */
     @OperationLogger("查询操作日志")
     @GetMapping("/getOperationLogList")
-    public Result operationLogs(@RequestParam(defaultValue = "") String[] date,
-                                @RequestParam(defaultValue = "1") Integer pageNum,
-                                @RequestParam(defaultValue = "10") Integer pageSize) {
+    public Result getOperationLogList(@RequestParam(defaultValue = "") String[] date,
+                                      @RequestParam(defaultValue = "1") Integer pageNum,
+                                      @RequestParam(defaultValue = "10") Integer pageSize) {
         QueryWrapper<OperationLog> queryWrapper = new QueryWrapper<>();
         // 根据创建时间查询逆序的列表结果，越新发布的博客越容易被看到
         queryWrapper.orderByDesc("create_time");
@@ -44,10 +44,11 @@ public class OperationLogController {
         Page page = new Page(pageNum, pageSize);
         // 借助Page实现分页查询，借助QueryWrapper实现多参数查询
         IPage pageData = operationLogService.page(page, queryWrapper);
+
         Map<String, Object> data = new HashMap<>(2);
         data.put("pageData", pageData);
         data.put("total", pageData.getTotal());
-        return Result.succ("请求成功", data);
+        return Result.succ("查询成功", data);
     }
 
     /**

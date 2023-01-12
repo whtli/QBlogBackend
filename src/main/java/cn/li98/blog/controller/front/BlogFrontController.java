@@ -62,13 +62,13 @@ public class BlogFrontController {
      */
     @VisitLogger(VisitBehavior.INDEX)
     @GetMapping("/getBlogList")
-    public Result getBlogList(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+    public Result getBlogListForFront(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                               @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
         Map<String, Object> data = new HashMap<>(2);
         // 1. 尝试从redis缓存中获取指定键值对应的数据
-        List<Blog> list = redisTemplate.opsForList().range(Constant.GUEST_BLOG_KEY + "_" + pageNum, 0, -1);
+        List<Blog> blogList = redisTemplate.opsForList().range(Constant.GUEST_BLOG_KEY + "_" + pageNum, 0, -1);
         // 2. 如果redis中无对应的数据
-        if (list.isEmpty()) {
+        if (blogList.isEmpty()) {
             // 3. 从数据库取出数据
             // 3.1 将查询参数以键值对的形式存放到QueryWrapper
             QueryWrapper<Blog> queryWrapper = new QueryWrapper<>();
@@ -84,30 +84,30 @@ public class BlogFrontController {
                 data.put("total", pageData.getTotal());
                 return Result.succ("未查找到相应博客", data);
             }
-            list = pageData.getRecords();
+            blogList = pageData.getRecords();
             // 3.5 处理博客列表
             List<Category> categoryList = categoryService.list();
-            for (int i = 0; i < list.size(); i++) {
+            for (int i = 0; i < blogList.size(); i++) {
                 for (Category category : categoryList) {
-                    if (list.get(i).getCategoryId().equals(category.getId())) {
-                        list.get(i).setCategoryName(category.getCategoryName());
+                    if (blogList.get(i).getCategoryId().equals(category.getId())) {
+                        blogList.get(i).setCategoryName(category.getCategoryName());
                     }
                 }
-                List<Tag> tagList = tagService.getTagsByBlogId(list.get(i).getId());
-                list.get(i).setTagList(tagList);
+                List<Tag> tagList = tagService.getTagsByBlogId(blogList.get(i).getId());
+                blogList.get(i).setTagList(tagList);
             }
-            pageData.setRecords(list);
+            pageData.setRecords(blogList);
             // 4. 缓存到redis
-            redisTemplate.opsForList().rightPush(Constant.GUEST_BLOG_KEY + "_" + pageNum, list);
+            redisTemplate.opsForList().rightPush(Constant.GUEST_BLOG_KEY + "_" + pageNum, blogList);
             redisTemplate.opsForValue().set("PAGE_NUMBER_OF_PUBLISHED_BLOGS", pageData.getTotal());
             // 5. 返回给前端
-            data.put("blogList", list);
+            data.put("blogList", blogList);
             data.put("total", pageData.getTotal());
             return Result.succ("查询成功", data);
-        } else if (!list.isEmpty()) {
-            list = (List<Blog>) list.get(0);
+        } else if (!blogList.isEmpty()) {
+            blogList = (List<Blog>) blogList.get(0);
             // 将查询结果填充到Map中
-            data.put("blogList", list);
+            data.put("blogList", blogList);
             data.put("total", redisTemplate.opsForValue().get("PAGE_NUMBER_OF_PUBLISHED_BLOGS"));
             return Result.succ("查询成功", data);
         }
@@ -142,17 +142,17 @@ public class BlogFrontController {
     public Result getBlogInfoById(@RequestParam Long blogId) {
         // 查询博客
         Blog blog = blogService.getById(blogId);
-        Assert.notNull(blog, "该博客不存在");
-        // 查询所属分类
+        if (blog == null) {
+            return Result.fail("该博客不存在");
+        }
+        // 查询博客所属分类
         Category category = categoryService.getById(blog.getCategoryId());
-        // 查询拥有的标签
+        blog.setCategoryName(category.getCategoryName());
+        // 查询博客拥有的标签
         List<Tag> tagList = tagService.getTagsByBlogId(blogId);
+        blog.setTagList(tagList);
 
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("blog", blog);
-        data.put("category", category);
-        data.put("tagList", tagList);
-        return Result.succ("查询成功", data);
+        return Result.succ("查询成功", blog);
     }
 
     /**
@@ -169,7 +169,7 @@ public class BlogFrontController {
         queryWrapper.orderByDesc("create_time");
         // 查询博客
         List<Blog> blogList = blogService.list(queryWrapper);
-        // 查询分类名
+        // 获取分类名
         Category category = categoryService.getById(categoryId);
         String categoryName = category.getCategoryName();
 
@@ -180,12 +180,12 @@ public class BlogFrontController {
             data.put("categoryName", categoryName);
             return Result.succ("查询成功", data);
         }
+
         for (int i = 0; i < blogList.size(); i++) {
             blogList.get(i).setCategoryName(categoryName);
             List<Tag> tagList = tagService.getTagsByBlogId(blogList.get(i).getId());
             blogList.get(i).setTagList(tagList);
         }
-
         data.put("blogList", blogList);
         data.put("total", blogList.size());
         data.put("categoryName", categoryName);
@@ -215,6 +215,7 @@ public class BlogFrontController {
             data.put("tagName", tagName);
             return Result.succ("查询成功", data);
         }
+
         List<Category> categoryList = categoryService.list();
         for (int i = 0; i < blogList.size(); i++) {
             for (Category category : categoryList) {
@@ -225,7 +226,6 @@ public class BlogFrontController {
             List<Tag> tagList = tagService.getTagsByBlogId(blogList.get(i).getId());
             blogList.get(i).setTagList(tagList);
         }
-
         data.put("blogList", blogList);
         data.put("total", blogList.size());
         data.put("tagName", tagName);

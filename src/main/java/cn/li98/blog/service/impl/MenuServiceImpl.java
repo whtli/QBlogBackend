@@ -50,11 +50,11 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
         queryWrapper.like("name", menuName);
 
         // 查询所有数据
-        List<Menu> list = menuMapper.selectList(queryWrapper);
+        List<Menu> menuList = menuMapper.selectList(queryWrapper);
         // 找出所有的一级菜单（pid为null）
-        List<Menu> firstLevel = list.stream().filter(menu -> menu.getPid() == null).collect(Collectors.toList());
+        List<Menu> firstLevel = menuList.stream().filter(menu -> menu.getPid() == null).collect(Collectors.toList());
         // 找出所有的二级菜单（pid不为null）
-        List<Menu> secondLevel = list.stream().filter(menu -> menu.getPid() != null).collect(Collectors.toList());
+        List<Menu> secondLevel = menuList.stream().filter(menu -> menu.getPid() != null).collect(Collectors.toList());
 
         List<Menu> restSecondLevel = secondLevel;
         // 对于查询到的一级菜单，把其下包含的符合查询条件的二级菜单添加到其children中
@@ -75,14 +75,14 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
         // 获取所有的菜单id
         List<Long> allMenuIds = new ArrayList<>();
-        for (Menu menu : list) {
+        for (Menu menu : menuList) {
             allMenuIds.add(menu.getId());
         }
 
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("menuList", firstLevel);
         data.put("allMenuIds", allMenuIds);
-        data.put("total", list.size());
+        data.put("total", menuList.size());
         return data;
     }
 

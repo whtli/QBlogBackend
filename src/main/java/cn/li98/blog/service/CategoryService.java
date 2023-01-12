@@ -1,5 +1,6 @@
 package cn.li98.blog.service;
 
+import cn.li98.blog.common.Result;
 import cn.li98.blog.model.entity.Category;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -10,18 +11,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface CategoryService extends IService<Category> {
     /**
-     * 创建分类业务层
+     * 新增与修改分类的通用方法，通过判断id的有无来区分新增还是修改
      *
-     * @param category 分类实体类，无id
-     * @return 创建成功返回1
+     * @param category 分类实体类
+     * @return Result
      */
-    int createCategory(Category category);
-
-    /**
-     * 编辑分类业务层
-     *
-     * @param category 分类实体类，有id
-     * @return 修改成功返回1
-     */
-    int updateCategory(Category category);
+    Result submitCategory(Category category);
 }
