@@ -1,6 +1,6 @@
-package cn.li98.blog.common.aspect;
+package cn.li98.blog.aspect;
 
-import cn.li98.blog.common.annotation.OperationLogger;
+import cn.li98.blog.annotation.OperationLogger;
 import cn.li98.blog.model.entity.OperationLog;
 import cn.li98.blog.service.OperationLogService;
 import cn.li98.blog.utils.*;

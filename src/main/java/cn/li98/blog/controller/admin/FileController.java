@@ -5,7 +5,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.li98.blog.common.Result;
-import cn.li98.blog.common.annotation.OperationLogger;
+import cn.li98.blog.annotation.OperationLogger;
 import cn.li98.blog.dao.FilesMapper;
 import cn.li98.blog.model.entity.Files;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;

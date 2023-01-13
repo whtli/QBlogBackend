@@ -1,9 +1,9 @@
-package cn.li98.blog.common.aspect;
+package cn.li98.blog.aspect;
 
 import cn.li98.blog.common.Constant;
 import cn.li98.blog.common.Result;
-import cn.li98.blog.common.annotation.VisitLogger;
-import cn.li98.blog.common.enums.VisitBehavior;
+import cn.li98.blog.annotation.VisitLogger;
+import cn.li98.blog.enums.VisitBehavior;
 import cn.li98.blog.model.dto.VisitLogRemarkDTO;
 import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.VisitLog;

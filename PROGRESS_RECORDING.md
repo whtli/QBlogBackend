@@ -2134,9 +2134,9 @@ public class Files {
 
 + 在resource中添加[ip2region](src/main/resources/ipdb/ip2region.db)数据
 
-+ 新增自定义的Aspect，[OperationLogAspect](src/main/java/cn/li98/blog/common/aspect/OperationLogAspect.java)
++ 新增自定义的Aspect，[OperationLogAspect](src/main/java/cn/li98/blog/aspect/OperationLogAspect.java)
     ```java
-    import cn.li98.blog.common.annotation.OperationLogger;
+    import cn.li98.blog.annotation.OperationLogger;
     import cn.li98.blog.model.entity.OperationLog;
     import cn.li98.blog.service.OperationLogService;
     import cn.li98.blog.utils.*;
@@ -2235,7 +2235,7 @@ public class Files {
     }
     ```
 
-+ 新增自定义注解[OperationLogger](src/main/java/cn/li98/blog/common/annotation/OperationLogger.java)
++ 新增自定义注解[OperationLogger](src/main/java/cn/li98/blog/annotation/OperationLogger.java)
     ```java
     /**
      * @author: whtli
@@ -2540,7 +2540,7 @@ public class Files {
     
     import cn.li98.blog.common.Constant;
     import cn.li98.blog.common.Result;
-    import cn.li98.blog.common.annotation.OperationLogger;
+    import cn.li98.blog.annotation.OperationLogger;
     import cn.li98.blog.model.entity.Blog;
     import cn.li98.blog.service.BlogService;
     import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -3564,8 +3564,8 @@ public class Files {
 
 ## 22.完善统计功能，实现前端访问操作的日志进而实现PV和UV的统计
 ### 22.1 实现前端访问操作的自定义AOP记录访问日志，参考[15. 自定义AOP记录操作日志]
-+ 新增[VisitLogger.java](src/main/java/cn/li98/blog/common/annotation/VisitLogger.java)
-+ 新增[VisitLogAspect.java](src/main/java/cn/li98/blog/common/aspect/VisitLogAspect.java)
++ 新增[VisitLogger.java](src/main/java/cn/li98/blog/annotation/VisitLogger.java)
++ 新增[VisitLogAspect.java](src/main/java/cn/li98/blog/aspect/VisitLogAspect.java)
 + 新增[VisitLog.java](src/main/java/cn/li98/blog/model/entity/VisitLog.java)
 + 新增[VisitLogController.java](src/main/java/cn/li98/blog/controller/admin/VisitLogController.java)
 + 新增[VisitLogService.java](src/main/java/cn/li98/blog/service/VisitLogService.java)
@@ -3573,7 +3573,7 @@ public class Files {
 + 新增[VisitLogMapper.java](src/main/java/cn/li98/blog/dao/VisitLogMapper.java)
 + 新增[VisitLogMapper.xml](src/main/resources/mapper/VisitLogMapper.xml)
 + 新增[VisitLogRemark.java](src/main/java/cn/li98/blog/model/dto/VisitLogRemark.java)
-+ 新增[VisitBehavior.java](src/main/java/cn/li98/blog/common/enums/VisitBehavior.java)
++ 新增[VisitBehavior.java](src/main/java/cn/li98/blog/enums/VisitBehavior.java)
 + 在前端访问相关的接口上添加VisitLogger注解，如[CategoryFrontController.java](src/main/java/cn/li98/blog/controller/front/CategoryFrontController.java)
 + 在数据库的菜单表中添加权限记录
 ```sql

@@ -1,7 +1,7 @@
 package cn.li98.blog.controller.admin;
 
 import cn.li98.blog.common.Result;
-import cn.li98.blog.common.annotation.OperationLogger;
+import cn.li98.blog.annotation.OperationLogger;
 import cn.li98.blog.service.StatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

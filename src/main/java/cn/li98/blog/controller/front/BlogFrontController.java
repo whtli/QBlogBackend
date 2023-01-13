@@ -1,10 +1,9 @@
 package cn.li98.blog.controller.front;
 
-import cn.hutool.core.lang.Assert;
 import cn.li98.blog.common.Constant;
 import cn.li98.blog.common.Result;
-import cn.li98.blog.common.annotation.VisitLogger;
-import cn.li98.blog.common.enums.VisitBehavior;
+import cn.li98.blog.annotation.VisitLogger;
+import cn.li98.blog.enums.VisitBehavior;
 import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.Category;
 import cn.li98.blog.model.entity.Tag;

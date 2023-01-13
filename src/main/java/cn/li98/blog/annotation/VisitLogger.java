@@ -1,6 +1,6 @@
-package cn.li98.blog.common.annotation;
+package cn.li98.blog.annotation;
 
-import cn.li98.blog.common.enums.VisitBehavior;
+import cn.li98.blog.enums.VisitBehavior;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

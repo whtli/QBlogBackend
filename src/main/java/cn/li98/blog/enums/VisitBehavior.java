@@ -1,4 +1,4 @@
-package cn.li98.blog.common.enums;
+package cn.li98.blog.enums;
 
 /**
  * @author: whtli
