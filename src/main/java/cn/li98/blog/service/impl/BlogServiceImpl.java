@@ -1,6 +1,6 @@
 package cn.li98.blog.service.impl;
 
-import cn.li98.blog.common.WordCount;
+import cn.li98.blog.utils.WordCountUtils;
 import cn.li98.blog.dao.BlogMapper;
 import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.Category;
@@ -61,7 +61,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         }
         if (blog.getReadTime() == null || blog.getReadTime() <= 0) {
             // 计算字数，粗略计算阅读时长
-            int words = WordCount.count(blog.getContent());
+            int words = WordCountUtils.count(blog.getContent());
             int readTime = (int) Math.round(words / 200.0);
             blog.setWords(words);
             blog.setReadTime(readTime);
@@ -152,7 +152,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         blog.setCreateTime(date);
         blog.setUpdateTime(date);
         blog.setViews(0);
-        blog.setWords(WordCount.count(blog.getContent()));
+        blog.setWords(WordCountUtils.count(blog.getContent()));
         blog.setReadTime((int) Math.round(blog.getWords() / 200.0));
         blog.setCategoryId(1L);
         blog.setTop(false);

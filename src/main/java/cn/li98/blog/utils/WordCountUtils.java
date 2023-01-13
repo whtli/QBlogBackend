@@ -1,11 +1,11 @@
-package cn.li98.blog.common;
+package cn.li98.blog.utils;
 
 /**
  * @author: whtli
  * @date: 2022/11/25
  * @description: 统计字符串中的字数（中英文）
  */
-public class WordCount {
+public class WordCountUtils {
     public static int count(String content) {
         if (content == null) {
             return 0;
