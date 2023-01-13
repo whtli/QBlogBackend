@@ -50,7 +50,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     }
 
     /**
-     * 新增与修改标签的通用方法，通过判断id的有无来区分新增还是修改
+     * 新增与修改标签的通用方法，通过判断id的有无来区分新增和修改
      *
      * @param tag 标签实体类
      * @return Result

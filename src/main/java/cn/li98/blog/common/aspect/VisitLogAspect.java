@@ -4,7 +4,7 @@ import cn.li98.blog.common.Constant;
 import cn.li98.blog.common.Result;
 import cn.li98.blog.common.annotation.VisitLogger;
 import cn.li98.blog.common.enums.VisitBehavior;
-import cn.li98.blog.model.dto.VisitLogRemark;
+import cn.li98.blog.model.dto.VisitLogRemarkDTO;
 import cn.li98.blog.model.entity.Blog;
 import cn.li98.blog.model.entity.VisitLog;
 import cn.li98.blog.service.VisitLogService;
@@ -121,7 +121,7 @@ public class VisitLogAspect {
      * @param result
      * @return
      */
-    private VisitLogRemark judgeBehavior(VisitBehavior visitBehavior, Map<String, Object> requestParams, Result result) {
+    private VisitLogRemarkDTO judgeBehavior(VisitBehavior visitBehavior, Map<String, Object> requestParams, Result result) {
         String remark = "";
         String content = visitBehavior.getContent();
         switch (visitBehavior) {
@@ -181,7 +181,7 @@ public class VisitLogAspect {
             default:
                 break;
         }
-        return new VisitLogRemark(content, remark);
+        return new VisitLogRemarkDTO(content, remark);
     }
 
     /**
@@ -211,9 +211,9 @@ public class VisitLogAspect {
         Map<String, String> userAgentMap = userAgentUtils.parseOsAndBrowser(userAgent);
         String os = userAgentMap.get("os");
         String browser = userAgentMap.get("browser");
-        VisitLogRemark visitLogRemark = judgeBehavior(visitLogger.value(), requestParams, result);
+        VisitLogRemarkDTO visitLogRemarkDTO = judgeBehavior(visitLogger.value(), requestParams, result);
         // 创建日志对象
-        VisitLog log = new VisitLog(identification, uri, method, visitLogger.value().getBehavior(), visitLogRemark.getContent(), visitLogRemark.getRemark(), userAgent, ip, ipSource, times, param, os, browser);
+        VisitLog log = new VisitLog(identification, uri, method, visitLogger.value().getBehavior(), visitLogRemarkDTO.getContent(), visitLogRemarkDTO.getRemark(), userAgent, ip, ipSource, times, param, os, browser);
         return log;
     }
 

@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 @ToString
-public class VisitLogRemark {
+public class VisitLogRemarkDTO {
     /**
      * 访问内容
      */
