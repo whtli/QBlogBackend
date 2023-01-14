@@ -17,8 +17,8 @@ logging:
 
 # 请填入注册后得到的accessKey和accessSecretKey
 qiniu:
-  accessKey: HFc4f-7Q0Ct48SRdGBGIM5TJ7Ij1NEjSwgyIqMWf
-  accessSecretKey: FykyjvQC0mronnpBhaymnK3wjDSM3_a8fvrPRZHN
+  accessKey: xxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  accessSecretKey: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
   bucketName: cn-blog-li98
   domainName: http://rldb7nvd2.hb-bkt.clouddn.com/
 
