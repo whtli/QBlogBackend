@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * @author: whtli
  * @date: 2022/11/13
- * @description: BlogMapper
+ * @description: 博客持久层
  */
 public interface BlogMapper extends BaseMapper<Blog> {
 

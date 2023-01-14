@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author: whtli
  * @date: 2022/11/17
- * @description: 用于获取统计数据Mapper
+ * @description: 统计数据持久层
  */
 public interface StatisticMapper extends BaseMapper<Blog> {
     /**

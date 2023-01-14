@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 /**
  * @author: whtli
  * @date: 2022/11/09
- * @description:
+ * @description: 全局异常处理
  */
 @Slf4j
 @RestControllerAdvice

@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author: whtli
  * @date: 2022/11/29
- * @description:
+ * @description: 新增、编辑博客的DTO
  */
 @NoArgsConstructor
 @Data

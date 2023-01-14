@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * @author: whtli
  * @date: 2022/11/29
- * @description: 博客标签
+ * @description: 博客标签实体类
  */
 @Data
 @TableName("tag")

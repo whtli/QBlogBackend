@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 /**
  * @author: whtli
  * @date: 2022/11/28
- * @description:
+ * @description: 博客分类实体类
  */
 @Data
 @TableName("category")

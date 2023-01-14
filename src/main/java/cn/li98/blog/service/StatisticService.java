@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * @author: whtli
  * @date: 2022/11/17
- * @description: 用于获取统计数据的业务层
+ * @description: 统计数据业务层
  */
 public interface StatisticService {
     /**

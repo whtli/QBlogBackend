@@ -18,7 +18,7 @@ import java.util.Date;
 /**
  * @author: whtli
  * @date: 2022/11/24
- * @description:
+ * @description: token工具类
  */
 @Component
 public class TokenUtils {

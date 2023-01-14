@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 /**
  * @author: whtli
  * @date: 2022/11/28
- * @description:
+ * @description: 分类持久层
  */
 public interface CategoryMapper extends BaseMapper<Category> {
 }

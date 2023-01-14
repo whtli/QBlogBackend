@@ -3,7 +3,7 @@ package cn.li98.blog.common;
 /**
  * @author: whtli
  * @date: 2022/11/19
- * @description:
+ * @description: 常量
  */
 public interface Constant {
     /**
@@ -55,9 +55,19 @@ public interface Constant {
      */
     String FILE_TYPE_MD = "md";
 
+    /**
+     * 未知IP
+     */
     String IP_UNKNOWN = "unknown";
 
+    /**
+     * ipv4本机地址
+     */
     String IP_V4_LOCALHOST = "127.0.0.1";
+
+    /**
+     * ipv6本机地址
+     */
     String IP_V6_LOCALHOST = "0:0:0:0:0:0:0:1";
 
 }

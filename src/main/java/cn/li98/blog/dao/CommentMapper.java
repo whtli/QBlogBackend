@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * @author: whtli
  * @date: 2022/12/01
- * @description: 评论相关的持久层
+ * @description: 评论持久层
  */
 public interface CommentMapper extends BaseMapper<Comment> {
     /**

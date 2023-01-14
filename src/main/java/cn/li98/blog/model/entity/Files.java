@@ -8,7 +8,7 @@ import lombok.Data;
 /**
  * @author: whtli
  * @date: 2022/11/24
- * @description:
+ * @description: 文件实体类
  */
 
 @Data

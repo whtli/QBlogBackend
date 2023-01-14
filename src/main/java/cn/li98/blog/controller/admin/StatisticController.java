@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * @author: whtli
  * @date: 2022/11/17
- * @description: 用于获取统计数据的Controller
+ * @description: 统计数据控制层
  */
 @Slf4j
 @RestController

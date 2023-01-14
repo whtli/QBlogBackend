@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * @author: whtli
  * @date: 2022/11/24
- * @description:
+ * @description: 文件管理控制层
  */
 @RestController
 @RequestMapping("/admin/file")

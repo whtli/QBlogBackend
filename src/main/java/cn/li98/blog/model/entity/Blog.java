@@ -10,9 +10,9 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 
 /**
- * blog
- *
- * @author
+ * @author: whtli
+ * @date: 2022/11/09
+ * @description: 博客实体类
  */
 @Data
 @TableName("blog")

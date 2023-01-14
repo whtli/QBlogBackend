@@ -5,7 +5,9 @@ import cn.li98.blog.model.dto.LoginDTO;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
- * @author : whtli
+ * @author: whtli
+ * @date: 2022/11/10
+ * @description: 用户业务层
  */
 public interface UserService extends IService<User> {
     /**

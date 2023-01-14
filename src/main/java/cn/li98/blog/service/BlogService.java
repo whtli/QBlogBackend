@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * @author: whtli
  * @date: 2022/11/10
- * @description:
+ * @description: 博客接口业务层
  */
 public interface BlogService extends IService<Blog> {
 

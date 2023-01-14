@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * @author: whtli
  * @date: 2022/11/09
- * @description: 用户相关功能的控制层
+ * @description: 用户控制层
  */
 @Slf4j
 @RestController

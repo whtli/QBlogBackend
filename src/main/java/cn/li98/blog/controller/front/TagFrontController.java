@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * @author: whtli
  * @date: 2022/12/24
- * @description: 前端标签控制层
+ * @description: 标签前台控制层
  */
 @RestController
 @RequestMapping("/front/tag")

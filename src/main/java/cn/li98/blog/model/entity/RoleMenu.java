@@ -9,7 +9,7 @@ import lombok.Data;
 /**
  * @author: whtli
  * @date: 2022/12/18
- * @description: 角色菜单关联表
+ * @description: 角色菜单关联表实体类
  */
 @Data
 @AllArgsConstructor

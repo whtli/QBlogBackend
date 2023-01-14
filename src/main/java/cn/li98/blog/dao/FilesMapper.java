@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 /**
  * @author: whtli
  * @date: 2022/11/24
- * @description:
+ * @description: 文件持久层
  */
 public interface FilesMapper extends BaseMapper<Files> {
 }

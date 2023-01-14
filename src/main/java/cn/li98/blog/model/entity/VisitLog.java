@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * @author: whtli
  * @date: 2023/01/09
- * @description: 前端访问日志实体类
+ * @description: 访问日志实体类
  */
 @Data
 @NoArgsConstructor

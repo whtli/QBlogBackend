@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * @author: whtli
  * @date: 2022/12/13
- * @description: 访客访问博客的控制层
+ * @description: 博客前台控制层
  */
 @Slf4j
 @RestController

@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 /**
  * @author: whtli
  * @date: 2022/11/09
- * @description: UserMapper
+ * @description: 用户持久层
  */
 public interface UserMapper extends BaseMapper<User> {
     /**

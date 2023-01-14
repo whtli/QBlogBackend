@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * @author: whtli
  * @date: 2022/11/10
- * @description:
+ * @description: 登录的DTO
  */
 @Data
 public class LoginDTO implements Serializable {
