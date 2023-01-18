@@ -19,14 +19,6 @@ public interface UserService extends IService<User> {
     User getUserById(Long id);
 
     /**
-     * 根据名字获取用户信息
-     *
-     * @param username
-     * @return User
-     */
-    User getByName(String username);
-
-    /**
      * 登录
      *
      * @param loginDTO

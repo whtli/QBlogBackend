@@ -18,7 +18,7 @@ import javax.validation.constraints.NotBlank;
 /**
  * @author: whtli
  * @date: 2022/11/09
- * @description: User
+ * @description: 用户实体类
  */
 @Data
 @Accessors(chain = true)

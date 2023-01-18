@@ -32,7 +32,7 @@ import java.util.List;
 @RequestMapping("/admin/user")
 public class UserController {
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     @Autowired
     private MenuService menuService;

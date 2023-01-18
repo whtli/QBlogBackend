@@ -27,11 +27,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public User getByName(String username) {
-        return userMapper.getUserByName(username);
-    }
-
-    @Override
     public User login(LoginDTO loginDTO) {
         QueryWrapper wrapper = new QueryWrapper();
         wrapper.eq("username", loginDTO.getUsername());

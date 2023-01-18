@@ -22,8 +22,6 @@ import java.util.Date;
  */
 @Component
 public class TokenUtils {
-
-
     private static UserService staticUserService;
 
     @Resource
