@@ -19,6 +19,13 @@ spring:
     host: 127.0.0.1
     port: 6379
 
+logging:
+  level:
+    root: info
+    cn.li98.blog: debug
+  file:
+    name: log-dev/log-dev
+
 files:
   upload:
     path: D:\WorkSpace\IDEA\QBlogBackend\src\main\resources\files\

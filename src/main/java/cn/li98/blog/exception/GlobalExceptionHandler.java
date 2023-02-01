@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 如果抛出的是SerciceException，则调用该方法
+     * 如果抛出的是ServiceException，则调用该方法
      *
      * @param se 业务异常
      * @return Result

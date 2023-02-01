@@ -19,7 +19,8 @@ target/
 *.iml
 *.ipr
 *.mvn
-blog-log
+log-dev
+log-prod
 
 ### NetBeans ###
 /nbproject/private/

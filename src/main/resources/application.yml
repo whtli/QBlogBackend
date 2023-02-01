@@ -8,13 +8,6 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-logging:
-  level:
-    root: info
-    cn.li98.blog: debug
-  file:
-    name: blog-log/log-dev
-
 # 请填入注册后得到的accessKey和accessSecretKey
 qiniu:
   accessKey: xxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
