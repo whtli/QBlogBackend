@@ -42,6 +42,6 @@ public class StatisticController {
         map.put("totalUniqueVisitor", totalUniqueVisitor);
         map.put("todayUniqueVisitor", todayUniqueVisitor);
         map.put("totalComment", totalComment);
-        return Result.succ(map);
+        return Result.succ("统计信息获取成功", map);
     }
 }

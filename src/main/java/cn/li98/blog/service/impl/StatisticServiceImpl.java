@@ -36,7 +36,6 @@ public class StatisticServiceImpl implements StatisticService {
      */
     @Override
     public Map<String, Object> getBlogStatistic() {
-
         // 查询分类博客数据
         List<StatisticBlogCount> blogCategoryList = statisticMapper.getBlogCategoryList();
         // 使用stream获取分类名列表，与for循环效果相同
