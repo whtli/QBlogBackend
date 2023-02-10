@@ -1,6 +1,5 @@
 server:
-  port: 8080
-  address: xxx.xxx.xxx.xxx
+  port: 8082
 
 spring:
   datasource:
@@ -28,4 +27,4 @@ logging:
 
 files:
   upload:
-    path: QBlogBackend\src\main\resources\files\
+    path: files/
