@@ -136,21 +136,21 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
     </dependencies>
-    <profiles>
-        <!--开发环境-->
+<!--    <profiles>
+        &lt;!&ndash;开发环境&ndash;&gt;
         <profile>
             <id>dev</id>
             <properties>
                 <profiles.active>dev</profiles.active>
             </properties>
-            <!--默认环境-->
+            &lt;!&ndash;默认环境&ndash;&gt;
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
         </profile>
-        <!--测试环境暂时没有配置-->
+        &lt;!&ndash;测试环境暂时没有配置&ndash;&gt;
 
-        <!--生产环境-->
+        &lt;!&ndash;生产环境&ndash;&gt;
         <profile>
             <id>prod</id>
             <properties>
@@ -160,10 +160,10 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
         </profile>
-    </profiles>
+    </profiles>-->
     <build>
-        <resources>
-            <!--指定打包时排除的文件资源-->
+        <!--<resources>
+            &lt;!&ndash;指定打包时排除的文件资源&ndash;&gt;
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
@@ -172,7 +172,7 @@
                 </excludes>
             </resource>
 
-            <!--指定打包时不排除的文件资源-->
+            &lt;!&ndash;指定打包时不排除的文件资源&ndash;&gt;
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
@@ -180,7 +180,7 @@
                     <include>application-${profiles.active}.yml</include>
                 </includes>
             </resource>
-        </resources>
+        </resources>-->
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

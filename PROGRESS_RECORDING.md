@@ -3722,41 +3722,12 @@ INSERT INTO `menu` VALUES (19, '/visitLog', 'VisitLog', 0, 'VisitLog', '访问�
   ```
 
 
-## 23.结合Maven实现环境动态切换
-+ 在pom.xml中添加profile
-    ```xml
-        <profiles>
-            <!--开发环境-->
-            <profile>
-                <id>dev</id>
-                <properties>
-                    <profiles.active>dev</profiles.active>
-                </properties>
-                <!--默认环境-->
-                <activation>
-                    <activeByDefault>true</activeByDefault>
-                </activation>
-            </profile>
-            <!--测试环境暂时没有配置-->
-    
-            <!--生产环境-->
-            <profile>
-                <id>prod</id>
-                <properties>
-                    <profiles.active>prod</profiles.active>
-                </properties>
-                <activation>
-                    <activeByDefault>false</activeByDefault>
-                </activation>
-            </profile>
-        </profiles>
-    ```
-
+## 23.环境切换
 + 修改[application.yml](src/main/resources/application.yml)配置文件中的spring.profile.active
     ```yaml
     spring:
       profiles:
-        active: @profiles.active@
+        active: dev (or prod)
     ```
 
 + 根据本地和生产环境的要求拆分配置文件
@@ -3764,30 +3735,3 @@ INSERT INTO `menu` VALUES (19, '/visitLog', 'VisitLog', 0, 'VisitLog', '访问�
     - 在[application-dev.yml](src/main/resources/application-dev.yml)中填写本地开发的配置
     - 在[application-prod.yml](src/main/resources/application-prod.yml)中填写生产环境的配置
     - 其他的像测试环境配置暂时没有使用，可以自行补充
-
-+ 在pom.xml文件的build中添加resources，在打包时保留选中环境的配置文件，排除未被选中环境的配置文件
-    ```xml
-        <build>
-            <resources>
-                <!--指定打包时排除的文件资源-->
-                <resource>
-                    <directory>src/main/resources</directory>
-                    <filtering>true</filtering>
-                    <excludes>
-                        <exclude>application-*.yml</exclude>
-                    </excludes>
-                </resource>
-    
-                <!--指定打包时不排除的文件资源-->
-                <resource>
-                    <directory>src/main/resources</directory>
-                    <filtering>true</filtering>
-                    <includes>
-                        <include>application-${profiles.active}.yml</include>
-                    </includes>
-                </resource>
-            </resources>
-        </build>
-    ```
-
-+ 最后在IDEA右侧的Maven工具中的Profiles中就可以通过点击选择不同的环境，实现动态切换环境了
